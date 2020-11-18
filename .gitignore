@@ -1,5 +1,4 @@
-./.gitignore
 .idea/*
-./go.mod
-./go.sum
+go.mod
+go.sum
 ./*.exe
