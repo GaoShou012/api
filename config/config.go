@@ -26,8 +26,8 @@ type Config struct {
 */
 func (c *Config) Load(path string) {
 	//cfg,err :=ini.Load(path)
-	err := ini.MapTo(c,path)
-	if err != nil{
+	err := ini.MapTo(c, path)
+	if err != nil {
 		panic(err)
 	}
 	//c.GinPort = cfg.Section("Base").Key("GinPort").MustInt()

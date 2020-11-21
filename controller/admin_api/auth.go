@@ -2,8 +2,10 @@ package admin_api
 
 import (
 	"api/config"
+	"api/libs/connect"
 	libs_http "api/libs/http"
 	"api/meta"
+	"api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 )
@@ -36,13 +38,20 @@ func (c *Auth) Login(ctx *gin.Context) {
 		Password string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
-		libs_http.RspState(ctx, 1, err)
+		libs_http.RspState(ctx, 111, err)
 		return
 	}
 
 	// 校验用户
 	{
-		
+		db := connect.GetDB()
+
+		db.Create(&models.Admins{
+			Username: &params.Username,
+			Password: &params.Password,
+			Nickname: &params.Username,
+		})
+
 	}
 
 	// 生成Token
@@ -62,7 +71,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 }
 
 func (c *Auth) Logout(ctx *gin.Context) {
-
+	libs_http.RspData(ctx, 123, nil, "exit success")
 }
 
 func (c *Auth) CodeImage(ctx *gin.Context) {

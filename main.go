@@ -2,7 +2,9 @@ package main
 
 import (
 	"api/config"
+	"api/libs/connect"
 	"api/services/admin_api"
+	_ "github.com/go-sql-driver/mysql"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -19,11 +21,15 @@ func init() {
 	flag.Parse()
 	conf := config.GetConfig()
 	conf.Load(*confPath)
+	conf.Load("./config/database.ini")
 }
 
 func main() {
 	ginMode := config.GetConfig().Base.GinMode
 	ginPort := config.GetConfig().Base.GinPort
+
+	//连接数据库
+	connect.InitDB()
 
 	// 初始化Gin
 	r := gin.New()
