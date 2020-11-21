@@ -36,7 +36,11 @@ func (r *HttpService) Cors() gin.HandlerFunc {
 func (r *HttpService) Route(engine *gin.Engine) {
 	api := engine.Group(fmt.Sprintf("/admin/%s", meta.ApiVersion))
 	var authenticated gin.IRoutes
-
+	// 登陆
+	{
+		c := controller_admin_api.Auth{}
+		api.POST("/login", c.Login)
+	}
 	// 验证
 	{
 
@@ -49,4 +53,5 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		c := controller_admin_api.Operator{}
 		authenticated.GET("/operator/info", c.Info)
 	}
+
 }

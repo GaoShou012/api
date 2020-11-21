@@ -7,10 +7,10 @@ import (
 
 func TestGetConfig(t *testing.T) {
 	{
-		c :=GetConfig()
+		c := GetConfig()
 		c.Load("./database.ini")
 		c.Load("./dev.ini")
 
-		fmt.Println(c.Base,c.Mysql)
+		fmt.Println(c.Base, c.Mysql)
 	}
 }
