@@ -40,6 +40,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 	{
 		c := controller_admin_api.Auth{}
 		api.POST("/login", c.Login)
+		api.POST("/register", c.Register)
 	}
 	// 验证
 	{
