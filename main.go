@@ -2,9 +2,9 @@ package main
 
 import (
 	"api/config"
-	"api/libs/connect"
+	libs_log "api/libs/logs"
 	"api/services/admin_api"
-	_ "github.com/go-sql-driver/mysql"
+	"api/utils"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -21,15 +21,35 @@ func init() {
 	flag.Parse()
 	conf := config.GetConfig()
 	conf.Load(*confPath)
-	conf.Load("./config/database.ini")
+
+	{
+		conf := config.GetConfig().MysqlMaster
+		if err := utils.IMysql.InitMaster(&conf); err != nil {
+			libs_log.Error(err)
+			os.Exit(0)
+		}
+	}
+
+	{
+		conf := config.GetConfig().MysqlSlave
+		if err := utils.IMysql.InitSlave(&conf); err != nil {
+			libs_log.Error(err)
+			os.Exit(0)
+		}
+	}
+
+	{
+		conf := config.GetConfig().Redis
+		if err := utils.InitRedis(&conf); err != nil {
+			libs_log.Error(err)
+			os.Exit(0)
+		}
+	}
 }
 
 func main() {
 	ginMode := config.GetConfig().Base.GinMode
 	ginPort := config.GetConfig().Base.GinPort
-
-	//连接数据库
-	connect.InitDB()
 
 	// 初始化Gin
 	r := gin.New()

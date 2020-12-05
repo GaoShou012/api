@@ -2,10 +2,10 @@ package admin_api
 
 import (
 	"api/config"
-	"api/libs/connect"
 	libs_http "api/libs/http"
 	"api/meta"
 	"api/models"
+	"api/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"golang.org/x/crypto/bcrypt"
@@ -32,7 +32,7 @@ func (c *Auth) Verify(ctx *gin.Context) {
 	SetOperator(ctx, operator)
 }
 
-func (c *Auth) Register (ctx *gin.Context){
+func (c *Auth) Register(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
 		Username string
@@ -45,16 +45,16 @@ func (c *Auth) Register (ctx *gin.Context){
 
 	{
 		var admin models.Admins
-		db := connect.GetDB()
-		db.Where("username = ?",params.Username).First(&admin)
+		db := utils.IMysql.Slave
+		db.Where("username = ?", params.Username).First(&admin)
 		if admin.ID != nil {
 			libs_http.RspState(ctx, 1, "用户已经存在")
 			return
 		}
 
 		//密码加密
-		hashPassword,err := bcrypt.GenerateFromPassword([]byte(params.Password),bcrypt.DefaultCost)
-		if err !=nil{
+		hashPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcrypt.DefaultCost)
+		if err != nil {
 			libs_http.RspState(ctx, 1, "加密错误")
 			return
 		}
@@ -95,15 +95,15 @@ func (c *Auth) Login(ctx *gin.Context) {
 	// 校验用户
 	{
 		var admin models.Admins
-		db := connect.GetDB()
-		db.Where("username = ?",params.Username).First(&admin)
+		db := utils.IMysql.Slave
+		db.Where("username = ?", params.Username).First(&admin)
 		if admin.ID == nil {
 			libs_http.RspState(ctx, 1, "用户不存在")
 			return
 		}
 		//验证密码
-		if err := bcrypt.CompareHashAndPassword([]byte(*admin.Password),[]byte(params.Password));err !=nil{
-			libs_http.RspState(ctx,1,"密码错误")
+		if err := bcrypt.CompareHashAndPassword([]byte(*admin.Password), []byte(params.Password)); err != nil {
+			libs_http.RspState(ctx, 1, "密码错误")
 			return
 		}
 		//db.Create(&models.Admins{

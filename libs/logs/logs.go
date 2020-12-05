@@ -47,22 +47,30 @@ func GetLogLevel() int {
 func SetLogLevel(lev int) {
 	logLevel = lev
 }
+
+func Errorf(format string,args ...interface{}){
+	log.Errorf(format,args)
+}
+
+func Error(args ...interface{}) {
+	log.Error(args)
+}
+
 func Fatal(err error, message string) {
 	log.WithFields(log.Fields{
-		"msg":  message,
+		"msg":   message,
 		"error": err,
 	}).Fatal("发生致命错误Th")
-
 }
 func Warning(err error, message string) {
 	log.WithFields(log.Fields{
-		"msg":    message,
+		"msg":   message,
 		"error": err,
 	}).Warn("警告错误")
 }
 func Info(err error, message string) {
 	log.WithFields(log.Fields{
-		"msg": message,
-		"error":   err,
+		"msg":   message,
+		"error": err,
 	}).Info("消息提醒")
 }
