@@ -1,9 +1,9 @@
 package admin_api
 
 import (
-	"api/libs/connect"
 	libs_http "api/libs/http"
 	"api/models"
+	"api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,14 +21,14 @@ func (c *Role) CreateRole(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	db := connect.GetDB()
+	db := utils.IMysql.Master
 	db.Create(&models.Role{
 		Name:     &params.Name,
 		Sequence: &params.Sequence,
 		Memo:     &params.Memo,
 		Status:   &params.Status,
 	})
-	libs_http.RspState(ctx,0,"创建成功")
+	libs_http.RspState(ctx, 0, "创建成功")
 }
 
 //删除角色

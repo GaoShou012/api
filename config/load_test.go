@@ -8,9 +8,8 @@ import (
 func TestGetConfig(t *testing.T) {
 	{
 		c := GetConfig()
-		c.Load("./database.ini")
 		c.Load("./dev.ini")
-
-		fmt.Println(c.Base, c.Mysql)
+		fmt.Println("base:", c.Base)
+		fmt.Println("mysql master:", c.MysqlMaster)
 	}
 }

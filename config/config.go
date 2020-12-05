@@ -17,7 +17,9 @@ func GetConfig() *Config {
 
 type Config struct {
 	Base
-	Mysql
+	Redis
+	MysqlMaster Mysql
+	MysqlSlave  Mysql
 }
 
 /*
@@ -25,13 +27,8 @@ type Config struct {
 	赋值到Config结构体
 */
 func (c *Config) Load(path string) {
-	//cfg,err :=ini.Load(path)
 	err := ini.MapTo(c, path)
 	if err != nil {
 		panic(err)
 	}
-	//c.GinPort = cfg.Section("Base").Key("GinPort").MustInt()
-	//c.GinMode = cfg.Section("Base").Key("GinMode").String()
-	//c.TokenKey = cfg.Section("Base").Key("TokenKey").String()
-
 }
