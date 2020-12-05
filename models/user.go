@@ -11,3 +11,8 @@ type User struct {
 	Status   int     `gorm:"column:status;index;default:0;not null;"`             // 状态(1:启用 2:停用)
 	Creator  string  `gorm:"column:creator;size:36;"`                             // 创建者
 }
+
+//response时限制输出的参数
+func (u *User)RspUser(){
+
+}

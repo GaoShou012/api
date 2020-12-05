@@ -97,7 +97,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 		var admin models.Admins
 		db := connect.GetDB()
 		db.Where("username = ?",params.Username).First(&admin)
-		if *admin.ID == 0 {
+		if admin.ID == nil {
 			libs_http.RspState(ctx, 1, "用户不存在")
 			return
 		}
