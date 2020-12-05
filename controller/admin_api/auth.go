@@ -8,6 +8,7 @@ import (
 	"api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Auth struct{}
@@ -31,6 +32,55 @@ func (c *Auth) Verify(ctx *gin.Context) {
 	SetOperator(ctx, operator)
 }
 
+func (c *Auth) Register (ctx *gin.Context){
+	// 接受参数
+	var params struct {
+		Username string
+		Password string
+	}
+	if err := ctx.BindJSON(&params); err != nil {
+		libs_http.RspState(ctx, 1, err)
+		return
+	}
+
+	{
+		var admin models.Admins
+		db := connect.GetDB()
+		db.Where("username = ?",params.Username).First(&admin)
+		if admin.ID != nil {
+			libs_http.RspState(ctx, 1, "用户已经存在")
+			return
+		}
+
+		//密码加密
+		hashPassword,err := bcrypt.GenerateFromPassword([]byte(params.Password),bcrypt.DefaultCost)
+		if err !=nil{
+			libs_http.RspState(ctx, 1, "加密错误")
+			return
+		}
+		params.Password = string(hashPassword)
+		db.Create(&models.Admins{
+			Username: &params.Username,
+			Password: &params.Password,
+		})
+	}
+
+	// 生成Token
+	{
+		conf := config.GetConfig().Base
+
+		// TODO 赋值相应的数据
+		operator := Operator{}
+
+		token, err := operator.encrypt([]byte(conf.TokenKey))
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		libs_http.RspData(ctx, 0, nil, token)
+	}
+}
+
 func (c *Auth) Login(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
@@ -38,19 +88,30 @@ func (c *Auth) Login(ctx *gin.Context) {
 		Password string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
-		libs_http.RspState(ctx, 111, err)
+		libs_http.RspState(ctx, 1, err)
 		return
 	}
 
 	// 校验用户
 	{
+		var admin models.Admins
 		db := connect.GetDB()
-
-		db.Create(&models.Admins{
-			Username: &params.Username,
-			Password: &params.Password,
-			Nickname: &params.Username,
-		})
+		db.Where("username = ?",params.Username).First(&admin)
+		if admin.ID == nil {
+			libs_http.RspState(ctx, 1, "用户不存在")
+			return
+		}
+		//验证密码
+		if err := bcrypt.CompareHashAndPassword([]byte(*admin.Password),[]byte(params.Password));err !=nil{
+			libs_http.RspState(ctx,1,"密码错误")
+			return
+		}
+		//db.Create(&models.Admins{
+		//go get -u golang.org/x/crypto/bcrypt
+		//	Username: &params.Username,
+		//	Password: &params.Password,
+		//	Nickname: &params.Username,
+		//})
 
 	}
 
