@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
+	"time"
 )
 
 /*
@@ -35,7 +36,13 @@ func GetOperator(ctx *gin.Context) (*Operator, error) {
 /*
 	operator数据结构
 */
-type Operator struct{}
+type Operator struct {
+	UserId    uint64
+	UserType  uint64
+	Username  string
+	Nickname  string
+	LoginTime time.Time
+}
 
 func (c *Operator) encrypt(key []byte) (string, error) {
 	j, err := json.Marshal(c)
