@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type Auth struct{}
@@ -35,7 +36,11 @@ func (c *Auth) Verify(ctx *gin.Context) {
 func (c *Auth) Register(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
+		Enable   bool
+		State    uint64
+		UserType uint64
 		Username string
+		Nickname string
 		Password string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
@@ -44,25 +49,43 @@ func (c *Auth) Register(ctx *gin.Context) {
 	}
 
 	{
-		var admin models.Admins
-		db := utils.IMysql.Slave
-		db.Where("username = ?", params.Username).First(&admin)
-		if admin.ID != nil {
-			libs_http.RspState(ctx, 1, "用户已经存在")
+		admin := &models.Admins{}
+		exists, err := admin.IsExistsByUsername(params.Username)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
 			return
 		}
+		if exists {
+			libs_http.RspState(ctx, 1, "用户已经存在")
+		}
+	}
 
+	var admin *models.Admins
+
+	{
 		//密码加密
 		hashPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcrypt.DefaultCost)
 		if err != nil {
 			libs_http.RspState(ctx, 1, "加密错误")
 			return
 		}
-		params.Password = string(hashPassword)
-		db.Create(&models.Admins{
+		encryptPassword := string(hashPassword)
+
+		admin = &models.Admins{
+			//Id:        nil,
+			Enable:   &params.Enable,
+			State:    &params.State,
+			UserType: &params.UserType,
 			Username: &params.Username,
-			Password: &params.Password,
-		})
+			Password: &encryptPassword,
+			Nickname: &params.Nickname,
+			//CreatedAt: nil,
+			//UpdatedAt: nil,
+		}
+
+		if res := utils.IMysql.Master.Create(admin); res.Error != nil {
+			libs_http.RspState(ctx, 1, err)
+		}
 	}
 
 	// 生成Token
@@ -70,7 +93,13 @@ func (c *Auth) Register(ctx *gin.Context) {
 		conf := config.GetConfig().Base
 
 		// TODO 赋值相应的数据
-		operator := Operator{}
+		operator := Operator{
+			UserId:    *admin.Id,
+			UserType:  *admin.UserType,
+			Username:  *admin.Username,
+			Nickname:  *admin.Nickname,
+			LoginTime: time.Now(),
+		}
 
 		token, err := operator.encrypt([]byte(conf.TokenKey))
 		if err != nil {
@@ -92,13 +121,12 @@ func (c *Auth) Login(ctx *gin.Context) {
 		return
 	}
 
+	admin := &models.Admins{}
+
 	// 校验用户
 	{
-		var admin models.Admins
-		db := utils.IMysql.Slave
-		db.Where("username = ?", params.Username).First(&admin)
-		if admin.ID == nil {
-			libs_http.RspState(ctx, 1, "用户不存在")
+		if err := admin.SelectByUsername("*", params.Username); err != nil {
+			libs_http.RspState(ctx, 1, err)
 			return
 		}
 		//验证密码
@@ -112,7 +140,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 		//	Password: &params.Password,
 		//	Nickname: &params.Username,
 		//})
-
 	}
 
 	// 生成Token
@@ -120,7 +147,13 @@ func (c *Auth) Login(ctx *gin.Context) {
 		conf := config.GetConfig().Base
 
 		// TODO 赋值相应的数据
-		operator := Operator{}
+		operator := &Operator{
+			UserId:    *admin.Id,
+			UserType:  *admin.UserType,
+			Username:  *admin.Username,
+			Nickname:  *admin.Nickname,
+			LoginTime: time.Now(),
+		}
 
 		token, err := operator.encrypt([]byte(conf.TokenKey))
 		if err != nil {
@@ -135,6 +168,9 @@ func (c *Auth) Logout(ctx *gin.Context) {
 	libs_http.RspData(ctx, 123, nil, "exit success")
 }
 
+/*
+	获取验证码
+*/
 func (c *Auth) CodeImage(ctx *gin.Context) {
 	captcha := base64Captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, base64Captcha.DefaultMemStore)
 	id, b64s, err := captcha.Generate()
