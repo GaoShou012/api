@@ -33,7 +33,7 @@ func (m *Admins) IsEnable(id uint64) (bool, error) {
 
 func (m *Admins) IsExistsByUsername(username string) (bool, error) {
 	count := 0
-	res := utils.IMysql.Slave.Where("username=?", username).Count(&count)
+	res := utils.IMysql.Slave.Model(m).Where("username=?", username).Count(&count)
 	if res.Error != nil {
 		return false, res.Error
 	}

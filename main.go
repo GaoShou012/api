@@ -24,7 +24,7 @@ func init() {
 
 	{
 		conf := config.GetConfig().MysqlMaster
-		if err := utils.IMysql.InitMaster(&conf); err != nil {
+		if err := utils.IMysql.InitMaster(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
@@ -32,7 +32,7 @@ func init() {
 
 	{
 		conf := config.GetConfig().MysqlSlave
-		if err := utils.IMysql.InitSlave(&conf); err != nil {
+		if err := utils.IMysql.InitSlave(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
@@ -40,7 +40,7 @@ func init() {
 
 	{
 		conf := config.GetConfig().Redis
-		if err := utils.InitRedis(&conf); err != nil {
+		if err := utils.InitRedis(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}

@@ -16,10 +16,10 @@ func GetConfig() *Config {
 }
 
 type Config struct {
-	Base
-	Redis
-	MysqlMaster Mysql
-	MysqlSlave  Mysql
+	*Base
+	*Redis
+	MysqlMaster *Mysql
+	MysqlSlave  *Mysql
 }
 
 /*

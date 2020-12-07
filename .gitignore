@@ -1,4 +1,7 @@
 .idea/*
+./*.exe
+
 go.mod
 go.sum
-./*.exe
+
+testing/*
