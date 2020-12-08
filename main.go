@@ -2,6 +2,7 @@ package main
 
 import (
 	"api/config"
+	libs_ip_location "api/libs/ip_location"
 	libs_log "api/libs/logs"
 	"api/services/admin_api"
 	"api/utils"
@@ -22,25 +23,37 @@ func init() {
 	conf := config.GetConfig()
 	conf.Load(*confPath)
 
+	// 初始化 ip location
+	{
+		dbPath := config.GetConfig().IpLocation.Path
+		if err := libs_ip_location.Init(dbPath); err != nil {
+			libs_log.Error(err)
+			os.Exit(0)
+		}
+	}
+
+	// 初始化 mysql master
 	{
 		conf := config.GetConfig().MysqlMaster
-		if err := utils.IMysql.InitMaster(&conf); err != nil {
+		if err := utils.IMysql.InitMaster(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
 	}
 
+	// 初始化 mysql slave
 	{
 		conf := config.GetConfig().MysqlSlave
-		if err := utils.IMysql.InitSlave(&conf); err != nil {
+		if err := utils.IMysql.InitSlave(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
 	}
 
+	// 初始化 redis
 	{
 		conf := config.GetConfig().Redis
-		if err := utils.InitRedis(&conf); err != nil {
+		if err := utils.InitRedis(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
