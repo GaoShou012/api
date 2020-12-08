@@ -17,6 +17,7 @@ func GetConfig() *Config {
 
 type Config struct {
 	*Base
+	*IpLocation
 	*Redis
 	MysqlMaster *Mysql
 	MysqlSlave  *Mysql
