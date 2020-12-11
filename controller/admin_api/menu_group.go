@@ -4,15 +4,13 @@ import (
 	libs_http "api/libs/http"
 	"api/models"
 	"api/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
-type Menu struct{}
+type MenuGroup struct{}
 
-func (c *Menu) Get(ctx *gin.Context) {
+func (c *MenuGroup) Get(ctx *gin.Context) {
 	var params struct {
-		Name string
 		Page int
 		Size int
 	}
@@ -20,31 +18,13 @@ func (c *Menu) Get(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	menus := &models.Menus{}
+	model := &models.MenuGroups{}
 
 	var list []models.Menus
 	data := make(map[string]interface{})
 	// 按名称查找
-	if params.Name != "" {
-		filed := fmt.Sprintf("`name` LIKE '%%%s%%'", params.Name)
-		count, err := menus.Count(filed)
-		if err != nil {
-			libs_http.RspState(ctx, 1, err)
-			return
-		}
-		res := utils.IMysql.Slave.Order("id desc").Limit(params.Size)
-		res.Offset(params.Page * params.Size).Where(filed).Find(&list)
-		if res.Error != nil {
-			libs_http.RspState(ctx, 0, res.Error)
-			return
-		}
-		data["count"] = count
-		data["data"] = list
-		libs_http.RspData(ctx, 0, nil, data)
-		return
-	}
 	// 按名称查找
-	count, err := menus.Count("*")
+	count, err := model.Count("*")
 	if err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
@@ -64,60 +44,61 @@ func (c *Menu) Get(ctx *gin.Context) {
 	return
 }
 
-func (c *Menu) Create(ctx *gin.Context) {
+func (c *MenuGroup) Create(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
-		Name string
-		Sort int
-		Icon string
-		Path string
+		Sort   int
+		Group  string
+		Icon   string
+		MenuId uint64
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	menu := &models.Menus{
-		Name: &params.Name,
-		Sort: &params.Sort,
-		Icon: &params.Icon,
-		Path: &params.Path,
+	menuGroup := &models.MenuGroups{
+		Sort:   &params.Sort,
+		Group:  &params.Group,
+		Icon:   &params.Icon,
+		MenuId: &params.MenuId,
 	}
-	if res := utils.IMysql.Master.Create(menu); res.Error != nil {
+	if res := utils.IMysql.Master.Create(menuGroup); res.Error != nil {
 		libs_http.RspState(ctx, 1, res.Error)
 	}
 	libs_http.RspState(ctx, 0, "创建成功")
 }
 
-func (c *Menu) Update(ctx *gin.Context) {
+func (c *MenuGroup) Update(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
 		Id   uint64
-		Name string
-		Sort int
-		Icon string
-		Path string
+		Sort   int
+		Group  string
+		Icon   string
+		MenuId uint64
+
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	menus := &models.Menus{}
+	//model := &models.MenuGroups{}
 
-	menu := &models.Menus{
+	model := &models.MenuGroups{
 		Id:   &params.Id,
-		Name: &params.Name,
+		Group: &params.Group,
 		Sort: &params.Sort,
 		Icon: &params.Icon,
-		Path: &params.Path,
+		MenuId: &params.MenuId,
 	}
-	if err := menus.UpdateById(menu); err != nil {
+	if err := model.UpdateById(model); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
 	libs_http.RspState(ctx, 0, "更新成功")
 }
 
-func (c *Menu) Del(ctx *gin.Context) {
+func (c *MenuGroup) Del(ctx *gin.Context) {
 	var params struct {
 		Id uint64
 	}
@@ -125,10 +106,10 @@ func (c *Menu) Del(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	menus := &models.Menus{
+	model := &models.MenuGroups{
 		Id: &params.Id,
 	}
-	err := menus.DeleteById(menus)
+	err := model.DeleteById(model)
 	if err != nil {
 		libs_http.RspState(ctx, 0, err)
 		return

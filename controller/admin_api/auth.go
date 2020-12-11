@@ -85,7 +85,7 @@ func (c *Auth) Register(ctx *gin.Context) {
 		}
 
 		if res := utils.IMysql.Master.Create(admin); res.Error != nil {
-			libs_http.RspState(ctx, 1, err)
+			libs_http.RspState(ctx, 1, res.Error)
 		}
 	}
 	// 生成Token
