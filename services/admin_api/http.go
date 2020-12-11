@@ -36,11 +36,6 @@ func (r *HttpService) Cors() gin.HandlerFunc {
 func (r *HttpService) Route(engine *gin.Engine) {
 	api := engine.Group(fmt.Sprintf("/admin/%s", meta.ApiVersion))
 	var authenticated gin.IRoutes
-	//管理员菜单创建删除
-	{
-		c := controller_admin_api.Role{}
-		api.POST("/role/create",c.CreateRole)
-	}
 	// 登陆
 	{
 		c := controller_admin_api.Auth{}
@@ -52,6 +47,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 
 		c := controller_admin_api.Auth{}
 		authenticated = api.Use(c.Verify)
+		authenticated.GET("/logout", c.Logout)
 	}
 
 	// 操作者
