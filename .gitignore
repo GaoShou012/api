@@ -1,7 +1,7 @@
 .idea/*
-./*.exe
 
-go.mod
-go.sum
+server/*.exe
+server/go.mod
+server/go.sum
 
-testing/*
+server/testing/*
