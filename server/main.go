@@ -32,6 +32,15 @@ func init() {
 		}
 	}
 
+	// 初始化 casbin adapter
+	{
+		conf := config.GetConfig().Casbin
+		if err := global.InitCasbinAdapter(conf.DNS); err != nil {
+			libs_log.Error(err)
+			os.Exit(0)
+		}
+	}
+
 	// 初始化 mysql master
 	{
 		conf := config.GetConfig().MysqlMaster
