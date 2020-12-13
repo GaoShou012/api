@@ -57,6 +57,7 @@ func (c *Auth) Register(ctx *gin.Context) {
 		}
 		if exists {
 			libs_http.RspState(ctx, 1, "用户已经存在")
+			return
 		}
 	}
 
@@ -84,10 +85,9 @@ func (c *Auth) Register(ctx *gin.Context) {
 		}
 
 		if res := utils.IMysql.Master.Create(admin); res.Error != nil {
-			libs_http.RspState(ctx, 1, err)
+			libs_http.RspState(ctx, 1, res.Error)
 		}
 	}
-
 	// 生成Token
 	{
 		conf := config.GetConfig().Base
@@ -98,7 +98,7 @@ func (c *Auth) Register(ctx *gin.Context) {
 			UserType:  *admin.UserType,
 			Username:  *admin.Username,
 			Nickname:  *admin.Nickname,
-			LoginTime: time.Now(),
+			LoginTime: time.Now().Unix(),
 		}
 
 		token, err := operator.encrypt([]byte(conf.TokenKey))
@@ -134,12 +134,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 			libs_http.RspState(ctx, 1, "密码错误")
 			return
 		}
-		//db.Create(&models.Admins{
-		//go get -u golang.org/x/crypto/bcrypt
-		//	Username: &params.Username,
-		//	Password: &params.Password,
-		//	Nickname: &params.Username,
-		//})
 	}
 
 	// 生成Token
@@ -152,7 +146,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 			UserType:  *admin.UserType,
 			Username:  *admin.Username,
 			Nickname:  *admin.Nickname,
-			LoginTime: time.Now(),
+			LoginTime: time.Now().Unix(),
 		}
 
 		token, err := operator.encrypt([]byte(conf.TokenKey))
@@ -165,7 +159,8 @@ func (c *Auth) Login(ctx *gin.Context) {
 }
 
 func (c *Auth) Logout(ctx *gin.Context) {
-	libs_http.RspData(ctx, 123, nil, "exit success")
+	ctx.Set("operator",nil)
+	libs_http.RspData(ctx, 123, nil,"登出成功")
 }
 
 /*

@@ -8,7 +8,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
-	"time"
 )
 
 /*
@@ -41,7 +40,8 @@ type Operator struct {
 	UserType  uint64
 	Username  string
 	Nickname  string
-	LoginTime time.Time
+	//LoginTime time.Time
+	LoginTime int64
 }
 
 func (c *Operator) encrypt(key []byte) (string, error) {
@@ -84,7 +84,7 @@ func (c *Operator) decrypt(key []byte, str string) error {
 func (c *Operator) Info(ctx *gin.Context) {
 	operator, err := GetOperator(ctx)
 	if err != nil {
-		libs_http.RspState(ctx, 1, err)
+		libs_http.RspState(ctx, 1000, err)
 		return
 	}
 	libs_http.RspData(ctx, 0, "获取成功", operator)
