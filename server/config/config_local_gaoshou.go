@@ -6,14 +6,9 @@ import (
 	"runtime"
 )
 
-func LocalLoadGaoShou() *Config {
+func LocalLoad() *Config {
 	configInit.Do(func() {
 		config = &Config{}
-		config.Base = &Base{
-			GinMode:  "debug",
-			GinPort:  1234,
-			TokenKey: "NSr9j&Z833O^iXTA",
-		}
 
 		// config file
 		{

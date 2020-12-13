@@ -3,7 +3,6 @@ package admin_api
 import (
 	libs_http "api/libs/http"
 	"api/models"
-	"api/utils"
 	"github.com/gin-gonic/gin"
 )
 

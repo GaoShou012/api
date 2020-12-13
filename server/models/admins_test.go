@@ -9,7 +9,7 @@ import (
 )
 
 func TestAdmins(t *testing.T) {
-	config.LocalLoadGaoShou()
+	config.LocalLoad()
 	if err := global.InitMysqlMaster(config.GetConfig().MysqlMaster); err != nil {
 		log.Error(err)
 	}

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"api/utils"
+	"api/global"
 	"time"
 )
 
@@ -12,8 +12,9 @@ type AuthorityApis struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
+
 func (m *AuthorityApis) UpdateById(param *AuthorityApis) error {
-	res := utils.IMysql.Master.Model(m).Updates(param)
+	res := global.DBMaster.Model(m).Updates(param)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -21,7 +22,7 @@ func (m *AuthorityApis) UpdateById(param *AuthorityApis) error {
 }
 
 func (m *AuthorityApis) DeleteById(param *AuthorityApis) error {
-	res := utils.IMysql.Master.Model(m).Delete(param)
+	res := global.DBMaster.Model(m).Delete(param)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -30,7 +31,7 @@ func (m *AuthorityApis) DeleteById(param *AuthorityApis) error {
 
 func (m *AuthorityApis) Count(field string) (int, error) {
 	count := 0
-	res := utils.IMysql.Slave.Model(m)
+	res := global.DBSlave.Model(m)
 	if field == "*" {
 		res.Count(&count)
 	} else {

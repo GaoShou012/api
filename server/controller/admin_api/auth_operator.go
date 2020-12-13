@@ -8,6 +8,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
+	"reflect"
+	"time"
 )
 
 /*
@@ -40,8 +42,7 @@ type Operator struct {
 	UserType  uint64
 	Username  string
 	Nickname  string
-	//LoginTime time.Time
-	LoginTime int64
+	LoginTime time.Time
 }
 
 func (c *Operator) encrypt(key []byte) (string, error) {
@@ -71,10 +72,53 @@ func (c *Operator) decrypt(key []byte, str string) error {
 	if err != nil {
 		return err
 	}
-	if err := mapstructure.WeakDecode(token.Claims.(jwt.MapClaims), c); err != nil {
+
+	if err := c.decode(token.Claims.(jwt.MapClaims), c); err != nil {
 		return err
 	}
+
+	//if err := mapstructure.WeakDecode(token.Claims.(jwt.MapClaims), c); err != nil {
+	//	return err
+	//}
 	return nil
+}
+
+func (c *Operator) toTimeHookFunc() mapstructure.DecodeHookFunc {
+	return func(
+		f reflect.Type,
+		t reflect.Type,
+		data interface{}) (interface{}, error) {
+		if t != reflect.TypeOf(time.Time{}) {
+			return data, nil
+		}
+
+		switch f.Kind() {
+		case reflect.String:
+			return time.Parse(time.RFC3339, data.(string))
+		case reflect.Float64:
+			return time.Unix(0, int64(data.(float64))*int64(time.Millisecond)), nil
+		case reflect.Int64:
+			return time.Unix(0, data.(int64)*int64(time.Millisecond)), nil
+		default:
+			return data, nil
+		}
+		// Convert it by parsing
+	}
+}
+func (c *Operator) decode(input map[string]interface{}, result interface{}) error {
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		Metadata:   nil,
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(c.toTimeHookFunc()),
+		Result:     result,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := decoder.Decode(input); err != nil {
+		return err
+	}
+	return err
 }
 
 /*
