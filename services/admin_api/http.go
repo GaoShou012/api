@@ -57,6 +57,41 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.POST("/menu/up",c.Update)
 		authenticated.POST("/menu/del",c.Del)
 	}
+	{
+		c := controller_admin_api.MenuGroup{}
+		authenticated.GET("/menu_group/get",c.Get)
+		authenticated.POST("/menu_group/add",c.Create)
+		authenticated.POST("/menu_group/up",c.Update)
+		authenticated.POST("/menu_group/del",c.Del)
+	}
+	{
+		c := controller_admin_api.AuthorityApi{}
+		authenticated.GET("/authority_api/get",c.Get)
+		authenticated.POST("/authority_api/add",c.Create)
+		authenticated.POST("/authority_api/up",c.Update)
+		authenticated.POST("/authority_api/del",c.Del)
+	}
+	{
+		c := controller_admin_api.AuthorityRole{}
+		authenticated.GET("/authority_role/get",c.Get)
+		authenticated.POST("/authority_role/add",c.Create)
+		authenticated.POST("/authority_role/up",c.Update)
+		authenticated.POST("/authority_role/del",c.Del)
+	}
+	{
+		c := controller_admin_api.AuthorityRolesApi{}
+		authenticated.GET("/authority_roles_api/get",c.Get)
+		authenticated.POST("/authority_roles_api/add",c.Create)
+		authenticated.POST("/authority_roles_api/up",c.Update)
+		authenticated.POST("/authority_roles_api/del",c.Del)
+	}
+	{
+		c := controller_admin_api.AuthorityRolesMenusGroup{}
+		authenticated.GET("/authority_roles_menus_group/get",c.Get)
+		authenticated.POST("/authority_roles_menus_group/add",c.Create)
+		authenticated.POST("/authority_roles_menus_group/up",c.Update)
+		authenticated.POST("/authority_roles_menus_group/del",c.Del)
+	}
 	// 操作者
 	{
 		c := controller_admin_api.Operator{}
