@@ -1,9 +1,9 @@
 package admin_api
 
 import (
+	"api/global"
 	libs_http "api/libs/http"
 	"api/models"
-	"api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +29,7 @@ func (c *AuthorityRolesApi) Get(ctx *gin.Context) {
 		return
 	}
 
-	res := utils.IMysql.Slave.Order("id desc").Limit(params.Size)
+	res := global.DBSlave.Order("id desc").Limit(params.Size)
 	res.Offset(params.Page * params.Size).Find(&list)
 	if res.Error != nil {
 		libs_http.RspState(ctx, 0, res.Error)
@@ -59,7 +59,7 @@ func (c *AuthorityRolesApi) Create(ctx *gin.Context) {
 		ApiMethod: &params.ApiMethod,
 		ApiPath:   &params.ApiPath,
 	}
-	if res := utils.IMysql.Master.Create(model); res.Error != nil {
+	if res := global.DBMaster.Create(model); res.Error != nil {
 		libs_http.RspState(ctx, 1, res.Error)
 	}
 	libs_http.RspState(ctx, 0, "创建成功")
