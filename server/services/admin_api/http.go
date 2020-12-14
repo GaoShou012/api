@@ -50,13 +50,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.GET("/logout", c.Logout)
 	}
 	//菜单
-	{
-		c := controller_admin_api.Menu{}
-		authenticated.GET("/menu/get",c.Get)
-		authenticated.POST("/menu/add",c.Create)
-		authenticated.POST("/menu/up",c.Update)
-		authenticated.POST("/menu/del",c.Del)
-	}
+
 	{
 		c := controller_admin_api.MenuGroup{}
 		authenticated.GET("/menu_group/get",c.Get)
@@ -96,5 +90,16 @@ func (r *HttpService) Route(engine *gin.Engine) {
 	{
 		c := controller_admin_api.Operator{}
 		authenticated.GET("/operator/info", c.Info)
+	}
+	{
+		c:=controller_admin_api.Casbin{}
+		authenticated = api.Use(c.CasbinHandler())
+	}
+	{
+		c := controller_admin_api.Menu{}
+		authenticated.GET("/menu/get",c.Get)
+		authenticated.POST("/menu/add",c.Create)
+		authenticated.POST("/menu/up",c.Update)
+		authenticated.POST("/menu/del",c.Del)
 	}
 }

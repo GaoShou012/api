@@ -21,7 +21,6 @@ func (c *AuthorityRole) Get(ctx *gin.Context) {
 	model := &models.AuthorityRoles{}
 
 	var list []models.AuthorityRoles
-	data := make(map[string]interface{})
 
 	count, err := model.Count("*")
 	if err != nil {
@@ -36,10 +35,8 @@ func (c *AuthorityRole) Get(ctx *gin.Context) {
 		return
 	}
 
-	data["count"] = count
-	data["data"] = list
 
-	libs_http.RspData(ctx, 0, nil, data)
+	libs_http.RspSearch(ctx, 0, nil, count,list)
 	return
 }
 

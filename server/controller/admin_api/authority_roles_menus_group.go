@@ -21,8 +21,6 @@ func (c *AuthorityRolesMenusGroup) Get(ctx *gin.Context) {
 	model := &models.AuthorityRolesMenusGroups{}
 
 	var list []models.AuthorityRolesMenusGroups
-	data := make(map[string]interface{})
-	// 按名称查找
 	// 按名称查找
 	count, err := model.Count("*")
 	if err != nil {
@@ -37,10 +35,8 @@ func (c *AuthorityRolesMenusGroup) Get(ctx *gin.Context) {
 		return
 	}
 
-	data["count"] = count
-	data["data"] = list
 
-	libs_http.RspData(ctx, 0, nil, data)
+	libs_http.RspSearch(ctx, 0, nil, count,list)
 	return
 }
 

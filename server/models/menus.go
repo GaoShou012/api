@@ -8,6 +8,7 @@ import (
 // Menu 菜单实体
 type Menus struct {
 	Id        *uint64
+	GroupId   *uint64
 	Name      *string
 	Icon      *string
 	Sort      *int
@@ -32,7 +33,7 @@ func (m *Menus) DeleteById(param *Menus) error {
 	return nil
 }
 
-func (m *Menus) Count(field string) (int, error) {
+func (m *Menus) Count(field string) (int64, error) {
 	count := 0
 	res := global.DBSlave.Model(m)
 	if field == "*" {
@@ -43,5 +44,5 @@ func (m *Menus) Count(field string) (int, error) {
 	if res.Error != nil {
 		return 0, res.Error
 	}
-	return count, nil
+	return int64(count), nil
 }
