@@ -1,4 +1,4 @@
-package session
+package session_redis
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"cs/meta"
 	"encoding/json"
 	"fmt"
+	"framework/class/stream"
 	"github.com/go-redis/redis/v8"
-	"github.com/mitchellh/mapstructure"
 )
 
 func keyOfSessionInfo(sessionId string) string {
@@ -16,11 +16,15 @@ func keyOfSessionInfo(sessionId string) string {
 func keyOfSessionClients(sessionId string) string {
 	return fmt.Sprintf("cs:session:clients:%s", sessionId)
 }
+func keyOfSessionRecords(sessionId string) string {
+	return fmt.Sprintf("cs:sessin:records:%s", sessionId)
+}
 
 var _ session.Session = &Session{}
 
 type Session struct {
-	redisClient *redis.Client
+	redisClient  *redis.Client
+	streamClient stream.Stream
 }
 
 func (s *Session) SetEnable(sessionId string, enable bool) (bool, error) {
@@ -66,29 +70,15 @@ func (s *Session) GetEnable(sessionId string) (bool, error) {
 	}
 }
 
-func (s *Session) SaveInfo(sessionId string, info session.Info) error {
-	key := keyOfSessionInfo(sessionId)
-
-	sessionInfo := &Info{}
+func (s *Session) SetInfo(session meta.Session) error {
+	key := keyOfSessionInfo(session.GetSessionId())
 
 	{
-		j, err := json.Marshal(info)
+		j, err := json.Marshal(session)
 		if err != nil {
 			return err
 		}
-		sessionInfo.Info = j
-	}
-
-	{
-		m := make(map[string]interface{})
-		j, err := json.Marshal(sessionInfo)
-		if err != nil {
-			return err
-		}
-		if err := json.Unmarshal(j, &m); err != nil {
-			return err
-		}
-		_, err = s.redisClient.HMSet(context.TODO(), key, &m).Result()
+		_, err = s.redisClient.Set(context.TODO(), key, j, 0).Result()
 		if err != nil {
 			return err
 		}
@@ -97,25 +87,15 @@ func (s *Session) SaveInfo(sessionId string, info session.Info) error {
 	return nil
 }
 
-func (s *Session) ReadInfo(sessionId string, info session.Info) (bool, error) {
+func (s *Session) GetInfo(sessionId string, session meta.Session) (bool, error) {
 	key := keyOfSessionInfo(sessionId)
 
-	sessionInfo := &Info{}
-
-	// 读取所有信息
-	res, err := s.redisClient.HGetAll(context.TODO(), key).Result()
-	if err != nil {
-		return false, err
-	}
-
-	// 格式转换
-	if err := mapstructure.WeakDecode(res, sessionInfo); err != nil {
-		return false, err
-	}
-
-	// decode info
 	{
-		if err := json.Unmarshal(sessionInfo.Info, info); err != nil {
+		res, err := s.redisClient.Get(context.TODO(), key).Result()
+		if err != nil {
+			return false, err
+		}
+		if err := json.Unmarshal([]byte(res), session); err != nil {
 			return false, err
 		}
 	}
@@ -138,45 +118,38 @@ func (s *Session) ExistsInfo(sessionId string) (bool, error) {
 	return false, fmt.Errorf("会话信息num(%d)超出判断值", num)
 }
 
-func (s *Session) AddClient(sessionId string, client meta.Client) (bool, error) {
-	key := keyOfSessionInfo(sessionId)
-	val := make([]byte, 0)
+func (s *Session) SetClient(session meta.Session, client meta.Client) error {
+	key := keyOfSessionClients(session.GetSessionId())
 
-	// encode client
 	{
 		j, err := json.Marshal(client)
 		if err != nil {
-			return false, err
+			return err
 		}
-		val = j
-	}
-
-	// add the client to session
-	{
-		_, err := s.redisClient.HSet(context.TODO(), key, client.GetUUID(), val).Result()
+		_, err = s.redisClient.HSet(context.TODO(), key, client.GetUUID(), j).Result()
 		if err != nil {
-			return false, err
+			return err
 		}
 	}
 
-	return true, nil
+	return nil
 }
 
-func (s *Session) DelClient(sessionId string, client meta.Client) (bool, error) {
-	key := keyOfSessionInfo(sessionId)
+func (s *Session) DelClient(session meta.Session, client meta.Client) error {
+	key := keyOfSessionClients(session.GetSessionId())
 
 	{
 		_, err := s.redisClient.HDel(context.TODO(), key, client.GetUUID()).Result()
 		if err != nil {
-			return false, err
+			return err
 		}
 	}
 
-	return true, nil
+	return nil
 }
 
-func (s *Session) ExistsClient(sessionId string, client meta.Client) (bool, error) {
-	key := keyOfSessionInfo(sessionId)
+func (s *Session) ExistsClient(session meta.Session, client meta.Client) (bool, error) {
+	key := keyOfSessionInfo(session.GetSessionId())
 
 	{
 		exists, err := s.redisClient.HExists(context.TODO(), key, client.GetUUID()).Result()
@@ -185,6 +158,26 @@ func (s *Session) ExistsClient(sessionId string, client meta.Client) (bool, erro
 		}
 		return exists, nil
 	}
+}
 
-	return false, nil
+func (s *Session) GetAllClients(session meta.Session, clients []interface{}) error {
+	panic("implement me")
+}
+
+func (s *Session) PushMessage(session meta.Session, message []byte) (string, error) {
+	topic := keyOfSessionRecords(session.GetSessionId())
+	return s.streamClient.Push(topic, message)
+}
+
+func (s *Session) PullMessage(session meta.Session, lastMessageId string, count uint64) ([][]byte, error) {
+	topic := keyOfSessionRecords(session.GetSessionId())
+	res, err := s.streamClient.Pull(topic, lastMessageId, count)
+	if err != nil {
+		return nil, err
+	}
+	rows := make([][]byte, 0)
+	for _, row := range res {
+		rows = append(rows, row.Message())
+	}
+	return rows, nil
 }

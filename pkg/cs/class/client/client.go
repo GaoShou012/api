@@ -1,8 +1,21 @@
 package client
 
-type Client interface {
-	AddSession(clientInfo Info, sessionId string) (bool, error)
-	DelSession(clientInfo Info, sessionId string) (bool, error)
-	ExistsSession(clientInfo Info, sessionId string) (bool, error)
+import "cs/meta"
 
+type Client interface {
+	// 保存客户信息
+	SetInfo(uuid string, client meta.Client) error
+	// 获取客户信息
+	GetInfo(uuid string, client meta.Client) (bool, error)
+	// 客户信息是否存在
+	ExistsInfo(uuid string) (bool, error)
+
+	// 客户会话列表，加入会话
+	SetSession(client meta.Client, sessionId string, session meta.Session) error
+	// 客户会话列表，移除会话
+	DelSession(client meta.Client, sessionId string) error
+	// 客户会话列表，会话是否存在
+	ExistsSession(client meta.Client, sessionId string) (bool, error)
+	// 获取客户会话列表
+	GetAllSessions(client meta.Client, sessions interface{}) error
 }
