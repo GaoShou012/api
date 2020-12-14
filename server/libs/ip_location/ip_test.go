@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetLocation(t *testing.T) {
-	config.LocalLoadGaoShou()
+	config.LocalLoad()
 	Init(config.GetConfig().IpLocation.Path)
 	location, err := GetLocation("113.93.107.116")
 	if err != nil {

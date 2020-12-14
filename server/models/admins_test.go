@@ -3,6 +3,7 @@ package models
 import (
 	"api/config"
 	"api/global"
+	"api/initialize"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"testing"
@@ -10,7 +11,7 @@ import (
 
 func TestAdmins(t *testing.T) {
 	config.LocalLoad()
-	if err := global.InitMysqlMaster(config.GetConfig().MysqlMaster); err != nil {
+	if err := initialize.InitMysqlMaster(config.GetConfig().MysqlMaster); err != nil {
 		log.Error(err)
 	}
 

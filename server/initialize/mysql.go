@@ -1,7 +1,8 @@
-package global
+package initialize
 
 import (
 	"api/config"
+	"api/global"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -10,13 +11,13 @@ import (
 
 func InitMysqlMaster(conf *config.Mysql) error {
 	db, err := ConnectMysql(conf)
-	DBMaster = db
+	global.DBMaster = db
 	return err
 }
 
 func InitMysqlSlave(conf *config.Mysql) error {
 	db, err := ConnectMysql(conf)
-	DBSlave = db
+	global.DBSlave = db
 	return err
 }
 
@@ -35,7 +36,7 @@ func ConnectMysql(conf *config.Mysql) (*gorm.DB, error) {
 	}
 
 	db.LogMode(conf.LogMode)
-	DBMaster = db
+	global.DBMaster = db
 
 	return db, nil
 }
