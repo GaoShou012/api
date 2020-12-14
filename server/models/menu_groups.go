@@ -7,7 +7,6 @@ import (
 
 type MenuGroups struct {
 	Id        *uint64
-	MenuId    *uint64
 	Group     *string
 	Sort      *int
 	Icon      *string
@@ -29,7 +28,7 @@ func (m *MenuGroups) DeleteById(param *MenuGroups) error {
 	return nil
 }
 
-func (m *MenuGroups) Count(field string) (int, error) {
+func (m *MenuGroups) Count(field string) (int64, error) {
 	count := 0
 	res :=global.DBSlave.Model(m)
 	if field == "*" {
@@ -40,5 +39,5 @@ func (m *MenuGroups) Count(field string) (int, error) {
 	if res.Error != nil {
 		return 0, res.Error
 	}
-	return count, nil
+	return int64(count), nil
 }

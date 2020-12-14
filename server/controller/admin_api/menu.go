@@ -23,7 +23,6 @@ func (c *Menu) Get(ctx *gin.Context) {
 	menus := &models.Menus{}
 
 	var list []models.Menus
-	data := make(map[string]interface{})
 	// 按名称查找
 	if params.Name != "" {
 		filed := fmt.Sprintf("`name` LIKE '%%%s%%'", params.Name)
@@ -38,9 +37,7 @@ func (c *Menu) Get(ctx *gin.Context) {
 			libs_http.RspState(ctx, 0, res.Error)
 			return
 		}
-		data["count"] = count
-		data["data"] = list
-		libs_http.RspData(ctx, 0, nil, data)
+		libs_http.RspSearch(ctx, 0, nil, count,list)
 		return
 	}
 	// 按名称查找
@@ -57,30 +54,29 @@ func (c *Menu) Get(ctx *gin.Context) {
 		return
 	}
 
-	data["count"] = count
-	data["data"] = list
-
-	libs_http.RspData(ctx, 0, nil, data)
+	libs_http.RspSearch(ctx, 0, nil, count,list)
 	return
 }
 
 func (c *Menu) Create(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
-		Name string
-		Sort int
-		Icon string
-		Path string
+		Name    string
+		GroupId uint64
+		Sort    int
+		Icon    string
+		Path    string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
 	menu := &models.Menus{
-		Name: &params.Name,
-		Sort: &params.Sort,
-		Icon: &params.Icon,
-		Path: &params.Path,
+		Name:    &params.Name,
+		GroupId: &params.GroupId,
+		Sort:    &params.Sort,
+		Icon:    &params.Icon,
+		Path:    &params.Path,
 	}
 	if res := global.DBMaster.Create(menu); res.Error != nil {
 		libs_http.RspState(ctx, 1, res.Error)
@@ -91,11 +87,12 @@ func (c *Menu) Create(ctx *gin.Context) {
 func (c *Menu) Update(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
-		Id   uint64
-		Name string
-		Sort int
-		Icon string
-		Path string
+		Id      uint64
+		GroupId uint64
+		Name    string
+		Sort    int
+		Icon    string
+		Path    string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -104,11 +101,12 @@ func (c *Menu) Update(ctx *gin.Context) {
 	menus := &models.Menus{}
 
 	menu := &models.Menus{
-		Id:   &params.Id,
-		Name: &params.Name,
-		Sort: &params.Sort,
-		Icon: &params.Icon,
-		Path: &params.Path,
+		Id:      &params.Id,
+		GroupId: &params.GroupId,
+		Name:    &params.Name,
+		Sort:    &params.Sort,
+		Icon:    &params.Icon,
+		Path:    &params.Path,
 	}
 	if err := menus.UpdateById(menu); err != nil {
 		libs_http.RspState(ctx, 1, err)
