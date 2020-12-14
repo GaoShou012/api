@@ -1,6 +1,7 @@
-package global
+package initialize
 
 import (
+	"api/global"
 	"fmt"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"net/url"
@@ -19,6 +20,6 @@ func InitCasbinAdapter(dns string) error {
 	if err != nil {
 		return err
 	}
-	CasbinAdapter = a
+	global.CasbinAdapter = a
 	return nil
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"api/config"
-	"api/global"
+	"api/initialize"
 	libs_ip_location "api/libs/ip_location"
 	libs_log "api/libs/logs"
 	"api/services/admin_api"
@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	confPath = flag.String("config", "./config/dev.ini", "config file path")
+	confPath = flag.String("config", "./config/resource/dev.ini", "config file path")
 )
 
 func init() {
@@ -35,7 +35,7 @@ func init() {
 	// 初始化 casbin adapter
 	{
 		conf := config.GetConfig().Casbin
-		if err := global.InitCasbinAdapter(conf.DNS); err != nil {
+		if err := initialize.InitCasbinAdapter(conf.DNS); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
@@ -44,7 +44,7 @@ func init() {
 	// 初始化 mysql master
 	{
 		conf := config.GetConfig().MysqlMaster
-		if err := global.InitMysqlMaster(conf); err != nil {
+		if err := initialize.InitMysqlMaster(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
@@ -53,7 +53,7 @@ func init() {
 	// 初始化 mysql slave
 	{
 		conf := config.GetConfig().MysqlSlave
-		if err := global.InitMysqlSlave(conf); err != nil {
+		if err := initialize.InitMysqlSlave(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}
@@ -62,7 +62,7 @@ func init() {
 	// 初始化 redis
 	{
 		conf := config.GetConfig().Redis
-		if err := global.InitRedis(conf); err != nil {
+		if err := initialize.InitRedis(conf); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}

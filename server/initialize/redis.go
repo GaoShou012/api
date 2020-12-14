@@ -1,7 +1,8 @@
-package global
+package initialize
 
 import (
 	"api/config"
+	"api/global"
 	"context"
 	"github.com/go-redis/redis/v8"
 	"time"
@@ -9,7 +10,7 @@ import (
 
 func InitRedis(conf *config.Redis) error {
 	client, err := ConnectRedis(conf)
-	RedisClient = client
+	global.RedisClient = client
 	return err
 }
 
