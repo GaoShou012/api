@@ -20,19 +20,24 @@ func keyOfSessionRecords(sessionId string) string {
 	return fmt.Sprintf("cs:sessin:records:%s", sessionId)
 }
 
-var _ session.Session = &Session{}
+var _ session.Session = &plugin{}
 
-type Session struct {
+type plugin struct {
 	redisClient  *redis.Client
 	streamClient stream.Stream
+	opts         *Options
 }
 
-func (s *Session) SetEnable(sessionId string, enable bool) (bool, error) {
+func (p *plugin) Init() error {
+	return nil
+}
+
+func (p *plugin) SetEnable(sessionId string, enable bool) (bool, error) {
 	key := keyOfSessionInfo(sessionId)
 
 	// 查询会话ID是否存在
 	{
-		exists, err := s.ExistsInfo(sessionId)
+		exists, err := p.ExistsInfo(sessionId)
 		if err != nil {
 			return false, err
 		}
@@ -43,7 +48,7 @@ func (s *Session) SetEnable(sessionId string, enable bool) (bool, error) {
 
 	// 设置Enable
 	{
-		_, err := s.redisClient.HSet(context.TODO(), key, "Enable", enable).Result()
+		_, err := p.redisClient.HSet(context.TODO(), key, "Enable", enable).Result()
 		if err != nil {
 			return false, err
 		}
@@ -52,11 +57,11 @@ func (s *Session) SetEnable(sessionId string, enable bool) (bool, error) {
 	return true, nil
 }
 
-func (s *Session) GetEnable(sessionId string) (bool, error) {
+func (p *plugin) GetEnable(sessionId string) (bool, error) {
 	key := keyOfSessionInfo(sessionId)
 
 	{
-		res, err := s.redisClient.HGet(context.TODO(), key, "Enable").Result()
+		res, err := p.redisClient.HGet(context.TODO(), key, "Enable").Result()
 		if err != nil {
 			return false, err
 		}
@@ -70,7 +75,7 @@ func (s *Session) GetEnable(sessionId string) (bool, error) {
 	}
 }
 
-func (s *Session) SetInfo(session meta.Session) error {
+func (p *plugin) SetInfo(session meta.Session) error {
 	key := keyOfSessionInfo(session.GetSessionId())
 
 	{
@@ -78,7 +83,7 @@ func (s *Session) SetInfo(session meta.Session) error {
 		if err != nil {
 			return err
 		}
-		_, err = s.redisClient.Set(context.TODO(), key, j, 0).Result()
+		_, err = p.redisClient.Set(context.TODO(), key, j, 0).Result()
 		if err != nil {
 			return err
 		}
@@ -87,11 +92,11 @@ func (s *Session) SetInfo(session meta.Session) error {
 	return nil
 }
 
-func (s *Session) GetInfo(sessionId string, session meta.Session) (bool, error) {
+func (p *plugin) GetInfo(sessionId string, session meta.Session) (bool, error) {
 	key := keyOfSessionInfo(sessionId)
 
 	{
-		res, err := s.redisClient.Get(context.TODO(), key).Result()
+		res, err := p.redisClient.Get(context.TODO(), key).Result()
 		if err != nil {
 			return false, err
 		}
@@ -103,9 +108,9 @@ func (s *Session) GetInfo(sessionId string, session meta.Session) (bool, error) 
 	return true, nil
 }
 
-func (s *Session) ExistsInfo(sessionId string) (bool, error) {
+func (p *plugin) ExistsInfo(sessionId string) (bool, error) {
 	key := keyOfSessionInfo(sessionId)
-	num, err := s.redisClient.Exists(context.TODO(), key).Result()
+	num, err := p.redisClient.Exists(context.TODO(), key).Result()
 	if err != nil {
 		return false, err
 	}
@@ -118,7 +123,7 @@ func (s *Session) ExistsInfo(sessionId string) (bool, error) {
 	return false, fmt.Errorf("会话信息num(%d)超出判断值", num)
 }
 
-func (s *Session) SetClient(session meta.Session, client meta.Client) error {
+func (p *plugin) SetClient(session meta.Session, client meta.Client) error {
 	key := keyOfSessionClients(session.GetSessionId())
 
 	{
@@ -126,7 +131,7 @@ func (s *Session) SetClient(session meta.Session, client meta.Client) error {
 		if err != nil {
 			return err
 		}
-		_, err = s.redisClient.HSet(context.TODO(), key, client.GetUUID(), j).Result()
+		_, err = p.redisClient.HSet(context.TODO(), key, client.GetUUID(), j).Result()
 		if err != nil {
 			return err
 		}
@@ -135,11 +140,11 @@ func (s *Session) SetClient(session meta.Session, client meta.Client) error {
 	return nil
 }
 
-func (s *Session) DelClient(session meta.Session, client meta.Client) error {
+func (p *plugin) DelClient(session meta.Session, client meta.Client) error {
 	key := keyOfSessionClients(session.GetSessionId())
 
 	{
-		_, err := s.redisClient.HDel(context.TODO(), key, client.GetUUID()).Result()
+		_, err := p.redisClient.HDel(context.TODO(), key, client.GetUUID()).Result()
 		if err != nil {
 			return err
 		}
@@ -148,11 +153,11 @@ func (s *Session) DelClient(session meta.Session, client meta.Client) error {
 	return nil
 }
 
-func (s *Session) ExistsClient(session meta.Session, client meta.Client) (bool, error) {
+func (p *plugin) ExistsClient(session meta.Session, client meta.Client) (bool, error) {
 	key := keyOfSessionInfo(session.GetSessionId())
 
 	{
-		exists, err := s.redisClient.HExists(context.TODO(), key, client.GetUUID()).Result()
+		exists, err := p.redisClient.HExists(context.TODO(), key, client.GetUUID()).Result()
 		if err != nil {
 			return false, err
 		}
@@ -160,18 +165,18 @@ func (s *Session) ExistsClient(session meta.Session, client meta.Client) (bool, 
 	}
 }
 
-func (s *Session) GetAllClients(session meta.Session, clients []interface{}) error {
+func (p *plugin) GetAllClients(session meta.Session, clients []interface{}) error {
 	panic("implement me")
 }
 
-func (s *Session) PushMessage(session meta.Session, message []byte) (string, error) {
+func (p *plugin) PushMessage(session meta.Session, message []byte) (string, error) {
 	topic := keyOfSessionRecords(session.GetSessionId())
-	return s.streamClient.Push(topic, message)
+	return p.streamClient.Push(topic, message)
 }
 
-func (s *Session) PullMessage(session meta.Session, lastMessageId string, count uint64) ([][]byte, error) {
+func (p *plugin) PullMessage(session meta.Session, lastMessageId string, count uint64) ([][]byte, error) {
 	topic := keyOfSessionRecords(session.GetSessionId())
-	res, err := s.streamClient.Pull(topic, lastMessageId, count)
+	res, err := p.streamClient.Pull(topic, lastMessageId, count)
 	if err != nil {
 		return nil, err
 	}

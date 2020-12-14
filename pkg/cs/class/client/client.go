@@ -3,6 +3,8 @@ package client
 import "cs/meta"
 
 type Client interface {
+	Init() error
+
 	// 保存客户信息
 	SetInfo(uuid string, client meta.Client) error
 	// 获取客户信息

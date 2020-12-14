@@ -16,17 +16,18 @@ func keyOfClientSessions(uuid string) string {
 	return fmt.Sprintf("cs:client:sessions:%s", uuid)
 }
 
-var _ client.Client = &Client{}
+var _ client.Client = &plugin{}
 
-type Client struct {
+type plugin struct {
 	redisClient *redis.Client
+	opts        *Options
 }
 
-func (c *Client) Init() error {
+func (p *plugin) Init() error {
 	return nil
 }
 
-func (c *Client) SetInfo(uuid string, client meta.Client) error {
+func (p *plugin) SetInfo(uuid string, client meta.Client) error {
 	key := keyOfClientInfo(uuid)
 
 	{
@@ -34,7 +35,7 @@ func (c *Client) SetInfo(uuid string, client meta.Client) error {
 		if err != nil {
 			return err
 		}
-		_, err = c.redisClient.Set(context.TODO(), key, j, 0).Result()
+		_, err = p.redisClient.Set(context.TODO(), key, j, 0).Result()
 		if err != nil {
 			return err
 		}
@@ -43,11 +44,11 @@ func (c *Client) SetInfo(uuid string, client meta.Client) error {
 	return nil
 }
 
-func (c *Client) GetInfo(uuid string, client meta.Client) (bool, error) {
+func (p *plugin) GetInfo(uuid string, client meta.Client) (bool, error) {
 	key := keyOfClientInfo(uuid)
 
 	{
-		res, err := c.redisClient.Get(context.TODO(), key).Result()
+		res, err := p.redisClient.Get(context.TODO(), key).Result()
 		if err != nil {
 			return false, err
 		}
@@ -59,9 +60,9 @@ func (c *Client) GetInfo(uuid string, client meta.Client) (bool, error) {
 	return true, nil
 }
 
-func (c *Client) ExistsInfo(uuid string) (bool, error) {
+func (p *plugin) ExistsInfo(uuid string) (bool, error) {
 	key := keyOfClientInfo(uuid)
-	num, err := c.redisClient.Exists(context.TODO(), key).Result()
+	num, err := p.redisClient.Exists(context.TODO(), key).Result()
 	if err != nil {
 		return false, err
 	}
@@ -74,7 +75,7 @@ func (c *Client) ExistsInfo(uuid string) (bool, error) {
 	return false, fmt.Errorf("会话信息num(%d)超出判断值", num)
 }
 
-func (c *Client) SetSession(client meta.Client, sessionId string, session meta.Session) error {
+func (p *plugin) SetSession(client meta.Client, sessionId string, session meta.Session) error {
 	key := keyOfClientSessions(client.GetUUID())
 
 	{
@@ -82,7 +83,7 @@ func (c *Client) SetSession(client meta.Client, sessionId string, session meta.S
 		if err != nil {
 			return err
 		}
-		_, err = c.redisClient.HSet(context.TODO(), key, sessionId, j).Result()
+		_, err = p.redisClient.HSet(context.TODO(), key, sessionId, j).Result()
 		if err != nil {
 			return err
 		}
@@ -91,11 +92,11 @@ func (c *Client) SetSession(client meta.Client, sessionId string, session meta.S
 	return nil
 }
 
-func (c *Client) DelSession(client meta.Client, sessionId string) error {
+func (p *plugin) DelSession(client meta.Client, sessionId string) error {
 	key := keyOfClientSessions(client.GetUUID())
 
 	{
-		_, err := c.redisClient.HDel(context.TODO(), key, sessionId).Result()
+		_, err := p.redisClient.HDel(context.TODO(), key, sessionId).Result()
 		if err != nil {
 			return err
 		}
@@ -104,11 +105,11 @@ func (c *Client) DelSession(client meta.Client, sessionId string) error {
 	return nil
 }
 
-func (c *Client) ExistsSession(client meta.Client, sessionId string) (bool, error) {
+func (p *plugin) ExistsSession(client meta.Client, sessionId string) (bool, error) {
 	key := keyOfClientSessions(client.GetUUID())
 
 	{
-		exists, err := c.redisClient.HExists(context.TODO(), key, sessionId).Result()
+		exists, err := p.redisClient.HExists(context.TODO(), key, sessionId).Result()
 		if err != nil {
 			return false, err
 		}
@@ -116,6 +117,6 @@ func (c *Client) ExistsSession(client meta.Client, sessionId string) (bool, erro
 	}
 }
 
-func (c *Client) GetAllSessions(client meta.Client, sessions interface{}) error {
+func (p *plugin) GetAllSessions(client meta.Client, sessions interface{}) error {
 	panic("implement me")
 }

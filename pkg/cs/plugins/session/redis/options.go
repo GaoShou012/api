@@ -1,7 +1,7 @@
-package client_redis
+package session_redis
 
 import (
-	"cs/class/client"
+	"cs/class/session"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -11,7 +11,7 @@ type Options struct {
 
 type Option func(o *Options)
 
-func New(opts ...Option) client.Client {
+func New(opts ...Option) session.Session {
 	options := &Options{}
 
 	for _, o := range opts {
