@@ -108,6 +108,19 @@ func (p *plugin) GetInfo(sessionId string, session meta.Session) (bool, error) {
 	return true, nil
 }
 
+func (p *plugin) DelInfo(session meta.Session) error {
+	key := keyOfSessionInfo(session.GetSessionId())
+
+	{
+		_, err := p.redisClient.Del(context.TODO(), key).Result()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (p *plugin) ExistsInfo(sessionId string) (bool, error) {
 	key := keyOfSessionInfo(sessionId)
 	num, err := p.redisClient.Exists(context.TODO(), key).Result()
@@ -165,7 +178,11 @@ func (p *plugin) ExistsClient(session meta.Session, client meta.Client) (bool, e
 	}
 }
 
-func (p *plugin) GetAllClients(session meta.Session, clients []interface{}) error {
+func (p *plugin) GetAllClients(session meta.Session, clients interface{}) error {
+	panic("implement me")
+}
+
+func (p *plugin) DelAllClients(session meta.Session) error {
 	panic("implement me")
 }
 

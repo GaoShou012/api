@@ -1,39 +1,21 @@
 package casbin
-//
-//import (
-//	"log"
-//
-//	"github.com/casbin/casbin/v2"
-//	"github.com/casbin/casbin/v2/model"
-//	xormadapter "github.com/casbin/xorm-adapter/v2"
-//	_ "github.com/go-sql-driver/mysql"
-//)
-//
-//func Test() {
-//	a, err := xormadapter.NewAdapter("mysql", "root:123456@tcp(127.0.0.1:13306)/")
-//	if err != nil {
-//		log.Fatalf("error: adapter: %s", err)
-//	}
-//
-//	m, err := model.NewModelFromString(`
-//[request_definition]
-//r = sub, obj, act
-//
-//[policy_definition]
-//p = sub, obj, act
-//
-//[policy_effect]
-//e = some(where (p.eft == allow))
-//
-//[matchers]
-//m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
-//`)
-//	if err != nil {
-//		log.Fatalf("error: model: %s", err)
-//	}
-//
-//	_, err = casbin.NewEnforcer(m, a)
-//	if err != nil {
-//		log.Fatalf("error: enforcer: %s", err)
-//	}
-//}
+
+import (
+	"fmt"
+	"github.com/casbin/casbin/v2"
+	"log"
+)
+
+func TestCasbin() {
+	e, _ := casbin.NewEnforcer("model.conf", "rbac.csv")
+
+	fmt.Printf("RBAC test start\n") // output for debug
+
+	// superAdmin
+	res, _ := e.Enforce("quyuan", "project", "read")
+	if res {
+		log.Println("superAdmin can read project")
+	} else {
+		log.Fatal("ERROR: superAdmin can not read project")
+	}
+}

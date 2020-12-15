@@ -29,7 +29,7 @@ func (m *AuthorityApis) DeleteById(param *AuthorityApis) error {
 	return nil
 }
 
-func (m *AuthorityApis) Count(field string) (int, error) {
+func (m *AuthorityApis) Count(field string) (int64, error) {
 	count := 0
 	res := global.DBSlave.Model(m)
 	if field == "*" {
@@ -40,5 +40,5 @@ func (m *AuthorityApis) Count(field string) (int, error) {
 	if res.Error != nil {
 		return 0, res.Error
 	}
-	return count, nil
+	return int64(count), nil
 }

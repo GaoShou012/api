@@ -21,7 +21,6 @@ func (c *MenuGroup) Get(ctx *gin.Context) {
 	model := &models.MenuGroups{}
 
 	var list []models.Menus
-	data := make(map[string]interface{})
 	// 按名称查找
 	// 按名称查找
 	count, err := model.Count("*")
@@ -36,31 +35,25 @@ func (c *MenuGroup) Get(ctx *gin.Context) {
 		libs_http.RspState(ctx, 0, res.Error)
 		return
 	}
-
-	data["count"] = count
-	data["data"] = list
-
-	libs_http.RspData(ctx, 0, nil, data)
+	libs_http.RspSearch(ctx, 0, nil, count,list)
 	return
 }
 
 func (c *MenuGroup) Create(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
-		Sort   int
-		Group  string
-		Icon   string
-		MenuId uint64
+		Sort  int
+		Group string
+		Icon  string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
 	menuGroup := &models.MenuGroups{
-		Sort:   &params.Sort,
-		Group:  &params.Group,
-		Icon:   &params.Icon,
-		MenuId: &params.MenuId,
+		Sort:  &params.Sort,
+		Group: &params.Group,
+		Icon:  &params.Icon,
 	}
 	if res := global.DBMaster.Create(menuGroup); res.Error != nil {
 		libs_http.RspState(ctx, 1, res.Error)
@@ -71,12 +64,10 @@ func (c *MenuGroup) Create(ctx *gin.Context) {
 func (c *MenuGroup) Update(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
-		Id   uint64
-		Sort   int
-		Group  string
-		Icon   string
-		MenuId uint64
-
+		Id    uint64
+		Sort  int
+		Group string
+		Icon  string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -85,11 +76,10 @@ func (c *MenuGroup) Update(ctx *gin.Context) {
 	//model := &models.MenuGroups{}
 
 	model := &models.MenuGroups{
-		Id:   &params.Id,
+		Id:    &params.Id,
 		Group: &params.Group,
-		Sort: &params.Sort,
-		Icon: &params.Icon,
-		MenuId: &params.MenuId,
+		Sort:  &params.Sort,
+		Icon:  &params.Icon,
 	}
 	if err := model.UpdateById(model); err != nil {
 		libs_http.RspState(ctx, 1, err)
