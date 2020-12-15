@@ -1,10 +1,9 @@
 package admin_api
 
 import (
-	"api/config"
-	"api/global"
 	libs_http "api/libs/http"
-	"github.com/casbin/casbin/v2"
+	"api/models"
+	"fmt"
 	"github.com/casbin/casbin/v2/util"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -22,17 +21,10 @@ func(c *Casbin) CasbinHandler() gin.HandlerFunc {
 		act := ctx.Request.Method
 		// 获取用户的角色
 		sub := AuthorityId
-		e, err := casbin.NewEnforcer(config.GetConfig().Casbin.RBACModelPath, global.CasbinAdapter)
-		if err != nil {
-			libs_http.RspState(ctx, 1, err)
-		}
-		e.AddFunction("ParamsMatch", ParamsMatchFunc)
-		err = e.LoadPolicy()
-		if err != nil{
-			libs_http.RspState(ctx, 1, err)
-		}
-		// 判断策略中是否存在
-		success, _ := e.Enforce(sub, obj, act)
+		fmt.Println(sub,obj,act)
+
+		casbinModel := models.CasbinRule{}
+		success,err := casbinModel.ExecutePermission(sub, obj, act)
 		if success {
 			ctx.Next()
 		} else {
