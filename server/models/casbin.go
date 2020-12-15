@@ -1,9 +1,7 @@
 package models
 
 import (
-	"api/config"
 	"api/global"
-	"api/initialize"
 	"github.com/casbin/casbin/v2"
 )
 
@@ -28,18 +26,19 @@ type CasbinInfo struct {
 }
 
 func (m *CasbinRule) NewCasbin() (*casbin.Enforcer, error) {
-	config.LocalLoad()
-	if err := initialize.InitCasbinAdapter(config.GetConfig().Casbin.DNS); err != nil {
-		return nil, err
-	}
-	e, err := casbin.NewEnforcer(config.GetConfig().Casbin.RBACModelPath, global.CasbinAdapter)
-	if err != nil {
-		return nil, err
-	}
-	if err := e.LoadPolicy(); err != nil {
-		return nil, err
-	}
-	return e, nil
+	//config.LocalLoad()
+	//if err := initialize.InitCasbinAdapter(config.GetConfig().Casbin.DNS); err != nil {
+	//	return nil, err
+	//}
+	//e, err := casbin.NewEnforcer(config.GetConfig().Casbin.RBACModelPath, global.CasbinAdapter)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//if err := e.LoadPolicy(); err != nil {
+	//	return nil, err
+	//}
+	//return e, nil
+	return nil, nil
 }
 
 /**
@@ -100,9 +99,9 @@ func (m *CasbinRule) ExecutePermission() bool {
 	if err != nil {
 		return false
 	}
-	sub := "bxcb"//v1
-	obj := "POST"//v2
-	act := "u"//v0
+	sub := "bxcb" //v1
+	obj := "POST" //v2
+	act := "u"    //v0
 	success, _ := e.Enforce(sub, obj, act)
 	return success
 }

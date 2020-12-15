@@ -16,16 +16,16 @@ import (
 	Token验证成功，保存operator到gin.Context上下文
 */
 func SetOperator(ctx *gin.Context, op *Operator) {
-	ctx.Set("operator", op)
+	libs_http.SetOperator(ctx, op)
 }
 
 /*
 	gin.Context上下文读取 operator 结构
 */
 func GetOperator(ctx *gin.Context) (*Operator, error) {
-	val, exists := ctx.Get("operator")
-	if !exists {
-		return nil, errors.New("Lose the operator info\n")
+	val, err := libs_http.GetOperator(ctx)
+	if err != nil {
+		return nil, err
 	}
 	operator, ok := val.(*Operator)
 	if !ok {
@@ -43,6 +43,10 @@ type Operator struct {
 	Username  string
 	Nickname  string
 	LoginTime time.Time
+}
+
+func (c *Operator) GetAuthorityId() string {
+	return ""
 }
 
 func (c *Operator) encrypt(key []byte) (string, error) {

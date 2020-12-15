@@ -35,7 +35,7 @@ func init() {
 	// 初始化 casbin adapter
 	{
 		conf := config.GetConfig().Casbin
-		if err := initialize.InitCasbinAdapter(conf.DNS); err != nil {
+		if err := initialize.InitCasbinEnforcer(conf.DNS, conf.RBACModelPath); err != nil {
 			libs_log.Error(err)
 			os.Exit(0)
 		}

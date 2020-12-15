@@ -1,4 +1,4 @@
-package admin_api
+package middleware
 
 import (
 	"api/global"
@@ -6,13 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Casbin struct{}
-
 // 拦截器
-func (c *Casbin) CasbinHandler() gin.HandlerFunc {
+func CasbinHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		operator, _ := GetOperator(ctx)
-		AuthorityId := operator.Username
+		operator, err := libs_http.GetOperator(ctx)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			ctx.Abort()
+			return
+		}
+		AuthorityId := operator.GetAuthorityId()
 		// 获取请求的URI
 		obj := ctx.Request.URL.RequestURI()
 		// 获取请求方法
