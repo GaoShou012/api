@@ -1,6 +1,7 @@
 package casbin
 
 import (
+	"fmt"
 	"github.com/casbin/casbin/v2"
 	"regexp"
 	"strings"
@@ -42,7 +43,9 @@ func KeyMatch2(key1 string, key2 string) bool {
 		key2 = re.ReplaceAllString(key2, "$1[^/]+$2")
 	}
 
-	return RegexMatch(key1, "^"+key2+"$")
+	bool := RegexMatch(key1, "^"+key2+"$")
+	fmt.Println("keys:", key1, key2)
+	return bool
 }
 
 func ParamsMatch(fullNameKey1 string, key2 string) bool {
@@ -60,8 +63,10 @@ func ParamsMatch(fullNameKey1 string, key2 string) bool {
 func ParamsMatchFunc(args ...interface{}) (interface{}, error) {
 	name1 := args[0].(string)
 	name2 := args[1].(string)
-
-	return ParamsMatch(name1, name2), nil
+	val := ParamsMatch(name1, name2)
+	fmt.Println("val:", val)
+	return val, nil
+	//return ParamsMatch(name1, name2), nil
 }
 
 func CasbinMysqlInit(dns string, rbacFilePath string) error {

@@ -1,9 +1,7 @@
 package models
 
 import (
-	"api/config"
 	"api/global"
-	"api/initialize"
 	"github.com/casbin/casbin/v2"
 	"regexp"
 	"strings"
@@ -30,18 +28,19 @@ type CasbinInfo struct {
 }
 
 func (m *CasbinRule) NewCasbin() (*casbin.Enforcer, error) {
-	config.LocalLoad()
-	if err := initialize.InitCasbinAdapter(config.GetConfig().Casbin.DNS); err != nil {
-		return nil, err
-	}
-	e, err := casbin.NewEnforcer(config.GetConfig().Casbin.RBACModelPath, global.CasbinAdapter)
-	if err != nil {
-		return nil, err
-	}
-	if err := e.LoadPolicy(); err != nil {
-		return nil, err
-	}
-	return e, nil
+	//config.LocalLoad()
+	//if err := initialize.InitCasbinAdapter(config.GetConfig().Casbin.DNS); err != nil {
+	//	return nil, err
+	//}
+	//e, err := casbin.NewEnforcer(config.GetConfig().Casbin.RBACModelPath, global.CasbinAdapter)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//if err := e.LoadPolicy(); err != nil {
+	//	return nil, err
+	//}
+	//return e, nil
+	return nil, nil
 }
 
 /**
@@ -102,7 +101,13 @@ func (m *CasbinRule) ExecutePermission(sub interface{},obj interface{},act inter
 	if err != nil {
 		return false,err
 	}
+<<<<<<< HEAD
 	e.AddFunction("ParamsMatch", ParamsMatchFunc)
+=======
+	sub := "bxcb" //v1
+	obj := "POST" //v2
+	act := "u"    //v0
+>>>>>>> a4d4ef705b58083b43d0abd91c762e185f1e5ef7
 	success, _ := e.Enforce(sub, obj, act)
 	return success,err
 }
