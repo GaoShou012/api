@@ -120,3 +120,7 @@ func (p *plugin) ExistsSession(client meta.Client, sessionId string) (bool, erro
 func (p *plugin) GetAllSessions(client meta.Client, sessions interface{}) error {
 	panic("implement me")
 }
+
+func (p *plugin) GetNumSessions(client meta.Client) (uint64, error) {
+	panic("implement me")
+}

@@ -27,6 +27,36 @@ import (
 //	return nil
 //}
 
+//func InitCasbinEnforcerWithGorm(dns string, path string) error {
+//	u, err := url.Parse(dns)
+//	if err != nil {
+//		return err
+//	}
+//	databaseType := u.Scheme
+//	username := u.User.Username()
+//	password, _ := u.User.Password()
+//	_dns := fmt.Sprintf("%s:%s@(%s)%s?%s", username, password, u.Host, u.Path, u.RawQuery)
+//
+//	driver, err := sql.Open("mysql", "")
+//	db, err := gorm.Open(driver, gorm.Config{
+//		SkipDefaultTransaction:                   false,
+//		NamingStrategy:                           nil,
+//		FullSaveAssociations:                     false,
+//		Logger:                                   nil,
+//		NowFunc:                                  nil,
+//		DryRun:                                   false,
+//		PrepareStmt:                              false,
+//		DisableAutomaticPing:                     false,
+//		DisableForeignKeyConstraintWhenMigrating: false,
+//		AllowGlobalUpdate:                        false,
+//		ClauseBuilders:                           nil,
+//		ConnPool:                                 nil,
+//		Dialector:                                nil,
+//		Plugins:                                  nil,
+//	})
+//	gormadapter.NewAdapterByDB()
+//}
+
 func InitCasbinEnforcer(dns string, path string) error {
 	u, err := url.Parse(dns)
 	if err != nil {

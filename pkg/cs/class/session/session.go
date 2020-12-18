@@ -8,14 +8,24 @@ type Session interface {
 	// 会话是否启用中
 	GetEnable(sessionId string) (bool, error)
 
+	SetState(sessionId string, state meta.SessionState) error
+	GetState(sessionId string) (meta.SessionState, error)
+
 	// 保存会话信息
 	SetInfo(session meta.Session) error
 	// 读取会话信息
-	GetInfo(sessionId string, session meta.Session) (bool, error)
+	GetInfo(sessionId string) (meta.Session, error)
 	// 会话信息是否存在
 	ExistsInfo(sessionId string) (bool, error)
 	// 移除会话信息
 	DelInfo(session meta.Session) error
+
+	// 序列化会话信息
+	// 可在应用层，扩展真实数据
+	MarshalSessionInfo(session meta.Session) error
+	// 反序列会话信息
+	// 可在应用层，扩展真实数据
+	UnmarshalSessionInfo(data []byte) (meta.Session, error)
 
 	// 增加客户
 	SetClient(session meta.Session, client meta.Client) error

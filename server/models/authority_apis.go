@@ -13,6 +13,13 @@ type AuthorityApis struct {
 	UpdatedAt *time.Time
 }
 
+func (m *AuthorityApis) GetMethod() string {
+	return *m.Method
+}
+func (m *AuthorityApis) GetPath() string {
+	return *m.Path
+}
+
 func (m *AuthorityApis) UpdateById(param *AuthorityApis) error {
 	res := global.DBMaster.Model(m).Updates(param)
 	if res.Error != nil {
