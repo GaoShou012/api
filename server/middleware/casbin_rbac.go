@@ -23,7 +23,12 @@ func CasbinHandler() gin.HandlerFunc {
 		// 获取用户的角色
 		sub := AuthorityId
 		// 判断策略中是否存在
+		global.CasbinEnforcer.EnableLog(true)
+		if err := global.CasbinEnforcer.LoadPolicy(); err != nil {
+			libs_http.RspState(ctx, 1, err)
+		}
 		success, err := global.CasbinEnforcer.Enforce(sub, obj, act)
+		//println(sub,obj,act)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			ctx.Abort()

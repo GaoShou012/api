@@ -21,6 +21,6 @@ func TestCasbin_AddCasbinPolicy(t *testing.T) {
 	_ = m.UpdateCasbinApi("bcb", "bxcb", "POST", "POST")
 	pa,_ := m.GetPolicyPathByAuthorityId("u")
 	fmt.Println(pa)
-	success,_ := m.ExecutePermission()
-	fmt.Println(success)
+	//success,_ := m.ExecutePermission()
+	//fmt.Println(success)
 }
