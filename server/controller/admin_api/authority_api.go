@@ -35,27 +35,31 @@ func (c *AuthorityApi) Get(ctx *gin.Context) {
 		return
 	}
 
-	libs_http.RspSearch(ctx, 0, nil, count,list)
+	libs_http.RspSearch(ctx, 0, nil, count, list)
 	return
 }
 
 func (c *AuthorityApi) Create(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
-		Method    string
-		Path      string
+		Method string
+		Path   string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
 	model := &models.AuthorityApis{
-		Method:   &params.Method,
+		Method: &params.Method,
 		Path:   &params.Path,
 	}
-	if res := global.DBMaster.Create(model); res.Error != nil {
-		libs_http.RspState(ctx, 1, res.Error)
+	if err := global.RBAC.ApiAdapter.Create(model); err != nil {
+		libs_http.RspState(ctx, 1, err)
+		return
 	}
+	//if res := global.DBMaster.Create(model); res.Error != nil {
+	//	libs_http.RspState(ctx, 1, res.Error)
+	//}
 	libs_http.RspState(ctx, 0, "创建成功")
 }
 
@@ -63,8 +67,8 @@ func (c *AuthorityApi) Update(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
 		Id     uint64
-		Method    string
-		Path      string
+		Method string
+		Path   string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -73,7 +77,7 @@ func (c *AuthorityApi) Update(ctx *gin.Context) {
 
 	model := &models.AuthorityApis{
 		Id:     &params.Id,
-		Method:   &params.Method,
+		Method: &params.Method,
 		Path:   &params.Path,
 	}
 	if err := model.UpdateById(model); err != nil {

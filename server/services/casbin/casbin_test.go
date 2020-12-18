@@ -18,6 +18,8 @@ func TestCasbinMysqlInit(t *testing.T) {
 	obj := "abc"
 	act := "POST"
 
+	global.CasbinEnforcer.EnableLog(true)
+	global.CasbinEnforcer.LoadIncrementalFilteredPolicy(sub,obj,act)
 	ok, err := global.CasbinEnforcer.Enforce(sub, obj, act)
 	if err != nil {
 		panic(err)

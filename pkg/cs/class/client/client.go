@@ -19,5 +19,7 @@ type Client interface {
 	// 客户会话列表，会话是否存在
 	ExistsSession(client meta.Client, sessionId string) (bool, error)
 	// 获取客户会话列表
-	GetAllSessions(client meta.Client, sessions interface{}) error
+	GetAllSessions(client meta.Client) ([]string, error)
+	// 加入的会话数量
+	GetNumSessions(client meta.Client) (uint64, error)
 }

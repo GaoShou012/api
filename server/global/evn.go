@@ -12,4 +12,6 @@ var (
 	//RedisClient *redis.ClusterClient
 	DBMaster *gorm.DB
 	DBSlave  *gorm.DB
+
+
 )

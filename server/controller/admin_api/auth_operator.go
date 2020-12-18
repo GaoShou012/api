@@ -45,6 +45,16 @@ type Operator struct {
 	LoginTime time.Time
 }
 
+func (c *Operator) GetTenantId() uint64 {
+	return 0
+}
+func (c *Operator) GetId() uint64 {
+	return c.UserId
+}
+func (c *Operator) GetUsername() string {
+	return c.Username
+}
+
 func (c *Operator) GetAuthorityId() string {
 	return ""
 }
