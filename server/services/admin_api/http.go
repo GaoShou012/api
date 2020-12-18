@@ -3,6 +3,7 @@ package admin_api
 import (
 	controller_admin_api "api/controller/admin_api"
 	"api/meta"
+	"api/middleware"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -92,8 +93,8 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.GET("/operator/info", c.Info)
 	}
 	{
-		c:=controller_admin_api.Casbin{}
-		authenticated = api.Use(c.CasbinHandler())
+		//c:= middleware.CasbinHandler()
+		authenticated = api.Use(middleware.CasbinHandler())
 	}
 	{
 		c := controller_admin_api.Menu{}

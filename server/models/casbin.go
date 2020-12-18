@@ -2,7 +2,6 @@ package models
 
 import (
 	"api/global"
-	"github.com/casbin/casbin/v2"
 )
 
 type CasbinRule struct {
@@ -25,33 +24,14 @@ type CasbinInfo struct {
 	Method string
 }
 
-func (m *CasbinRule) NewCasbin() (*casbin.Enforcer, error) {
-	//config.LocalLoad()
-	//if err := initialize.InitCasbinAdapter(config.GetConfig().Casbin.DNS); err != nil {
-	//	return nil, err
-	//}
-	//e, err := casbin.NewEnforcer(config.GetConfig().Casbin.RBACModelPath, global.CasbinAdapter)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//if err := e.LoadPolicy(); err != nil {
-	//	return nil, err
-	//}
-	//return e, nil
-	return nil, nil
-}
-
 /**
 添加casbin_rule表的规则其中
 rules格式为
 [][]string(AuthorityId,AuthorityId,AuthorityId)
 */
 func (m *CasbinRule) AddCasbinPolicy(rules [][]string) error {
-	e, err := m.NewCasbin()
-	if err != nil {
-		return err
-	}
-	success, err := e.AddPolicies(rules)
+
+	success, err := global.CasbinEnforcer.AddPolicies(rules)
 	if success != true {
 		return err
 	}
@@ -62,11 +42,7 @@ func (m *CasbinRule) AddCasbinPolicy(rules [][]string) error {
 删除权限
 */
 func (m *CasbinRule) RemoveCasbinPolicy(v int, p ...string) error {
-	e, err := m.NewCasbin()
-	if err != nil {
-		return err
-	}
-	su, err := e.RemoveFilteredPolicy(v, p...)
+	su, err := global.CasbinEnforcer.RemoveFilteredPolicy(v, p...)
 	if su != true {
 		return err
 	}
@@ -79,11 +55,7 @@ func (m *CasbinRule) RemoveCasbinPolicy(v int, p ...string) error {
 //@return: pathMaps []request.CasbinInfo
 
 func (m *CasbinRule) GetPolicyPathByAuthorityId(authorityId string) (pathMaps []CasbinInfo, err error) {
-	e, err := m.NewCasbin()
-	if err != nil {
-		return nil, err
-	}
-	list := e.GetFilteredPolicy(0, authorityId)
+	list := global.CasbinEnforcer.GetFilteredPolicy(0, authorityId)
 	for _, v := range list {
 		pathMaps = append(pathMaps, CasbinInfo{
 			Path:   v[1],
@@ -93,18 +65,6 @@ func (m *CasbinRule) GetPolicyPathByAuthorityId(authorityId string) (pathMaps []
 	return pathMaps, nil
 }
 
-//判断权限
-func (m *CasbinRule) ExecutePermission() bool {
-	e, err := m.NewCasbin()
-	if err != nil {
-		return false
-	}
-	sub := "bxcb" //v1
-	obj := "POST" //v2
-	act := "u"    //v0
-	success, _ := e.Enforce(sub, obj, act)
-	return success
-}
 
 /**
 当修改api的请求方式时调用此函数
