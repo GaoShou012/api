@@ -9,13 +9,13 @@ type User struct {
 	Password string
 }
 
-func AFunc(v interface{}){
+func AFunc(v interface{}) {
 	u := User{
 		Username: "aaa",
 		Password: "bbb",
 	}
 	var row []interface{}
-	row = append(row,u)
+	row = append(row, u)
 	v = row
 }
 

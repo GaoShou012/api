@@ -56,7 +56,7 @@ func (c *Operator) GetUsername() string {
 }
 
 func (c *Operator) GetAuthorityId() string {
-	return ""
+	return c.Username
 }
 
 func (c *Operator) encrypt(key []byte) (string, error) {
