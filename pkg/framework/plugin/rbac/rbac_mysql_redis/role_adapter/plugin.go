@@ -1,6 +1,7 @@
 package role_adapter
 
 import (
+	lib_model "framework/class/libs/model"
 	"framework/class/rbac"
 	"github.com/jinzhu/gorm"
 )
@@ -35,15 +36,28 @@ func (p *plugin) CreateRole(role rbac.Role) error {
 }
 
 func (p *plugin) DeleteRole(roleId uint64) (bool, error) {
-	panic("implement me")
+	res := p.dbMaster.Table(p.roleModel.GetTableName()).Where("id=?", roleId).Delete(p.roleModel)
+	if res.Error != nil {
+		return false,res.Error
+	}
+	return true,nil
 }
 
 func (p *plugin) UpdateRole(roleId uint64, role rbac.Role) error {
-	panic("implement me")
+	res := p.dbMaster.Table(p.roleModel.GetTableName()).Where("id=?", roleId).Updates(p.roleModel)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }
 
 func (p *plugin) SelectById(roleId uint64) (rbac.Role, error) {
-	panic("implement me")
+	newModel := lib_model.NewModel(p.roleModel)
+	res := p.dbSlave.Table(p.roleModel.GetTableName()).Where("id=?", roleId).Find(newModel)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return newModel.(rbac.Role), nil
 }
 
 func (p *plugin) AssocMenuGroup(role rbac.Role, group rbac.MenuGroup) error {
