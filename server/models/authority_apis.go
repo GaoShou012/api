@@ -13,6 +13,14 @@ type AuthorityApis struct {
 	UpdatedAt *time.Time
 }
 
+func (m *AuthorityApis) GetId() uint64 {
+	return *m.Id
+}
+
+func (m *AuthorityApis) GetTableName() string {
+	return "apis"
+}
+
 func (m *AuthorityApis) GetMethod() string {
 	return *m.Method
 }

@@ -1,4 +1,4 @@
-package api_adapter
+package role_adapter
 
 import (
 	"framework/class/rbac"
@@ -8,7 +8,7 @@ import (
 var _ rbac.RoleAdapter = &plugin{}
 
 type plugin struct {
-	roleModel               rbac.Role
+	roleModel               rbac.Model
 	roleAssocApiModel       rbac.Model
 	roleAssocMenuGroupModel rbac.Model
 	roleAssocMenuModel      rbac.Model
@@ -27,7 +27,11 @@ func (p *plugin) Authority(operator rbac.Operator, roleId uint64) (bool, error) 
 }
 
 func (p *plugin) CreateRole(role rbac.Role) error {
-	panic("implement me")
+	res := p.dbMaster.Table(p.roleModel.GetTableName()).Create(role)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }
 
 func (p *plugin) DeleteRole(roleId uint64) (bool, error) {
@@ -55,5 +59,5 @@ func (p *plugin) AssocApi(role rbac.Role, api rbac.Api) error {
 }
 
 func (p *plugin) EnforcerApi(roleId uint64, method string, path string) (bool, error) {
-	panic("implement me")
+	return p.Callback.ExistsByRoleIdReqMethodAndPath(roleId, method, path)
 }

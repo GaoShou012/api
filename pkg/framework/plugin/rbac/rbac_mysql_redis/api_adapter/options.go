@@ -2,13 +2,15 @@ package api_adapter
 
 import (
 	"framework/class/rbac"
+	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 )
 
 type Options struct {
-	model    rbac.Api
-	dbMaster *gorm.DB
-	dbSlave  *gorm.DB
+	model       rbac.Api
+	dbMaster    *gorm.DB
+	dbSlave     *gorm.DB
+	redisClient *redis.Client
 	*Callback
 }
 
@@ -44,6 +46,12 @@ func WithGorm(master *gorm.DB, slave *gorm.DB) Option {
 	return func(o *Options) {
 		o.dbMaster = master
 		o.dbSlave = slave
+	}
+}
+
+func WithRedisClient(redisClient *redis.Client) Option {
+	return func(o *Options) {
+		o.redisClient = redisClient
 	}
 }
 

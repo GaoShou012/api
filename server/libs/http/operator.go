@@ -6,6 +6,7 @@ import (
 )
 
 type Operator interface {
+	GetTenantId() uint64
 	GetAuthorityId() string
 }
 
