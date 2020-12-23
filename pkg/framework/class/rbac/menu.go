@@ -4,8 +4,10 @@ type Menu interface {
 	GetGroupId() uint64
 }
 type MenuGroup interface {
+	GetMenuName() string
+	GetGroupName() string
+	GetSort() uint64
 }
-
 type MenuAdapter interface {
 	CreateMenuGroup(operator Operator, group MenuGroup) error
 	UpdateMenuGroup(groupId uint64, group MenuGroup) error
@@ -25,7 +27,7 @@ type MenuAdapter interface {
 	UpdateMenu(menuId uint64, menu Menu) error
 	SelectByGroupId(tenantId uint64, groupId uint64) ([]Menu, error)
 	SelectMenuById(menuId uint64) (Menu, error)
-	SelectMenuByGroupId(groupId uint64) ([]Menu,error)
+	SelectMenuByGroupId(groupId uint64) ([]Menu, error)
 
 	/*
 		根据用户ID

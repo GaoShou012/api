@@ -5,22 +5,34 @@ import (
 	"time"
 )
 
-type MenuGroups struct {
+type MenusGroups struct {
 	Id        *uint64
-	Group     *string
-	Sort      *int
+	GroupName *string
+	Sort      *uint64
 	Icon      *string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
-func (m *MenuGroups) UpdateById(param *MenuGroups) error {
+
+func (m *MenusGroups) GetMenuName() string {
+	return ""
+}
+
+func (m *MenusGroups) GetGroupName() string {
+	return *m.GroupName
+}
+func (m *MenusGroups) GetSort() uint64 {
+	return *m.Sort
+}
+
+func (m *MenusGroups) UpdateById(param *MenusGroups) error {
 	res := global.DBMaster.Model(m).Updates(param)
 	if res.Error != nil {
 		return res.Error
 	}
 	return nil
 }
-func (m *MenuGroups) DeleteById(param *MenuGroups) error {
+func (m *MenusGroups) DeleteById(param *MenusGroups) error {
 	res := global.DBMaster.Model(m).Delete(param)
 	if res.Error != nil {
 		return res.Error
@@ -28,9 +40,9 @@ func (m *MenuGroups) DeleteById(param *MenuGroups) error {
 	return nil
 }
 
-func (m *MenuGroups) Count(field string) (int64, error) {
+func (m *MenusGroups) Count(field string) (int64, error) {
 	count := 0
-	res :=global.DBSlave.Model(m)
+	res := global.DBSlave.Model(m)
 	if field == "*" {
 		res.Count(&count)
 	} else {

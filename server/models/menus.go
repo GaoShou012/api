@@ -11,7 +11,7 @@ type Menus struct {
 	GroupId   *uint64
 	Name      *string
 	Icon      *string
-	Sort      *int
+	Sort      *uint64
 	Path      *string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
