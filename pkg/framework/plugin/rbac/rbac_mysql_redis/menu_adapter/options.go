@@ -1,4 +1,4 @@
-package api_adapter
+package menu_adapter
 
 import (
 	"framework/class/rbac"

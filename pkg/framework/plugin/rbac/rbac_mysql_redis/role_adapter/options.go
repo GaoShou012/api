@@ -1,4 +1,4 @@
-package api_adapter
+package role_adapter
 
 import (
 	"framework/class/rbac"

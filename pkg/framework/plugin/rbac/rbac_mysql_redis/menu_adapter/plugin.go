@@ -1,4 +1,4 @@
-package api_adapter
+package menu_adapter
 
 import (
 	lib_model "framework/class/libs/model"

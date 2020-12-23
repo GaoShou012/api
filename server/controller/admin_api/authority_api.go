@@ -53,10 +53,21 @@ func (c *AuthorityApi) Create(ctx *gin.Context) {
 		Method: &params.Method,
 		Path:   &params.Path,
 	}
-	if err := global.RBAC.ApiAdapter.Create(model); err != nil {
+
+	operator, err := libs_http.GetOperator(ctx)
+	if err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
+	if err := global.RBAC.CreateApi(operator, model); err != nil {
+		libs_http.RspState(ctx, 1, err)
+		return
+	}
+
+	//if err := global.RBAC.ApiAdapter.Create(model); err != nil {
+	//	libs_http.RspState(ctx, 1, err)
+	//	return
+	//}
 	//if res := global.DBMaster.Create(model); res.Error != nil {
 	//	libs_http.RspState(ctx, 1, res.Error)
 	//}
@@ -75,15 +86,21 @@ func (c *AuthorityApi) Update(ctx *gin.Context) {
 		return
 	}
 
+	operator, err := GetOperator(ctx)
+	if err != nil {
+		libs_http.RspState(ctx, 1, err)
+		return
+	}
 	model := &models.AuthorityApis{
 		Id:     &params.Id,
 		Method: &params.Method,
 		Path:   &params.Path,
 	}
-	if err := model.UpdateById(model); err != nil {
+	if err := global.RBAC.UpdateApi(operator, params.Id, model); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
+
 	libs_http.RspState(ctx, 0, "更新成功")
 }
 
