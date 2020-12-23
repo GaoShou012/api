@@ -30,7 +30,7 @@ func (p *plugin) CreateRole(role rbac.Role) error {
 	panic("implement me")
 }
 
-func (p *plugin) DeleteRole(roleId uint64) error {
+func (p *plugin) DeleteRole(roleId uint64) (bool, error) {
 	panic("implement me")
 }
 

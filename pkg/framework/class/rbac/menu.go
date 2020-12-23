@@ -23,7 +23,7 @@ type MenuAdapter interface {
 	AuthorityMenuGroup(operator Operator, groupId uint64) (bool, error)
 
 	CreateMenu(menu Menu) error
-	DeleteMenu(menuId uint64) error
+	DeleteMenu(menuId uint64) (bool,error)
 	UpdateMenu(menuId uint64, menu Menu) error
 	SelectMenuById(menuId uint64) (Menu, error)
 	SelectMenuByGroupId(groupId uint64) ([]Menu, error)
