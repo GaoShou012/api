@@ -22,15 +22,15 @@ func (p *plugin) CreateApi(operator rbac.Operator, api rbac.Api) error {
 	return env.ApiAdapter.Create(api)
 }
 
-func (p *plugin) DeleteApi(operator rbac.Operator, apiId uint64) (bool,error) {
+func (p *plugin) DeleteApi(operator rbac.Operator, apiId uint64) (bool, error) {
 	// 校验操作者权限
 	{
 		ok, err := env.ApiAdapter.Authority(operator, apiId)
 		if err != nil {
-			return false,err
+			return false, err
 		}
 		if !ok {
-			return false,errors.New("目标API权限不足")
+			return false, errors.New("目标API权限不足")
 		}
 	}
 
@@ -66,14 +66,14 @@ func (p *plugin) CreateMenu(operator rbac.Operator, groupId uint64, menu rbac.Me
 	return env.MenuAdapter.CreateMenu(menu)
 }
 
-func (p *plugin) DeleteMenu(operator rbac.Operator, menuId uint64) (bool,error) {
+func (p *plugin) DeleteMenu(operator rbac.Operator, menuId uint64) (bool, error) {
 	{
 		ok, err := env.MenuAdapter.AuthorityMenu(operator, menuId)
 		if err != nil {
-			return false,err
+			return false, err
 		}
 		if !ok {
-			return false,errors.New("权限不足")
+			return false, errors.New("权限不足")
 		}
 	}
 	return env.MenuAdapter.DeleteMenu(menuId)
@@ -131,13 +131,13 @@ func (p *plugin) CreateRole(operator rbac.Operator, role rbac.Role) error {
 	return env.RoleAdapter.CreateRole(role)
 }
 
-func (p *plugin) DeleteRole(operator rbac.Operator, roleId uint64) (bool,error) {
+func (p *plugin) DeleteRole(operator rbac.Operator, roleId uint64) (bool, error) {
 	ok, err := env.RoleAdapter.Authority(operator, roleId)
 	if err != nil {
-		return false,err
+		return false, err
 	}
 	if !ok {
-		return false,errors.New("权限不足")
+		return false, errors.New("权限不足")
 	}
 	return env.RoleAdapter.DeleteRole(roleId)
 }
@@ -194,6 +194,35 @@ func (p *plugin) RoleAssocApi(operator rbac.Operator, roleId uint64, apiId uint6
 	return nil
 }
 
+func (p *plugin) RoleDisassociateApi(operator rbac.Operator, roleId uint64, apiId uint64) error {
+	{
+		ok, err := env.RoleAdapter.Authority(operator, roleId)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("角色操作权限不足")
+		}
+	}
+	{
+		ok, err := env.ApiAdapter.Authority(operator, apiId)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("API操作权限不足")
+		}
+	}
+
+	{
+		_, err := env.RoleAdapter.DisassociateApi(roleId, apiId)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
 func (p *plugin) RoleAssocMenu(operator rbac.Operator, roleId uint64, menuId uint64) error {
 	// 校验操作者权限
 	{
@@ -235,6 +264,36 @@ func (p *plugin) RoleAssocMenu(operator rbac.Operator, roleId uint64, menuId uin
 	return nil
 }
 
+func (p *plugin) RoleDisassociateMenu(operator rbac.Operator, roleId uint64, menuId uint64) error {
+	{
+		ok, err := env.RoleAdapter.Authority(operator, roleId)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("角色操作权限不足")
+		}
+	}
+	{
+		ok, err := env.MenuAdapter.AuthorityMenu(operator, menuId)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("菜单操作权限不足")
+		}
+	}
+
+	{
+		_, err := env.RoleAdapter.DisassociateMenu(roleId, menuId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (p *plugin) RoleAssocMenuGroup(operator rbac.Operator, roleId uint64, menuGroupId uint64) error {
 	{
 		ok, err := env.RoleAdapter.Authority(operator, roleId)
@@ -269,6 +328,36 @@ func (p *plugin) RoleAssocMenuGroup(operator rbac.Operator, roleId uint64, menuG
 
 	// 关联操作
 	return env.RoleAdapter.AssocMenuGroup(role, group)
+}
+
+func (p *plugin) RoleDisassociateMenuGroup(operator rbac.Operator, roleId uint64, menuGroupId uint64) error {
+	{
+		ok, err := env.RoleAdapter.Authority(operator, roleId)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("角色操作权限不足")
+		}
+	}
+
+	{
+		ok, err := env.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errors.New("菜单组操作权限不足")
+		}
+	}
+
+	{
+		_, err := env.RoleAdapter.DisassociateMenuGroup(roleId, menuGroupId)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 /*
