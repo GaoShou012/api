@@ -64,11 +64,23 @@ func (p *plugin) AssocMenuGroup(role rbac.Role, group rbac.MenuGroup) error {
 	panic("implement me")
 }
 
+func (p *plugin) DisassociateMenuGroup(roleId, menuGroupId uint64) (bool, error) {
+	panic("implement me")
+}
+
 func (p *plugin) AssocMenu(role rbac.Role, menu rbac.Menu) error {
 	panic("implement me")
 }
 
+func (p *plugin) DisassociateMenu(roleId uint64, menuId uint64) (bool, error) {
+	panic("implement me")
+}
+
 func (p *plugin) AssocApi(role rbac.Role, api rbac.Api) error {
+	panic("implement me")
+}
+
+func (p *plugin) DisassociateApi(roleId uint64, apiId uint64) (bool, error) {
 	panic("implement me")
 }
 

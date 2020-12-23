@@ -9,7 +9,7 @@ type RBAC interface {
 	/*
 		删除API
 	*/
-	DeleteApi(operator Operator, apiId uint64) (bool,error)
+	DeleteApi(operator Operator, apiId uint64) (bool, error)
 
 	/*
 		更新API
@@ -24,7 +24,7 @@ type RBAC interface {
 	/*
 		删除菜单
 	*/
-	DeleteMenu(operator Operator, menuId uint64) (bool,error)
+	DeleteMenu(operator Operator, menuId uint64) (bool, error)
 
 	/*
 		更新菜单
@@ -39,7 +39,7 @@ type RBAC interface {
 	/*
 		删除菜单组
 	*/
-	DeleteMenuGroup(operator Operator, menuGroupId uint64) (bool,error)
+	DeleteMenuGroup(operator Operator, menuGroupId uint64) (bool, error)
 
 	/*
 		更新菜单组
@@ -54,7 +54,7 @@ type RBAC interface {
 	/*
 		删除角色
 	*/
-	DeleteRole(operator Operator, roleId uint64) (bool,error)
+	DeleteRole(operator Operator, roleId uint64) (bool, error)
 
 	/*
 		更新角色
@@ -67,14 +67,29 @@ type RBAC interface {
 	RoleAssocApi(operator Operator, roleId uint64, apiId uint64) error
 
 	/*
+		角色取消关联API
+	*/
+	RoleDisassociateApi(operator Operator, roleId uint64, apiId uint64) error
+
+	/*
 		角色关联菜单
 	*/
 	RoleAssocMenu(operator Operator, roleId uint64, menuId uint64) error
 
 	/*
+		角色取消关联菜单
+	*/
+	RoleDisassociateMenu(operator Operator, roleId uint64, menuId uint64) error
+
+	/*
 		角色关联菜单组
 	*/
 	RoleAssocMenuGroup(operator Operator, roleId uint64, menuGroupId uint64) error
+
+	/*
+		角色取消关联菜单组
+	*/
+	RoleDisassociateMenuGroup(operator Operator, roleId uint64, menuGroupId uint64) error
 
 	/*
 		权限判断
