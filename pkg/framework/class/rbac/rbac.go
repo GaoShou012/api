@@ -9,7 +9,7 @@ type RBAC interface {
 	/*
 		删除API
 	*/
-	DeleteApi(operator Operator, apiId uint64) error
+	DeleteApi(operator Operator, apiId uint64) (bool,error)
 
 	/*
 		更新API
@@ -24,7 +24,7 @@ type RBAC interface {
 	/*
 		删除菜单
 	*/
-	DeleteMenu(operator Operator, menuId uint64) error
+	DeleteMenu(operator Operator, menuId uint64) (bool,error)
 
 	/*
 		更新菜单
@@ -39,7 +39,7 @@ type RBAC interface {
 	/*
 		删除菜单组
 	*/
-	DeleteMenuGroup(operator Operator, menuGroupId uint64) error
+	DeleteMenuGroup(operator Operator, menuGroupId uint64) (bool,error)
 
 	/*
 		更新菜单组
@@ -54,7 +54,7 @@ type RBAC interface {
 	/*
 		删除角色
 	*/
-	DeleteRole(operator Operator, roleId uint64) error
+	DeleteRole(operator Operator, roleId uint64) (bool,error)
 
 	/*
 		更新角色

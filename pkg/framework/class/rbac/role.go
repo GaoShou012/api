@@ -9,7 +9,7 @@ type RoleAdapter interface {
 	Authority(operator Operator, roleId uint64) (bool, error)
 
 	CreateRole(role Role) error
-	DeleteRole(roleId uint64) error
+	DeleteRole(roleId uint64) (bool,error)
 	UpdateRole(roleId uint64, role Role) error
 	SelectById(roleId uint64) (Role, error)
 

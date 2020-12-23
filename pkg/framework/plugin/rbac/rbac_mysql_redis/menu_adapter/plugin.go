@@ -69,12 +69,16 @@ func (p *plugin) CreateMenu(menu rbac.Menu) error {
 	return nil
 }
 
-func (p *plugin) DeleteMenu(menuId uint64) error {
+func (p *plugin) DeleteMenu(menuId uint64) (bool, error) {
 	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("id=?", menuId).Delete(p.menuModel)
 	if res.Error != nil {
-		return res.Error
+		return false, res.Error
 	}
-	return nil
+	if res.RowsAffected == 0 {
+		return false, nil
+	} else {
+		return true, nil
+	}
 }
 
 func (p *plugin) UpdateMenu(menuId uint64, menu rbac.Menu) error {

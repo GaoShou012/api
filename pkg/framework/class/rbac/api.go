@@ -17,7 +17,7 @@ type ApiAdapter interface {
 	Authority(operator Operator, apiId uint64) (bool, error)
 
 	Create(api Api) error
-	Delete(apiId uint64) error
+	Delete(apiId uint64) (bool,error)
 	Update(apiId uint64, api Api) error
 	SelectById(apiId uint64) (Api, error)
 

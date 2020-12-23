@@ -47,9 +47,16 @@ func (p *plugin) Create(api rbac.Api) error {
 	return res.Error
 }
 
-func (p *plugin) Delete(apiId uint64) error {
+func (p *plugin) Delete(apiId uint64) (bool, error) {
 	res := p.dbMaster.Table(p.model.GetTableName()).Where("id=?", apiId).Delete(p.model)
-	return res.Error
+	if res.Error != nil {
+		return false, res.Error
+	}
+	if res.RowsAffected == 0 {
+		return false, nil
+	} else {
+		return true, nil
+	}
 }
 
 func (p *plugin) Update(apiId uint64, api rbac.Api) error {
