@@ -15,6 +15,8 @@ type AdminsLoginStats struct {
 	// 登陆次数
 	LoginTimes *uint64 `gorm:"default:0"`
 
+	Testing *string
+
 	UpdatedAt *time.Time
 	CreatedAt *time.Time
 }

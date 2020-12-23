@@ -18,9 +18,6 @@ type redisStream struct {
 
 func (s *redisStream) Init() error {
 	s.redisClient = s.opts.redisClient
-	if s.opts.logger == nil {
-		s.opts.logger = &iLogger{}
-	}
 	return nil
 }
 
