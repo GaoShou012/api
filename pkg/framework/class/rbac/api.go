@@ -1,6 +1,7 @@
 package rbac
 
 type Api interface {
+	Model
 	GetId() uint64
 	GetTableName() string
 	GetMethod() string

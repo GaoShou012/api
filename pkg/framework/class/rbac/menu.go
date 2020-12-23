@@ -1,10 +1,10 @@
 package rbac
 
 type Menu interface {
-	GetTableName() string
+	Model
 }
 type MenuGroup interface {
-	GetTableName() string
+	Model
 }
 
 type MenuAdapter interface {
@@ -27,7 +27,6 @@ type MenuAdapter interface {
 	UpdateMenu(menuId uint64, menu Menu) error
 	SelectMenuById(menuId uint64) (Menu, error)
 	SelectMenuByGroupId(groupId uint64) ([]Menu, error)
-	DeleteMenuGroupById(groupId uint64) error
 
 	/*
 		根据角色ID

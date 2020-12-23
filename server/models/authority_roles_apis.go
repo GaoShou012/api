@@ -7,9 +7,10 @@ import (
 
 type AuthorityRolesApis struct {
 	Id        *uint64
-	RoleId    *uint64 // 菜单名称
-	ApiMethod *string // 排序值
-	ApiPath   *string // 菜单图标
+	RoleId    *uint64
+	MenuId    *uint64
+	ApiMethod *string
+	ApiPath   *string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
