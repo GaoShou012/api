@@ -9,7 +9,7 @@ type RoleAdapter interface {
 	Authority(operator Operator, roleId uint64) (bool, error)
 
 	CreateRole(role Role) error
-	DeleteRole(roleId uint64) (bool,error)
+	DeleteRole(roleId uint64) (bool, error)
 	UpdateRole(roleId uint64, role Role) error
 	SelectById(roleId uint64) (Role, error)
 
@@ -20,14 +20,29 @@ type RoleAdapter interface {
 	AssocMenuGroup(role Role, group MenuGroup) error
 
 	/*
+		角色取消关联菜单组
+	*/
+	DisassociateMenuGroup(roleId,menuGroupId uint64) (bool, error)
+
+	/*
 		角色关联菜单
 	*/
 	AssocMenu(role Role, menu Menu) error
 
 	/*
+		角色取消关联菜单
+	*/
+	DisassociateMenu(roleId uint64, menuId uint64) (bool, error)
+
+	/*
 		角色关联API
 	*/
 	AssocApi(role Role, api Api) error
+
+	/*
+		角色取消关联API
+	*/
+	DisassociateApi(roleId uint64, apiId uint64) (bool, error)
 
 	/*
 		角色是否存在API
