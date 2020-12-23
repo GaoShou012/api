@@ -3,16 +3,15 @@ package rbac
 type Role interface{}
 
 type RoleAdapter interface {
-	CreateRole(operator Operator, role Role) error
-	DeleteRole(operator Operator, roleId uint64) error
-	UpdateRole(operator Operator, role Role) error
-	SelectById(roleId uint64) (Role, error)
-	IncrReference(operator Operator, roleId uint64) error
-
 	/*
 		校验操作者，是否有权限，操作此角色ID
 	*/
-	VerifyIdWithOperator(roleId uint64,operator Operator) (bool,error)
+	Authority(operator Operator, roleId uint64) (bool, error)
+
+	CreateRole(role Role) error
+	DeleteRole(roleId uint64) error
+	UpdateRole(roleId uint64, role Role) error
+	SelectById(roleId uint64) (Role, error)
 
 	/*
 		角色关联菜单组
@@ -21,7 +20,17 @@ type RoleAdapter interface {
 	AssocMenuGroup(role Role, group MenuGroup) error
 
 	/*
+		角色关联菜单
+	*/
+	AssocMenu(role Role, menu Menu) error
+
+	/*
 		角色关联API
 	*/
-	AssocApi(role Role,api Api) error
+	AssocApi(role Role, api Api) error
+
+	/*
+		角色是否存在API
+	*/
+	EnforcerApi(roleId uint64, method string, path string) (bool, error)
 }

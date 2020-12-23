@@ -13,21 +13,20 @@ type Options struct {
 
 type Option func(o *Options)
 
-func NewApiAdapter(opts ...Option) rbac.ApiAdapter {
+func New(opts ...Option) rbac.RBAC {
 	options := &Options{}
 
 	for _, o := range opts {
 		o(options)
 	}
 
-	b := &ApiAdapter{
-		db:   nil,
+	p := &plugin{
 		opts: options,
 	}
-	if err := b.Init(); err != nil {
+	if err := p.Init(); err != nil {
 		panic(err)
 	}
-	return b
+	return p
 }
 
 func WithDatabase(db *gorm.DB) Option {

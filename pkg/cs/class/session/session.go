@@ -4,6 +4,14 @@ import "cs/meta"
 
 type Session interface {
 	Init() error
+
+	// 设置标记
+	SetFlag(sessionId string, key string, val string) error
+	SetFlagNX(sessionId string, key string, val string) (bool, error)
+	GetFlag(sessionId string, key string) (string, error)
+	DelFlag(sessionId string, key string) error
+	ExistsFlag(sessionId string, key string) (bool, error)
+
 	SetEnable(sessionId string, enable bool) (bool, error)
 	// 会话是否启用中
 	GetEnable(sessionId string) (bool, error)

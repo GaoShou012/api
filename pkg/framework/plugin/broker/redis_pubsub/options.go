@@ -3,7 +3,7 @@ package broker_redis_pubsub
 import (
 	"framework/class/broker"
 	"framework/class/logger"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 )
 
 type Options struct {
@@ -13,14 +13,14 @@ type Options struct {
 
 type Option func(o *Options)
 
-func NewBroker(opts ...Option) broker.Broker {
+func New(opts ...Option) broker.Broker {
 	options := &Options{}
 
 	for _, o := range opts {
 		o(options)
 	}
 
-	b := &redisPubSub{
+	b := &plugin{
 		redisClient: nil,
 		opts:        options,
 	}
@@ -33,11 +33,5 @@ func NewBroker(opts ...Option) broker.Broker {
 func WithRedisClient(redisClient *redis.Client) Option {
 	return func(o *Options) {
 		o.redisClient = redisClient
-	}
-}
-
-func WithLogger(log logger.Logger) Option {
-	return func(o *Options) {
-		o.logger = log
 	}
 }
