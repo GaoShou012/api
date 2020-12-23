@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthorityRolesMenusGroup struct{}
+type AuthorityRolesMenus struct{}
 
-func (c *AuthorityRolesMenusGroup) Get(ctx *gin.Context) {
+func (c *AuthorityRolesMenus) Get(ctx *gin.Context) {
 	var params struct {
 		Page int
 		Size int
@@ -18,9 +18,9 @@ func (c *AuthorityRolesMenusGroup) Get(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	model := &models.AuthorityRolesMenusGroups{}
+	model := &models.AuthorityRolesMenus{}
 
-	var list []models.AuthorityRolesMenusGroups
+	var list []models.AuthorityRolesMenus
 	// 按名称查找
 	count, err := model.Count("*")
 	if err != nil {
@@ -40,7 +40,7 @@ func (c *AuthorityRolesMenusGroup) Get(ctx *gin.Context) {
 	return
 }
 
-func (c *AuthorityRolesMenusGroup) Create(ctx *gin.Context) {
+func (c *AuthorityRolesMenus) Create(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
 		RoleId     uint64
@@ -50,7 +50,7 @@ func (c *AuthorityRolesMenusGroup) Create(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	model := &models.AuthorityRolesMenusGroups{
+	model := &models.AuthorityRolesMenus{
 		RoleId:&params.RoleId,
 		MenuGroups:&params.MenuGroups,
 	}
@@ -60,12 +60,12 @@ func (c *AuthorityRolesMenusGroup) Create(ctx *gin.Context) {
 	libs_http.RspState(ctx, 0, "创建成功")
 }
 
-func (c *AuthorityRolesMenusGroup) Update(ctx *gin.Context) {
+func (c *AuthorityRolesMenus) Update(ctx *gin.Context) {
 	// 接受参数
 	var params struct {
 		Id   uint64
 		RoleId     uint64
-		MenuGroups string
+		MenuId uint64
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -73,10 +73,10 @@ func (c *AuthorityRolesMenusGroup) Update(ctx *gin.Context) {
 	}
 	//model := &models.MenuGroups{}
 
-	model := &models.AuthorityRolesMenusGroups{
+	model := &models.AuthorityRolesMenus{
 		Id:   &params.Id,
 		RoleId: &params.RoleId,
-		MenuGroups: &params.MenuGroups,
+		MenuId: &params.MenuId,
 	}
 	if err := model.UpdateById(model); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -85,7 +85,7 @@ func (c *AuthorityRolesMenusGroup) Update(ctx *gin.Context) {
 	libs_http.RspState(ctx, 0, "更新成功")
 }
 
-func (c *AuthorityRolesMenusGroup) Del(ctx *gin.Context) {
+func (c *AuthorityRolesMenus) Del(ctx *gin.Context) {
 	var params struct {
 		Id uint64
 	}
@@ -93,7 +93,7 @@ func (c *AuthorityRolesMenusGroup) Del(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	model := &models.AuthorityRolesMenusGroups{
+	model := &models.AuthorityRolesMenus{
 		Id: &params.Id,
 	}
 	err := model.DeleteById(model)

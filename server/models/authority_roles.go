@@ -8,8 +8,8 @@ import (
 type AuthorityRoles struct {
 	Id        *uint64
 	Name      *string
-	Sort      *int    // 排序值
-	Remark    *string // 备注
+	Sort      *uint64   // 排序值
+	Remark    *string 	// 备注
 	Enable    *bool
 	CreatedAt *time.Time
 	UpdatedAt *time.Time

@@ -5,15 +5,16 @@ import (
 	"time"
 )
 
-type AuthorityRolesMenusGroups struct {
+type AuthorityRolesMenus struct {
 	Id         *uint64
 	RoleId     *uint64
-	MenuGroups *string
+	//MenuGroups *string
+	MenuId     *uint64
 	CreatedAt  *time.Time
 	UpdatedAt  *time.Time
 }
 
-func (m *AuthorityRolesMenusGroups) UpdateById(param *AuthorityRolesMenusGroups) error {
+func (m *AuthorityRolesMenus) UpdateById(param *AuthorityRolesMenus) error {
 	res := global.DBMaster.Model(m).Updates(param)
 	if res.Error != nil {
 		return res.Error
@@ -21,7 +22,7 @@ func (m *AuthorityRolesMenusGroups) UpdateById(param *AuthorityRolesMenusGroups)
 	return nil
 }
 
-func (m *AuthorityRolesMenusGroups) DeleteById(param *AuthorityRolesMenusGroups) error {
+func (m *AuthorityRolesMenus) DeleteById(param *AuthorityRolesMenus) error {
 	res := global.DBMaster.Model(m).Delete(param)
 	if res.Error != nil {
 		return res.Error
@@ -29,7 +30,7 @@ func (m *AuthorityRolesMenusGroups) DeleteById(param *AuthorityRolesMenusGroups)
 	return nil
 }
 
-func (m *AuthorityRolesMenusGroups) Count(field string) (int64, error) {
+func (m *AuthorityRolesMenus) Count(field string) (int64, error) {
 	count := 0
 	res := global.DBSlave.Model(m)
 	if field == "*" {
