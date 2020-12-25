@@ -113,12 +113,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 			libs_http.RspState(ctx, 1, "密码错误")
 			return
 		}
-		//db.Create(&models.Admins{
-		//go get -u golang.org/x/crypto/bcrypt
-		//	Username: &params.Username,
-		//	Password: &params.Password,
-		//	Nickname: &params.Username,
-		//})
 	}
 
 	// 生成Token
