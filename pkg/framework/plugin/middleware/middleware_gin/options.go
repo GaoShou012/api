@@ -3,6 +3,7 @@ package middleware_gin
 import (
 	"framework/class/middleware"
 	"github.com/go-redis/redis/v8"
+	"time"
 )
 
 type Options struct {
@@ -10,6 +11,7 @@ type Options struct {
 	redisClient    *redis.Client
 	cipherKey      []byte
 	headerTokenKey string
+	expiration     time.Duration
 	*Callback
 }
 
@@ -49,6 +51,13 @@ func WithHeaderTokenKey(key string) Option {
 func WithModel(model middleware.Operator) Option {
 	return func(o *Options) {
 		o.model = model
+	}
+}
+
+// 信息过期时间
+func WithExpiration(expiration time.Duration) Option {
+	return func(o *Options) {
+		o.expiration = expiration
 	}
 }
 

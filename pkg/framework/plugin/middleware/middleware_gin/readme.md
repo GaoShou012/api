@@ -9,3 +9,10 @@ op,err := opContext.Get(ctx *gin.Context)
 
 ````
 
+
+````
+
+使用超时验证，operator必须要支持 SetContextId,GetContextId
+保存和读取上下文ID
+
+````

@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/mitchellh/mapstructure"
+	uuid "github.com/satori/go.uuid"
 	"reflect"
 	"time"
 )
@@ -41,12 +42,14 @@ func toTimeHookFunc() mapstructure.DecodeHookFunc {
 var _ middleware.OperatorContext = &plugin{}
 
 type plugin struct {
-	model          middleware.Operator
-	headerTokenKey string
-	cipherKey      []byte
-	redisClient    *redis.Client
 	*Callback
-	opts *Options
+	model                  middleware.Operator
+	headerTokenKey         string
+	cipherKey              []byte
+	redisClient            *redis.Client
+	expiration             time.Duration
+	opts                   *Options
+	refreshExpirationQueue chan middleware.Operator
 }
 
 func (p *plugin) Init() error {
@@ -65,6 +68,18 @@ func (p *plugin) Init() error {
 	}
 	p.headerTokenKey = p.opts.headerTokenKey
 
+	p.Callback = p.opts.Callback
+	p.redisClient = p.opts.redisClient
+	p.expiration = p.opts.expiration
+
+	p.refreshExpirationQueue = make(chan middleware.Operator, 5000)
+	go func() {
+		for {
+			operator := <-p.refreshExpirationQueue
+			key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
+			p.redisClient.Set(context.TODO(), key, time.Now().String(), p.expiration)
+		}
+	}()
 	return nil
 }
 
@@ -143,6 +158,7 @@ func (p *plugin) decrypt(key []byte, str string, operator middleware.Operator) e
 
 func (p *plugin) SignedString(args ...interface{}) (string, error) {
 	operator := args[0].(middleware.Operator)
+	operator.SetContextId(uuid.NewV1().String())
 	return p.encrypt(p.cipherKey, operator)
 }
 
@@ -162,17 +178,17 @@ func (p *plugin) Parse(args ...interface{}) interface{} {
 		if t.Kind() == reflect.Ptr {
 			t = t.Elem()
 		}
-		operator := reflect.New(t).Interface()
+		operator := reflect.New(t).Interface().(middleware.Operator)
 
 		// decrypt the string to the struct
-		if err := p.decrypt(p.cipherKey, str, operator.(middleware.Operator)); err != nil {
+		if err := p.decrypt(p.cipherKey, str, operator); err != nil {
 			env.Logger.Error(err)
 			ctx.Abort()
 			return
 		}
 
 		// save the operator to context
-		p.set(ctx, operator.(middleware.Operator))
+		p.set(ctx, operator)
 	})
 }
 
@@ -182,6 +198,11 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 		if err != nil {
 			env.Logger.Error(err)
 			ctx.Abort()
+			return
+		}
+
+		// 0 等于永不过期
+		if p.expiration == 0 {
 			return
 		}
 
@@ -197,5 +218,8 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 			ctx.Abort()
 			return
 		}
+
+		// refresh expiration
+		p.refreshExpirationQueue <- operator
 	})
 }

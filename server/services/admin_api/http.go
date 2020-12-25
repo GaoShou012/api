@@ -47,7 +47,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 
 		authenticated = api
 		authenticated.Use(controller_admin_api.OperatorContext.Parse().(gin.HandlerFunc))
-		//authenticated.Use(controller_admin_api.OperatorContext.Expiration().(gin.HandlerFunc))
+		authenticated.Use(controller_admin_api.OperatorContext.Expiration().(gin.HandlerFunc))
 		authenticated.GET("/logout", c.Logout)
 	}
 
