@@ -3,7 +3,6 @@ package admin_api
 import (
 	controller_admin_api "api/controller/admin_api"
 	"api/meta"
-	"api/middleware"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -79,7 +78,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.POST("/authority_roles_api/del", c.Del)
 	}
 	{
-		c := controller_admin_api.AuthorityRolesMenusGroup{}
+		c := controller_admin_api.AuthorityRolesMenus{}
 		authenticated.GET("/authority_roles_menus_group/get", c.Get)
 		authenticated.POST("/authority_roles_menus_group/add", c.Create)
 		authenticated.POST("/authority_roles_menus_group/up", c.Update)
@@ -89,10 +88,6 @@ func (r *HttpService) Route(engine *gin.Engine) {
 	{
 		c := controller_admin_api.Operator{}
 		authenticated.GET("/operator/info", c.Info)
-	}
-	{
-		//c:= middleware.CasbinHandler()
-		authenticated = api.Use(middleware.CasbinHandler())
 	}
 	{
 		c := controller_admin_api.Menu{}

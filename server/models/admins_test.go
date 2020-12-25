@@ -92,9 +92,9 @@ func TestAdmins(t *testing.T) {
 			MenuGroup menuGroup
 			MenuList  []menuList
 		}
-		menuListData := list{}
 		menuData := []list{}
 		for _, mg := range *menuGroups {
+			menuListData := list{}
 			menuListData.MenuGroup.Group = *mg.GroupName
 			temp := menuList{}
 			for _,m := range *menu{
@@ -106,7 +106,6 @@ func TestAdmins(t *testing.T) {
 							pL.Path = *ara.ApiPath
 						}
 					}
-
 					temp.Name = *m.Name
 					temp.Icon = *m.Icon
 					temp.PathList = append(temp.PathList,pL)
@@ -114,6 +113,7 @@ func TestAdmins(t *testing.T) {
 			}
 			menuListData.MenuList = append(menuListData.MenuList,temp)
 			menuData = append(menuData,menuListData)
+
 		}
 
 		b,err := json.Marshal(menuData)
