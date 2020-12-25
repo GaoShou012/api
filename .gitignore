@@ -4,7 +4,7 @@ server/*.exe
 server/go.mod
 server/go.sum
 
-pkg/cs/go.mod
-pkg/framework/go.mod
+pkg/cs/go.sum
+pkg/framework/go.sum
 
 server/testing/*
