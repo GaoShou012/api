@@ -3,18 +3,12 @@ package menu_adapter
 import (
 	"framework/class/rbac"
 	lib_model "framework/libs/model"
-	"github.com/jinzhu/gorm"
 )
 
 var _ rbac.MenuAdapter = &plugin{}
 
 type plugin struct {
-	menuModel      rbac.Model
-	menuGroupModel rbac.Model
-	*Callback
-	dbMaster *gorm.DB
-	dbSlave  *gorm.DB
-	opts     *Options
+	opts *Options
 }
 
 func (p *plugin) Init() error {
@@ -22,11 +16,11 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) AuthorityMenu(operator rbac.Operator, menuId uint64) (bool, error) {
-	return p.Callback.AuthorityMenuId(operator, menuId)
+	return p.opts.Callback.AuthorityMenuId(operator, menuId)
 }
 
 func (p *plugin) CreateMenuGroup(group rbac.MenuGroup) error {
-	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Create(group)
+	res := p.opts.dbMaster.Table(p.opts.menuGroupModel.GetTableName()).Create(group)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -34,7 +28,7 @@ func (p *plugin) CreateMenuGroup(group rbac.MenuGroup) error {
 }
 
 func (p *plugin) DeleteMenuGroup(groupId uint64) (bool, error) {
-	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("id=?", groupId).Delete(p.menuGroupModel)
+	res := p.opts.dbMaster.Table(p.opts.menuGroupModel.GetTableName()).Where("id=?", groupId).Delete(p.opts.menuGroupModel)
 	if res.Error != nil {
 		return false, res.Error
 	}
@@ -46,7 +40,7 @@ func (p *plugin) DeleteMenuGroup(groupId uint64) (bool, error) {
 }
 
 func (p *plugin) UpdateMenuGroup(groupId uint64, group rbac.MenuGroup) error {
-	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("id=?", groupId).Updates(group)
+	res := p.opts.dbMaster.Table(p.opts.menuGroupModel.GetTableName()).Where("id=?", groupId).Updates(group)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -54,8 +48,8 @@ func (p *plugin) UpdateMenuGroup(groupId uint64, group rbac.MenuGroup) error {
 }
 
 func (p *plugin) SelectMenuGroupById(menuGroupId uint64) (rbac.MenuGroup, error) {
-	menuGroup := lib_model.NewModel(p.menuGroupModel)
-	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("id=?", menuGroupId).Find(menuGroup)
+	menuGroup := lib_model.NewModel(p.opts.menuGroupModel)
+	res := p.opts.dbMaster.Table(p.opts.menuGroupModel.GetTableName()).Where("id=?", menuGroupId).Find(menuGroup)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -63,11 +57,11 @@ func (p *plugin) SelectMenuGroupById(menuGroupId uint64) (rbac.MenuGroup, error)
 }
 
 func (p *plugin) AuthorityMenuGroup(operator rbac.Operator, groupId uint64) (bool, error) {
-	return p.Callback.AuthorityMenuGroupId(operator, groupId)
+	return p.opts.Callback.AuthorityMenuGroupId(operator, groupId)
 }
 
 func (p *plugin) CreateMenu(menu rbac.Menu) error {
-	res := p.dbMaster.Table(p.menuModel.GetTableName()).Create(menu)
+	res := p.opts.dbMaster.Table(p.opts.menuModel.GetTableName()).Create(menu)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -75,7 +69,7 @@ func (p *plugin) CreateMenu(menu rbac.Menu) error {
 }
 
 func (p *plugin) DeleteMenu(menuId uint64) (bool, error) {
-	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("id=?", menuId).Delete(p.menuModel)
+	res := p.opts.dbMaster.Table(p.opts.menuModel.GetTableName()).Where("id=?", menuId).Delete(p.opts.menuModel)
 	if res.Error != nil {
 		return false, res.Error
 	}
@@ -87,7 +81,7 @@ func (p *plugin) DeleteMenu(menuId uint64) (bool, error) {
 }
 
 func (p *plugin) UpdateMenu(menuId uint64, menu rbac.Menu) error {
-	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("id=?", menuId).Updates(menu)
+	res := p.opts.dbMaster.Table(p.opts.menuModel.GetTableName()).Where("id=?", menuId).Updates(menu)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -95,8 +89,8 @@ func (p *plugin) UpdateMenu(menuId uint64, menu rbac.Menu) error {
 }
 
 func (p *plugin) SelectMenuById(menuId uint64) (rbac.Menu, error) {
-	newModel := lib_model.NewModel(p.menuModel)
-	res := p.dbSlave.Table(p.menuModel.GetTableName()).Where("id=?", menuId).Find(newModel)
+	newModel := lib_model.NewModel(p.opts.menuModel)
+	res := p.opts.dbSlave.Table(p.opts.menuModel.GetTableName()).Where("id=?", menuId).Find(newModel)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -115,8 +109,8 @@ func (p *plugin) SelectMenuById(menuId uint64) (rbac.Menu, error) {
 
 func (p *plugin) SelectMenuByGroupId(groupId uint64) ([]rbac.Menu, error) {
 
-	menu := lib_model.NewModel(p.menuModel)
-	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("group_id=?", groupId).Find(menu)
+	menu := lib_model.NewModel(p.opts.menuModel)
+	res := p.opts.dbMaster.Table(p.opts.menuModel.GetTableName()).Where("group_id=?", groupId).Find(menu)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -124,8 +118,8 @@ func (p *plugin) SelectMenuByGroupId(groupId uint64) ([]rbac.Menu, error) {
 }
 
 func (p *plugin) DeleteMenuGroupById(groupId uint64) error {
-	menuGroup := lib_model.NewModel(p.menuGroupModel)
-	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("group_id=?", groupId).Delete(menuGroup)
+	menuGroup := lib_model.NewModel(p.opts.menuGroupModel)
+	res := p.opts.dbMaster.Table(p.opts.menuModel.GetTableName()).Where("group_id=?", groupId).Delete(menuGroup)
 	if res.Error != nil {
 		return res.Error
 	}

@@ -18,12 +18,8 @@ func (c *RbacRoleAssocApi) Create(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-
-	operator, err := GetOperator(ctx)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
-	}
+	
+	operator := GetOperator(ctx)
 	if err := global.RBAC.RoleAssocApi(operator, params.RoleId, params.ApiId); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
@@ -40,11 +36,7 @@ func (c *RbacRoleAssocApi) Delete(ctx *gin.Context) {
 		return
 	}
 
-	operator, err := GetOperator(ctx)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
-	}
+	operator := GetOperator(ctx)
 
 	{
 		assocId := params.Id

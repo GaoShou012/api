@@ -10,11 +10,21 @@ import (
 	operator数据结构
 */
 type Operator struct {
-	UserId    uint64
-	UserType  uint64
-	Username  string
-	Nickname  string
+	// 租户ID
+	TenantId uint64
+	// 租户编码
+	TenantCode string
+	// 用户ID
+	UserId uint64
+	// 用户类型
+	UserType uint64
+	// 用户账号
+	Username string
+	// 用户昵称
+	Nickname string
+	// 登陆时间
 	LoginTime time.Time
+	// 上下文ID
 	ContextId string
 }
 
@@ -44,10 +54,5 @@ func (c *Operator) GetAuthorityId() string {
 	@method GET
 */
 func (c *Operator) Info(ctx *gin.Context) {
-	operator, err := GetOperator(ctx)
-	if err != nil {
-		libs_http.RspState(ctx, 1000, err)
-		return
-	}
-	libs_http.RspData(ctx, 0, "获取成功", operator)
+	libs_http.RspState(ctx, 0, GetOperator(ctx))
 }

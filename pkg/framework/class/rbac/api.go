@@ -2,9 +2,6 @@ package rbac
 
 type Api interface {
 	Model
-	GetId() uint64
-	GetMethod() string
-	GetPath() string
 }
 
 type ApiAdapter interface {
@@ -16,7 +13,7 @@ type ApiAdapter interface {
 	Authority(operator Operator, apiId uint64) (bool, error)
 
 	Create(api Api) error
-	Delete(apiId uint64) (bool,error)
+	Delete(apiId uint64) (bool, error)
 	Update(apiId uint64, api Api) error
 	SelectById(apiId uint64) (Api, error)
 

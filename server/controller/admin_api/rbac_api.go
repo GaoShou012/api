@@ -25,12 +25,8 @@ func (c *RbacApi) Create(ctx *gin.Context) {
 		return
 	}
 
-	operator, err := GetOperator(ctx)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
-	}
-	tenantId := uint64(0)
+	operator := GetOperator(ctx)
+	tenantId := uint64(1)
 	model := &models.RbacApi{
 		Model:    models.Model{},
 		TenantId: &tenantId,
@@ -60,11 +56,7 @@ func (c *RbacApi) Delete(ctx *gin.Context) {
 		return
 	}
 
-	operator, err := GetOperator(ctx)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
-	}
+	operator := GetOperator(ctx)
 
 	{
 		apiId := params.Id
@@ -94,11 +86,7 @@ func (c *RbacApi) Update(ctx *gin.Context) {
 		return
 	}
 
-	operator, err := GetOperator(ctx)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
-	}
+	operator := GetOperator(ctx)
 
 	apiId := *params.Id
 	api := &params
