@@ -23,11 +23,6 @@ func New(opts ...Option) rbac.MenuAdapter {
 	}
 
 	p := &plugin{
-		menuModel:      nil,
-		menuGroupModel: nil,
-		dbMaster:       nil,
-		dbSlave:        nil,
-		Callback:       nil,
 		opts:           options,
 	}
 	if err := p.Init(); err != nil {

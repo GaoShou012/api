@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/global"
 	libs_http "api/libs/http"
+	"fmt"
 	"framework/class/middleware"
 	"framework/plugin/middleware/middleware_gin"
 	"github.com/gin-gonic/gin"
@@ -12,12 +13,12 @@ import (
 
 var OperatorContext middleware.OperatorContext
 
-func GetOperator(ctx *gin.Context) (*Operator, error) {
+func GetOperator(ctx *gin.Context) *Operator {
 	operator, err := OperatorContext.Get(ctx)
 	if err != nil {
-		return nil, err
+		panic(fmt.Errorf("GetOperator is failed err=%s", err))
 	}
-	return operator.(*Operator), err
+	return operator.(*Operator)
 }
 
 func InitOperatorContext() {
