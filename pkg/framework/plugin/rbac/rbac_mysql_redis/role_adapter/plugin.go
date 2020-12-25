@@ -1,8 +1,8 @@
 package role_adapter
 
 import (
-	lib_model "framework/class/libs/model"
 	"framework/class/rbac"
+	lib_model "framework/libs/model"
 	"github.com/jinzhu/gorm"
 )
 
@@ -38,9 +38,9 @@ func (p *plugin) CreateRole(role rbac.Role) error {
 func (p *plugin) DeleteRole(roleId uint64) (bool, error) {
 	res := p.dbMaster.Table(p.roleModel.GetTableName()).Where("id=?", roleId).Delete(p.roleModel)
 	if res.Error != nil {
-		return false,res.Error
+		return false, res.Error
 	}
-	return true,nil
+	return true, nil
 }
 
 func (p *plugin) UpdateRole(roleId uint64, role rbac.Role) error {

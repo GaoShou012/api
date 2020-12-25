@@ -1,6 +1,7 @@
 package admin_api
 
 import (
+	"api/config"
 	"api/global"
 	libs_http "api/libs/http"
 	"framework/class/middleware"
@@ -28,6 +29,6 @@ func InitOperatorContext() {
 		middleware_gin.WithModel(&Operator{}),
 		middleware_gin.WithRedisClient(global.RedisClient),
 		middleware_gin.WithCallback(callback),
-		middleware_gin.WithCipherKey([]byte("123123")),
+		middleware_gin.WithCipherKey([]byte(config.GetConfig().TokenKey)),
 	)
 }

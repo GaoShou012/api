@@ -52,7 +52,7 @@ func (c *AuthorityRolesMenus) Create(ctx *gin.Context) {
 	}
 	model := &models.AuthorityRolesMenus{
 		RoleId:&params.RoleId,
-		MenuGroups:&params.MenuGroups,
+		//MenuGroups:&params.MenuGroups,
 	}
 	if res := global.DBMaster.Create(model); res.Error != nil {
 		libs_http.RspState(ctx, 1, res.Error)

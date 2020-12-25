@@ -54,7 +54,7 @@ func (c *AuthorityRole) Create(ctx *gin.Context) {
 	}
 	model := &models.AuthorityRoles{
 		Name:   &params.Name,
-		Sort:   &params.Sort,
+		//Sort:   &params.Sort,
 		Remark: &params.Remark,
 		Enable: &params.Enable,
 	}
@@ -81,7 +81,7 @@ func (c *AuthorityRole) Update(ctx *gin.Context) {
 	model := &models.AuthorityRoles{
 		Id:     &params.Id,
 		Name:   &params.Name,
-		Sort:   &params.Sort,
+		//Sort:   &params.Sort,
 		Remark: &params.Remark,
 		Enable: &params.Enable,
 	}
