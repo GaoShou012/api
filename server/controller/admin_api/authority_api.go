@@ -54,7 +54,7 @@ func (c *AuthorityApi) Create(ctx *gin.Context) {
 		Path:   &params.Path,
 	}
 
-	operator, err := libs_http.GetOperator(ctx)
+	operator, err := GetOperator(ctx)
 	if err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return

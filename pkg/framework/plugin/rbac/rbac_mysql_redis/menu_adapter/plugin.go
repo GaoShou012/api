@@ -1,8 +1,8 @@
 package menu_adapter
 
 import (
-	lib_model "framework/class/libs/model"
 	"framework/class/rbac"
+	lib_model "framework/libs/model"
 	"github.com/jinzhu/gorm"
 )
 
