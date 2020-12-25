@@ -2,6 +2,19 @@ package rbac
 
 type Role interface{}
 
+type RoleAssocApi interface {
+	GetRoleId() uint64
+	GetApiId() uint64
+}
+type RoleAssocMenuGroup interface {
+	GetRoleId() uint64
+	GetMenuGroupId() uint64
+}
+type RoleAssocMenu interface {
+	GetRoleId() uint64
+	GetMenuId() uint64
+}
+
 type RoleAdapter interface {
 	/*
 		校验操作者，是否有权限，操作此角色ID
@@ -14,6 +27,13 @@ type RoleAdapter interface {
 	SelectById(roleId uint64) (Role, error)
 
 	/*
+		根据ID，查询角色&API，关联数据
+	*/
+	SelectAssocApiById(assocId uint64) (RoleAssocApi, error)
+	SelectAssocMenuById(assocId uint64) (RoleAssocMenu,error)
+	SelectAssocMenuGroupById(assocId uint64) (RoleAssocMenuGroup,error)
+
+	/*
 		角色关联菜单组
 		增加菜单组的饮用量
 	*/
@@ -22,7 +42,7 @@ type RoleAdapter interface {
 	/*
 		角色取消关联菜单组
 	*/
-	DisassociateMenuGroup(roleId,menuGroupId uint64) (bool, error)
+	DisassociateMenuGroup(assocId uint64) (bool, error)
 
 	/*
 		角色关联菜单
@@ -32,7 +52,7 @@ type RoleAdapter interface {
 	/*
 		角色取消关联菜单
 	*/
-	DisassociateMenu(roleId uint64, menuId uint64) (bool, error)
+	DisassociateMenu(assocId uint64) (bool, error)
 
 	/*
 		角色关联API
@@ -42,7 +62,7 @@ type RoleAdapter interface {
 	/*
 		角色取消关联API
 	*/
-	DisassociateApi(roleId uint64, apiId uint64) (bool, error)
+	DisassociateApi(assocId uint64) (bool, error)
 
 	/*
 		角色是否存在API

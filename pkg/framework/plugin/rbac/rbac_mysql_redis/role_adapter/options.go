@@ -25,13 +25,6 @@ func New(opts ...Option) rbac.RoleAdapter {
 	}
 
 	p := &plugin{
-		roleModel:               nil,
-		roleAssocApiModel:       nil,
-		roleAssocMenuGroupModel: nil,
-		roleAssocMenuModel:      nil,
-		Callback:                nil,
-		dbMaster:                nil,
-		dbSlave:                 nil,
 		opts:                    options,
 	}
 	if err := p.Init(); err != nil {

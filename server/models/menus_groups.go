@@ -14,6 +14,7 @@ type MenusGroups struct {
 	UpdatedAt *time.Time
 }
 
+
 func (m *MenusGroups) GetMenuName() string {
 	return ""
 }

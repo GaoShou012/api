@@ -4,51 +4,30 @@ import (
 	"errors"
 	"fmt"
 	"framework/class/rbac"
-	"github.com/jinzhu/gorm"
-	"reflect"
+	lib_model "framework/libs/model"
 )
 
 var _ rbac.ApiAdapter = &plugin{}
 
 type plugin struct {
-	model rbac.Api
-	*Callback
-	dbMaster *gorm.DB
-	dbSlave  *gorm.DB
 	opts     *Options
 }
 
 func (p *plugin) Init() error {
-	if p.opts.model == nil {
-		return errors.New("model is nil")
-	}
-	p.model = p.opts.model
-	if p.opts.Callback == nil {
-		return errors.New("callback is nil")
-	}
-	p.Callback = p.opts.Callback
-	if p.opts.dbMaster == nil {
-		return errors.New("db master is nil")
-	}
-	p.dbMaster = p.opts.dbMaster
-	if p.opts.dbSlave == nil {
-		return errors.New("db slave is nil")
-	}
-	p.dbSlave = p.opts.dbSlave
 	return nil
 }
 
 func (p *plugin) Authority(operator rbac.Operator, apiId uint64) (bool, error) {
-	return p.Callback.Authority(operator, apiId)
+	return p.opts.Callback.Authority(operator, apiId)
 }
 
 func (p *plugin) Create(api rbac.Api) error {
-	res := p.dbMaster.Table(p.model.GetTableName()).Create(api)
+	res := p.opts.dbMaster.Table(p.opts.model.GetTableName()).Create(api)
 	return res.Error
 }
 
 func (p *plugin) Delete(apiId uint64) (bool, error) {
-	res := p.dbMaster.Table(p.model.GetTableName()).Where("id=?", apiId).Delete(p.model)
+	res := p.opts.dbMaster.Table(p.opts.model.GetTableName()).Where("id=?", apiId).Delete(p.opts.model)
 	if res.Error != nil {
 		return false, res.Error
 	}
@@ -60,28 +39,25 @@ func (p *plugin) Delete(apiId uint64) (bool, error) {
 }
 
 func (p *plugin) Update(apiId uint64, api rbac.Api) error {
-	res := p.dbMaster.Table(p.model.GetTableName()).Where("id=?", apiId).Updates(api)
+	api.BeforeUpdate()
+	res := p.opts.dbMaster.Table(p.opts.model.GetTableName()).Where("id=?", apiId).Updates(api)
 	if res.RowsAffected != 1 {
-		return fmt.Errorf("更新失败，ID(%d)不存在", apiId)
+		return fmt.Errorf("更新失败，可能数据没有发生变化，或者ID(%d)不存在", apiId)
 	}
 	return res.Error
 }
 
 func (p *plugin) SelectById(apiId uint64) (rbac.Api, error) {
-	t := reflect.TypeOf(p.model)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-	api := reflect.New(t).Interface()
-	res := p.dbSlave.Table(p.model.GetTableName()).Where("id=?", apiId).Find(api)
+	newModel := lib_model.New(p.opts.model).(rbac.Api)
+	res := p.opts.dbSlave.Table(p.opts.model.GetTableName()).Where("id=?", apiId).Find(newModel)
 	if res.Error != nil {
 		return nil, res.Error
 	}
-	return api.(rbac.Api), nil
+	return newModel, nil
 }
 
 func (p *plugin) FindById(operator rbac.Operator, apiId uint64, api rbac.Api) error {
-	res := p.dbSlave.Table(p.model.GetTableName()).Where("id=?", apiId).Find(api)
+	res := p.opts.dbSlave.Table(p.opts.model.GetTableName()).Where("id=?", apiId).Find(api)
 	if res.Error != nil {
 		return res.Error
 	}
