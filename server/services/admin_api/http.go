@@ -3,7 +3,6 @@ package admin_api
 import (
 	controller_admin_api "api/controller/admin_api"
 	"api/meta"
-	"api/middleware"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -37,55 +36,53 @@ func (r *HttpService) Cors() gin.HandlerFunc {
 func (r *HttpService) Route(engine *gin.Engine) {
 	api := engine.Group(fmt.Sprintf("/admin/%s", meta.ApiVersion))
 	var authenticated gin.IRoutes
-	// 登陆
+
+	// 登陆&验证
 	{
 		c := controller_admin_api.Auth{}
 		api.POST("/login", c.Login)
 		api.POST("/register", c.Register)
-	}
-	// 验证
-	{
 
-		c := controller_admin_api.Auth{}
-		authenticated = api.Use(c.Verify)
+		authenticated.Use(controller_admin_api.OperatorContext.Parse().(gin.HandlerFunc))
+		authenticated.Use(controller_admin_api.OperatorContext.Expiration().(gin.HandlerFunc))
 		authenticated.GET("/logout", c.Logout)
 	}
-	//菜单
 
+	//菜单
 	{
 		c := controller_admin_api.MenuGroup{}
-		authenticated.GET("/menu_group/get",c.Get)
-		authenticated.POST("/menu_group/add",c.Create)
-		authenticated.POST("/menu_group/up",c.Update)
-		authenticated.POST("/menu_group/del",c.Del)
+		authenticated.GET("/menu_group/get", c.Get)
+		authenticated.POST("/menu_group/add", c.Create)
+		authenticated.POST("/menu_group/up", c.Update)
+		authenticated.POST("/menu_group/del", c.Del)
 	}
 	{
 		c := controller_admin_api.AuthorityApi{}
-		authenticated.GET("/authority_api/get",c.Get)
-		authenticated.POST("/authority_api/add",c.Create)
-		authenticated.POST("/authority_api/up",c.Update)
-		authenticated.POST("/authority_api/del",c.Del)
+		authenticated.GET("/authority_api/get", c.Get)
+		authenticated.POST("/authority_api/add", c.Create)
+		authenticated.POST("/authority_api/up", c.Update)
+		authenticated.POST("/authority_api/del", c.Del)
 	}
 	{
 		c := controller_admin_api.AuthorityRole{}
-		authenticated.GET("/authority_role/get",c.Get)
-		authenticated.POST("/authority_role/add",c.Create)
-		authenticated.POST("/authority_role/up",c.Update)
-		authenticated.POST("/authority_role/del",c.Del)
+		authenticated.GET("/authority_role/get", c.Get)
+		authenticated.POST("/authority_role/add", c.Create)
+		authenticated.POST("/authority_role/up", c.Update)
+		authenticated.POST("/authority_role/del", c.Del)
 	}
 	{
 		c := controller_admin_api.AuthorityRolesApi{}
-		authenticated.GET("/authority_roles_api/get",c.Get)
-		authenticated.POST("/authority_roles_api/add",c.Create)
-		authenticated.POST("/authority_roles_api/up",c.Update)
-		authenticated.POST("/authority_roles_api/del",c.Del)
+		authenticated.GET("/authority_roles_api/get", c.Get)
+		authenticated.POST("/authority_roles_api/add", c.Create)
+		authenticated.POST("/authority_roles_api/up", c.Update)
+		authenticated.POST("/authority_roles_api/del", c.Del)
 	}
 	{
 		c := controller_admin_api.AuthorityRolesMenus{}
-		authenticated.GET("/authority_roles_menus_group/get",c.Get)
-		authenticated.POST("/authority_roles_menus_group/add",c.Create)
-		authenticated.POST("/authority_roles_menus_group/up",c.Update)
-		authenticated.POST("/authority_roles_menus_group/del",c.Del)
+		authenticated.GET("/authority_roles_menus_group/get", c.Get)
+		authenticated.POST("/authority_roles_menus_group/add", c.Create)
+		authenticated.POST("/authority_roles_menus_group/up", c.Update)
+		authenticated.POST("/authority_roles_menus_group/del", c.Del)
 	}
 	// 操作者
 	{
@@ -93,14 +90,10 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.GET("/operator/info", c.Info)
 	}
 	{
-		//c:= middleware.CasbinHandler()
-		authenticated = api.Use(middleware.CasbinHandler())
-	}
-	{
 		c := controller_admin_api.Menu{}
-		authenticated.GET("/menu/get",c.Get)
-		authenticated.POST("/menu/add",c.Create)
-		authenticated.POST("/menu/up",c.Update)
-		authenticated.POST("/menu/del",c.Del)
+		authenticated.GET("/menu/get", c.Get)
+		authenticated.POST("/menu/add", c.Create)
+		authenticated.POST("/menu/up", c.Update)
+		authenticated.POST("/menu/del", c.Del)
 	}
 }

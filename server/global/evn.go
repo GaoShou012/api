@@ -1,6 +1,7 @@
 package global
 
 import (
+	"framework/class/middleware"
 	"github.com/casbin/casbin/v2"
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
@@ -13,5 +14,5 @@ var (
 	DBMaster *gorm.DB
 	DBSlave  *gorm.DB
 
-
+	OperatorContext middleware.OperatorContext
 )
