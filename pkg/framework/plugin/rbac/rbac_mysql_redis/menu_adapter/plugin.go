@@ -103,15 +103,15 @@ func (p *plugin) SelectMenuById(menuId uint64) (rbac.Menu, error) {
 	return newModel.(rbac.Menu), nil
 }
 
-func (p *plugin) SelectMenuGroup(operator rbac.Operator) ([]rbac.MenuGroup, error) {
-
-	menuGroup := lib_model.NewModel(p.menuGroupModel)
-	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("tenant_id=?", operator.GetTenantId()).Find(menuGroup)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return menuGroup.([]rbac.MenuGroup), nil
-}
+//func (p *plugin) SelectMenuGroup(operator rbac.Operator) ([]rbac.MenuGroup, error) {
+//
+//	menuGroup := lib_model.NewModel(p.menuGroupModel)
+//	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("tenant_id=?", operator.GetTenantId()).Find(menuGroup)
+//	if res.Error != nil {
+//		return nil, res.Error
+//	}
+//	return menuGroup.([]rbac.MenuGroup), nil
+//}
 
 func (p *plugin) SelectMenuByGroupId(groupId uint64) ([]rbac.Menu, error) {
 

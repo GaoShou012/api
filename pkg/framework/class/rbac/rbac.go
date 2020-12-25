@@ -69,7 +69,7 @@ type RBAC interface {
 	/*
 		角色取消关联API
 	*/
-	RoleDisassociateApi(operator Operator, roleId uint64, apiId uint64) error
+	RoleDisassociateApi(operator Operator, assocId uint64) error
 
 	/*
 		角色关联菜单
@@ -79,7 +79,7 @@ type RBAC interface {
 	/*
 		角色取消关联菜单
 	*/
-	RoleDisassociateMenu(operator Operator, roleId uint64, menuId uint64) error
+	RoleDisassociateMenu(operator Operator, assocId uint64) error
 
 	/*
 		角色关联菜单组
@@ -89,7 +89,7 @@ type RBAC interface {
 	/*
 		角色取消关联菜单组
 	*/
-	RoleDisassociateMenuGroup(operator Operator, roleId uint64, menuGroupId uint64) error
+	RoleDisassociateMenuGroup(operator Operator, assocId uint64) error
 
 	/*
 		权限判断

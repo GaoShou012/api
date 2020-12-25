@@ -58,4 +58,18 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.GET("/operator/info", c.Info)
 	}
 
+	// RBAC API
+	{
+		c := controller_admin_api.RbacApi{}
+		authenticated.POST("/rbac/api/create", c.Create)
+		authenticated.POST("/rbac/api/update", c.Update)
+	}
+
+	// RBAC Role Assoc API
+	{
+		c := controller_admin_api.RbacRoleAssocApi{}
+		authenticated.POST("/rbac/role_assoc_api/create", c.Create)
+		authenticated.GET("/rbac/role_assoc_api/delete", c.Delete)
+		authenticated.POST("/rbac/role_assoc_api/update", c.Update)
+	}
 }

@@ -24,10 +24,6 @@ func New(opts ...Option) rbac.ApiAdapter {
 	}
 
 	p := &plugin{
-		model:    nil,
-		dbMaster: nil,
-		dbSlave:  nil,
-		Callback: nil,
 		opts:     options,
 	}
 	if err := p.Init(); err != nil {

@@ -59,6 +59,11 @@ func init() {
 		}
 	}
 
+	// 初始化 RBAC
+	{
+		initialize.InitRBAC()
+	}
+
 	fmt.Println("初始化完成")
 }
 

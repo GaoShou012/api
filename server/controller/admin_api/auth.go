@@ -5,6 +5,7 @@ import (
 	"api/global"
 	libs_http "api/libs/http"
 	"api/models"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"golang.org/x/crypto/bcrypt"
@@ -22,12 +23,25 @@ func (c *Auth) Register(ctx *gin.Context) {
 		Username string
 		Nickname string
 		Password string
+
+		Code   string
+		CodeId string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
 
+	// 校验验证码
+	{
+		id, code := params.CodeId, params.Code
+		if c.verifyCode(id, code) == false {
+			libs_http.RspState(ctx, 1, errors.New("验证码错误"))
+			return
+		}
+	}
+
+	// 查询用户是否存在
 	{
 		admin := &models.Admins{}
 		exists, err := admin.IsExistsByUsername(params.Username)
@@ -103,10 +117,11 @@ func (c *Auth) Login(ctx *gin.Context) {
 		return
 	}
 
-	//校验验证码
-	if config.GetConfig().Base.GinMode != "debug" {
-		if c.verifyCode(params.CodeId, params.Code) != true {
-			libs_http.RspState(ctx, 1, "验证码错误")
+	// 校验验证码
+	{
+		id, code := params.CodeId, params.Code
+		if c.verifyCode(id, code) == false {
+			libs_http.RspState(ctx, 1, errors.New("验证码错误"))
 			return
 		}
 	}
@@ -149,6 +164,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 func (c *Auth) Logout(ctx *gin.Context) {
 	if err := OperatorContext.Release(ctx); err != nil {
 		libs_http.RspState(ctx, 1, err)
+		return
 	}
 	libs_http.RspState(ctx, 0, "退出成功")
 }
@@ -176,6 +192,10 @@ func (c *Auth) CodeImage(ctx *gin.Context) {
 	false 不正确
 */
 func (c *Auth) verifyCode(id string, code string) bool {
+	// 如果不开启验证码，不管输入任意内容，直接返回true
+	if config.GetConfig().EnableAuthCode == false {
+		return true
+	}
 	if id == "" || code == "" {
 		return false
 	}
