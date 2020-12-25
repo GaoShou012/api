@@ -44,6 +44,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		c := controller_admin_api.Auth{}
 		api.POST("/login", c.Login)
 		api.POST("/register", c.Register)
+		api.GET("/verification_code", c.CodeImage)
 
 		authenticated = api
 		authenticated.Use(controller_admin_api.OperatorContext.Parse().(gin.HandlerFunc))

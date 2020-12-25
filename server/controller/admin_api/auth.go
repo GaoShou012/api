@@ -1,6 +1,7 @@
 package admin_api
 
 import (
+	"api/config"
 	"api/global"
 	libs_http "api/libs/http"
 	"api/models"
@@ -94,10 +95,20 @@ func (c *Auth) Login(ctx *gin.Context) {
 	var params struct {
 		Username string
 		Password string
+		Code     string
+		CodeId   string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
+	}
+
+	//校验验证码
+	if config.GetConfig().Base.GinMode != "debug" {
+		if c.verifyCode(params.CodeId, params.Code) != true {
+			libs_http.RspState(ctx, 1, "验证码错误")
+			return
+		}
 	}
 
 	admin := &models.Admins{}
@@ -113,12 +124,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 			libs_http.RspState(ctx, 1, "密码错误")
 			return
 		}
-		//db.Create(&models.Admins{
-		//go get -u golang.org/x/crypto/bcrypt
-		//	Username: &params.Username,
-		//	Password: &params.Password,
-		//	Nickname: &params.Username,
-		//})
 	}
 
 	// 生成Token
@@ -171,5 +176,8 @@ func (c *Auth) CodeImage(ctx *gin.Context) {
 	false 不正确
 */
 func (c *Auth) verifyCode(id string, code string) bool {
+	if id == "" || code == "" {
+		return false
+	}
 	return base64Captcha.DefaultMemStore.Verify(id, code, true)
 }
