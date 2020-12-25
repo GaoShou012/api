@@ -223,3 +223,20 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 		p.refreshExpirationQueue <- operator
 	})
 }
+
+func (p *plugin) Release(args ...interface{}) error {
+	ctx := args[0].(*gin.Context)
+	operator, err := p.get(ctx)
+	if err != nil {
+		return err
+	}
+	key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
+	num, err := p.redisClient.Del(context.TODO(), key).Result()
+	if err != nil {
+		return err
+	}
+	if num == 0 {
+		return errors.New("释放操作者信息失败\n")
+	}
+	return nil
+}
