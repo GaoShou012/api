@@ -72,7 +72,7 @@ func (c *Auth) Register(ctx *gin.Context) {
 	// 生成Token
 	{
 		// TODO 赋值相应的数据
-		operator := Operator{
+		operator := &Operator{
 			UserId:    *admin.Id,
 			UserType:  *admin.UserType,
 			Username:  *admin.Username,

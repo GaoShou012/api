@@ -147,7 +147,7 @@ func (p *plugin) SignedString(args ...interface{}) (string, error) {
 }
 
 func (p *plugin) Parse(args ...interface{}) interface{} {
-	return func(ctx *gin.Context) {
+	return gin.HandlerFunc(func(ctx *gin.Context) {
 		// read the token string
 		str := ctx.GetHeader(p.headerTokenKey)
 		if str == "" {
@@ -173,11 +173,11 @@ func (p *plugin) Parse(args ...interface{}) interface{} {
 
 		// save the operator to context
 		p.set(ctx, operator.(middleware.Operator))
-	}
+	})
 }
 
 func (p *plugin) Expiration(args ...interface{}) interface{} {
-	return func(ctx *gin.Context) {
+	return gin.HandlerFunc(func(ctx *gin.Context) {
 		operator, err := p.get(ctx)
 		if err != nil {
 			env.Logger.Error(err)
@@ -197,5 +197,5 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 			ctx.Abort()
 			return
 		}
-	}
+	})
 }
