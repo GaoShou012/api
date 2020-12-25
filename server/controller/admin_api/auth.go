@@ -142,7 +142,10 @@ func (c *Auth) Login(ctx *gin.Context) {
 }
 
 func (c *Auth) Logout(ctx *gin.Context) {
-	libs_http.RspData(ctx, 123, nil, "exit success")
+	if err := OperatorContext.Release(ctx); err != nil {
+		libs_http.RspState(ctx, 1, err)
+	}
+	libs_http.RspState(ctx, 0, "退出成功")
 }
 
 /*

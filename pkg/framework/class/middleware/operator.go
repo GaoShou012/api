@@ -25,4 +25,9 @@ type OperatorContext interface {
 		上下文过期处理
 	*/
 	Expiration(args ...interface{}) interface{}
+
+	/*
+		释放上下文，等于把上下文信息设置为已过期
+	*/
+	Release(args ...interface{}) error
 }
