@@ -8,4 +8,5 @@ require (
 	github.com/go-redis/redis/v8 v8.4.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/jinzhu/gorm v1.9.16
 )
