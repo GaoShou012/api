@@ -1,10 +1,8 @@
 package admin_api
 
 import (
-	"api/config"
 	"api/global"
 	libs_http "api/libs/http"
-	"api/meta"
 	"api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
@@ -13,25 +11,6 @@ import (
 )
 
 type Auth struct{}
-
-func (c *Auth) Verify(ctx *gin.Context) {
-	// 获取Token
-	token := ctx.GetHeader(meta.XApiToken)
-
-	// 获取解析Token密钥
-	key := config.GetConfig().Base.TokenKey
-
-	// 解析Token
-	operator := &Operator{}
-	if err := operator.decrypt([]byte(key), token); err != nil {
-		libs_http.RspAuthFailed(ctx, 1, err)
-		ctx.Abort()
-		return
-	}
-
-	// 保存Token到上下文
-	SetOperator(ctx, operator)
-}
 
 func (c *Auth) Register(ctx *gin.Context) {
 	// 接受参数
@@ -92,8 +71,6 @@ func (c *Auth) Register(ctx *gin.Context) {
 
 	// 生成Token
 	{
-		conf := config.GetConfig().Base
-
 		// TODO 赋值相应的数据
 		operator := Operator{
 			UserId:    *admin.Id,
@@ -103,7 +80,7 @@ func (c *Auth) Register(ctx *gin.Context) {
 			LoginTime: time.Now(),
 		}
 
-		token, err := operator.encrypt([]byte(conf.TokenKey))
+		token, err := OperatorContext.SignedString(operator)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
@@ -146,8 +123,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	// 生成Token
 	{
-		conf := config.GetConfig().Base
-
 		// TODO 赋值相应的数据
 		operator := &Operator{
 			UserId:    *admin.Id,
@@ -157,7 +132,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 			LoginTime: time.Now(),
 		}
 
-		token, err := operator.encrypt([]byte(conf.TokenKey))
+		token, err := OperatorContext.SignedString(operator)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return

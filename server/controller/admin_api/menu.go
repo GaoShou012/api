@@ -104,7 +104,7 @@ func (c *Menu) Update(ctx *gin.Context) {
 		Id:      &params.Id,
 		GroupId: &params.GroupId,
 		Name:    &params.Name,
-		Sort:    &params.Sort,
+		//Sort:    &params.Sort,
 		Icon:    &params.Icon,
 		Path:    &params.Path,
 	}
