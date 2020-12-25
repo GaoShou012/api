@@ -81,7 +81,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.POST("/authority_roles_api/del",c.Del)
 	}
 	{
-		c := controller_admin_api.AuthorityRolesMenusGroup{}
+		c := controller_admin_api.AuthorityRolesMenus{}
 		authenticated.GET("/authority_roles_menus_group/get",c.Get)
 		authenticated.POST("/authority_roles_menus_group/add",c.Create)
 		authenticated.POST("/authority_roles_menus_group/up",c.Update)

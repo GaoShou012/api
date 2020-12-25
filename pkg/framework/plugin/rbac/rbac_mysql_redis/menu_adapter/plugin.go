@@ -54,7 +54,12 @@ func (p *plugin) UpdateMenuGroup(groupId uint64, group rbac.MenuGroup) error {
 }
 
 func (p *plugin) SelectMenuGroupById(menuGroupId uint64) (rbac.MenuGroup, error) {
-	panic("implement me")
+	menuGroup := lib_model.NewModel(p.menuGroupModel)
+	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("id=?", menuGroupId).Find(menuGroup)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return menuGroup.(rbac.MenuGroup), nil
 }
 
 func (p *plugin) AuthorityMenuGroup(operator rbac.Operator, groupId uint64) (bool, error) {
@@ -99,17 +104,35 @@ func (p *plugin) SelectMenuById(menuId uint64) (rbac.Menu, error) {
 }
 
 func (p *plugin) SelectMenuGroup(operator rbac.Operator) ([]rbac.MenuGroup, error) {
-	panic("implement me")
+
+	menuGroup := lib_model.NewModel(p.menuGroupModel)
+	res := p.dbMaster.Table(p.menuGroupModel.GetTableName()).Where("tenant_id=?", operator.GetTenantId()).Find(menuGroup)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return menuGroup.([]rbac.MenuGroup), nil
 }
 
 func (p *plugin) SelectMenuByGroupId(groupId uint64) ([]rbac.Menu, error) {
-	panic("implement me")
+
+	menu := lib_model.NewModel(p.menuModel)
+	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("group_id=?", groupId).Find(menu)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return menu.([]rbac.Menu), nil
 }
 
 func (p *plugin) DeleteMenuGroupById(groupId uint64) error {
-	panic("implement me")
+	menuGroup := lib_model.NewModel(p.menuGroupModel)
+	res := p.dbMaster.Table(p.menuModel.GetTableName()).Where("group_id=?", groupId).Delete(menuGroup)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }
 
 func (p *plugin) SelectByRoleId(roleId uint64) error {
-	panic("implement me")
+
+	return nil
 }

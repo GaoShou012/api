@@ -19,6 +19,11 @@ type Admins struct {
 	UpdatedAt *time.Time // 更新时间
 }
 
+func (m *Admins) GetTableName() string {
+	return "admins"
+}
+
+
 func (m *Admins) IsEnable(id uint64) (bool, error) {
 	admin := &Admins{}
 	res := global.DBSlave.Select("enable").Where("id=?", id).First(admin)

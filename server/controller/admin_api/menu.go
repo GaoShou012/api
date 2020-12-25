@@ -63,7 +63,7 @@ func (c *Menu) Create(ctx *gin.Context) {
 	var params struct {
 		Name    string
 		GroupId uint64
-		Sort    int
+		Sort    uint64
 		Icon    string
 		Path    string
 	}
