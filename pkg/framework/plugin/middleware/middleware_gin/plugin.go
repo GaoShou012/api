@@ -76,7 +76,7 @@ func (p *plugin) Init() error {
 	go func() {
 		for {
 			operator := <-p.refreshExpirationQueue
-			key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
+			key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
 			p.redisClient.Set(context.TODO(), key, time.Now().String(), p.expiration)
 		}
 	}()
@@ -159,7 +159,7 @@ func (p *plugin) decrypt(key []byte, str string, operator middleware.Operator) e
 func (p *plugin) SignedString(args ...interface{}) (string, error) {
 	operator := args[0].(middleware.Operator)
 	operator.SetContextId(uuid.NewV1().String())
-	key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
+	key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
 	_, err := p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration).Result()
 	if err != nil {
 		return "", err
@@ -206,17 +206,33 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 			return
 		}
 
-		key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
-		num, err := p.redisClient.Exists(context.TODO(), key).Result()
-		if err != nil {
-			env.Logger.Error(err)
-			ctx.Abort()
-			return
+		// 检查释放KEY，是否存在
+		// 如果存在，代表用户已经进行了释放操作
+		{
+			key := fmt.Sprintf("ctx:operator:release:%s", operator.GetContextId())
+			_, err := p.opts.redisClient.Exists(context.TODO(), key).Result()
+			if err != nil {
+				env.Logger.Error(err)
+				ctx.Abort()
+				return
+			}
 		}
-		if num == 0 {
-			p.Callback.Expiration(ctx)
-			ctx.Abort()
-			return
+
+		// 检查上下文时效Key
+		// 如果不存在，代表用户的登陆已经过期
+		{
+			key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
+			num, err := p.redisClient.Exists(context.TODO(), key).Result()
+			if err != nil {
+				env.Logger.Error(err)
+				ctx.Abort()
+				return
+			}
+			if num == 0 {
+				p.Callback.Expiration(ctx)
+				ctx.Abort()
+				return
+			}
 		}
 
 		// refresh expiration
@@ -230,14 +246,26 @@ func (p *plugin) Release(args ...interface{}) error {
 	if err != nil {
 		return err
 	}
-	key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
-	num, err := p.redisClient.Del(context.TODO(), key).Result()
-	if err != nil {
-		return err
+
+	{
+		key := fmt.Sprintf("ctx:operator:release:%s", operator.GetContextId())
+		_, err := p.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration+(time.Second*60)).Result()
+		if err != nil {
+			return err
+		}
 	}
-	if num == 0 {
-		env.Logger.Warn(fmt.Sprintf("释放操作信息不存在:%s", key))
-		return nil
+
+	{
+		key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
+		num, err := p.redisClient.Del(context.TODO(), key).Result()
+		if err != nil {
+			return err
+		}
+		if num == 0 {
+			env.Logger.Warn(fmt.Sprintf("释放操作信息不存在:%s", key))
+			return nil
+		}
 	}
+
 	return nil
 }
