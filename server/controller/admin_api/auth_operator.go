@@ -54,5 +54,5 @@ func (c *Operator) GetAuthorityId() string {
 	@method GET
 */
 func (c *Operator) Info(ctx *gin.Context) {
-	libs_http.RspState(ctx, 0, GetOperator(ctx))
+	libs_http.RspData(ctx, 0, "",GetOperator(ctx))
 }
