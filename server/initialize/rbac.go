@@ -7,13 +7,12 @@ import (
 	"framework/env"
 	"framework/plugin/rbac/rbac_mysql_redis"
 	"framework/plugin/rbac/rbac_mysql_redis/api_adapter"
+	"framework/plugin/rbac/rbac_mysql_redis/menu_adapter"
 	"framework/plugin/rbac/rbac_mysql_redis/role_adapter"
 )
 
 func InitRBAC() {
-	{
-		global.RBAC = rbac_mysql_redis.New()
-	}
+	global.RBAC = rbac_mysql_redis.New()
 
 	{
 		callback := &api_adapter.Callback{}
@@ -34,6 +33,22 @@ func InitRBAC() {
 			api_adapter.WithGorm(global.DBMaster, global.DBSlave),
 			api_adapter.WithRedisClient(global.RedisClient),
 			api_adapter.WithCallback(callback),
+		)
+	}
+
+	{
+		callback := &menu_adapter.Callback{
+			AuthorityMenuId: menu_adapter.AuthorityMenuId(func(operator rbac.Operator, menuId uint64) (bool, error) {
+				return true, nil
+			}),
+			AuthorityMenuGroupId: menu_adapter.AuthorityMenuGroupId(func(operator rbac.Operator, menuGroupId uint64) (bool, error) {
+				return true, nil
+			}),
+		}
+		env.MenuAdapter = menu_adapter.New(
+			menu_adapter.WithModel(&models.RbacMenu{}, &models.RbacMenuGroup{}),
+			menu_adapter.WithCallback(callback),
+			menu_adapter.WithGorm(global.DBMaster, global.DBSlave),
 		)
 	}
 
