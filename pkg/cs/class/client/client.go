@@ -13,7 +13,7 @@ type Client interface {
 	ExistsInfo(uuid string) (bool, error)
 
 	// 客户会话列表，加入会话
-	SetSession(client meta.Client, sessionId string, session meta.Session) error
+	SetSession(client meta.Client, session meta.Session) error
 	// 客户会话列表，移除会话
 	DelSession(client meta.Client, sessionId string) error
 	// 客户会话列表，会话是否存在
