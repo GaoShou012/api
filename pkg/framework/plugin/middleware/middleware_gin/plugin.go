@@ -201,11 +201,6 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 			return
 		}
 
-		// 0 等于永不过期
-		if p.expiration == 0 {
-			return
-		}
-
 		key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
 		num, err := p.redisClient.Exists(context.TODO(), key).Result()
 		if err != nil {
@@ -236,7 +231,8 @@ func (p *plugin) Release(args ...interface{}) error {
 		return err
 	}
 	if num == 0 {
-		return errors.New("释放操作者信息失败\n")
+		env.Logger.Warn(fmt.Sprintf("释放操作着信息不存在:%s",key))
+		return nil
 	}
 	return nil
 }
