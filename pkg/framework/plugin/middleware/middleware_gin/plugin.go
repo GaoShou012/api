@@ -249,7 +249,7 @@ func (p *plugin) Release(args ...interface{}) error {
 
 	{
 		key := fmt.Sprintf("ctx:operator:release:%s", operator.GetContextId())
-		_, err := p.redisClient.Set(context.TODO(), key, time.Now().String(), time.Second*60).Result()
+		_, err := p.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration+(time.Second*60)).Result()
 		if err != nil {
 			return err
 		}
