@@ -5,6 +5,18 @@ import "cs/meta"
 type Session interface {
 	Init() error
 
+	// 创建会话
+	// client是创建者
+	Create(sessionId string, session meta.Session, creator meta.Client) error
+
+	// 创建者信息
+	GetCreator(sessionId string) (meta.Client, error)
+
+	// 设置会话信息
+	SetInfo(sessionId string, session meta.Session) error
+	// 获取会话信息
+	GetInfo(sessionId string) (meta.Session, error)
+
 	// 设置标记
 	SetFlag(sessionId string, key string, val string) error
 	SetFlagNX(sessionId string, key string, val string) (bool, error)
@@ -20,9 +32,9 @@ type Session interface {
 	GetState(sessionId string) (meta.SessionState, error)
 
 	// 保存会话信息
-	SetInfo(session meta.Session) error
+	//SetInfo(session meta.Session) error
 	// 读取会话信息
-	GetInfo(sessionId string) (meta.Session, error)
+	//GetInfo(sessionId string) (meta.Session, error)
 	// 会话信息是否存在
 	ExistsInfo(sessionId string) (bool, error)
 	// 移除会话信息
