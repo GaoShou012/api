@@ -159,6 +159,11 @@ func (p *plugin) decrypt(key []byte, str string, operator middleware.Operator) e
 func (p *plugin) SignedString(args ...interface{}) (string, error) {
 	operator := args[0].(middleware.Operator)
 	operator.SetContextId(uuid.NewV1().String())
+	key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
+	_, err := p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration).Result()
+	if err != nil {
+		return "", err
+	}
 	return p.encrypt(p.cipherKey, operator)
 }
 
@@ -201,11 +206,6 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 			return
 		}
 
-		// 0 等于永不过期
-		if p.expiration == 0 {
-			return
-		}
-
 		key := fmt.Sprintf("ctx:operator:%s", operator.GetContextId())
 		num, err := p.redisClient.Exists(context.TODO(), key).Result()
 		if err != nil {
@@ -236,7 +236,8 @@ func (p *plugin) Release(args ...interface{}) error {
 		return err
 	}
 	if num == 0 {
-		return errors.New("释放操作者信息失败\n")
+		env.Logger.Warn(fmt.Sprintf("释放操作信息不存在:%s", key))
+		return nil
 	}
 	return nil
 }
