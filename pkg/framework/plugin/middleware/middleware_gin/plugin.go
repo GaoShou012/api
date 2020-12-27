@@ -9,7 +9,6 @@ import (
 	"framework/env"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"github.com/mitchellh/mapstructure"
 	uuid "github.com/satori/go.uuid"
 	"reflect"
@@ -42,12 +41,6 @@ func toTimeHookFunc() mapstructure.DecodeHookFunc {
 var _ middleware.OperatorContext = &plugin{}
 
 type plugin struct {
-	*Callback
-	model                  middleware.Operator
-	headerTokenKey         string
-	cipherKey              []byte
-	redisClient            *redis.Client
-	expiration             time.Duration
 	opts                   *Options
 	refreshExpirationQueue chan middleware.Operator
 }
@@ -56,28 +49,21 @@ func (p *plugin) Init() error {
 	if p.opts.model == nil {
 		return errors.New("model is nil\n")
 	}
-	p.model = p.opts.model
 
 	if p.opts.cipherKey == nil {
 		return errors.New("cipher key is nil\n")
 	}
-	p.cipherKey = p.opts.cipherKey
 
 	if p.opts.headerTokenKey == "" {
 		p.opts.headerTokenKey = "X-API-TOKEN"
 	}
-	p.headerTokenKey = p.opts.headerTokenKey
-
-	p.Callback = p.opts.Callback
-	p.redisClient = p.opts.redisClient
-	p.expiration = p.opts.expiration
 
 	p.refreshExpirationQueue = make(chan middleware.Operator, 5000)
 	go func() {
 		for {
 			operator := <-p.refreshExpirationQueue
 			key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-			p.redisClient.Set(context.TODO(), key, time.Now().String(), p.expiration)
+			p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration)
 		}
 	}()
 	return nil
@@ -164,29 +150,29 @@ func (p *plugin) SignedString(args ...interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return p.encrypt(p.cipherKey, operator)
+	return p.encrypt(p.opts.cipherKey, operator)
 }
 
 func (p *plugin) Parse(args ...interface{}) interface{} {
 	return gin.HandlerFunc(func(ctx *gin.Context) {
 		// read the token string
-		str := ctx.GetHeader(p.headerTokenKey)
+		str := ctx.GetHeader(p.opts.headerTokenKey)
 		if str == "" {
-			desc := fmt.Sprintf("读取上下文(%s)失败", p.headerTokenKey)
+			desc := fmt.Sprintf("读取上下文(%s)失败", p.opts.headerTokenKey)
 			env.Logger.Error(desc)
 			ctx.Abort()
 			return
 		}
 
 		// create new model instance
-		t := reflect.TypeOf(p.model)
+		t := reflect.TypeOf(p.opts.model)
 		if t.Kind() == reflect.Ptr {
 			t = t.Elem()
 		}
 		operator := reflect.New(t).Interface().(middleware.Operator)
 
 		// decrypt the string to the struct
-		if err := p.decrypt(p.cipherKey, str, operator); err != nil {
+		if err := p.decrypt(p.opts.cipherKey, str, operator); err != nil {
 			env.Logger.Error(err)
 			ctx.Abort()
 			return
@@ -222,21 +208,23 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 		// 如果不存在，代表用户的登陆已经过期
 		{
 			key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-			num, err := p.redisClient.Exists(context.TODO(), key).Result()
+			num, err := p.opts.redisClient.Exists(context.TODO(), key).Result()
 			if err != nil {
 				env.Logger.Error(err)
 				ctx.Abort()
 				return
 			}
 			if num == 0 {
-				p.Callback.Expiration(ctx)
+				p.opts.Callback.Expiration(ctx)
 				ctx.Abort()
 				return
 			}
 		}
 
 		// refresh expiration
-		p.refreshExpirationQueue <- operator
+		if p.opts.expiration > 0 {
+			p.refreshExpirationQueue <- operator
+		}
 	})
 }
 
@@ -249,7 +237,7 @@ func (p *plugin) Release(args ...interface{}) error {
 
 	{
 		key := fmt.Sprintf("ctx:operator:release:%s", operator.GetContextId())
-		_, err := p.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration+(time.Second*60)).Result()
+		_, err := p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration+time.Minute).Result()
 		if err != nil {
 			return err
 		}
@@ -257,7 +245,7 @@ func (p *plugin) Release(args ...interface{}) error {
 
 	{
 		key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-		num, err := p.redisClient.Del(context.TODO(), key).Result()
+		num, err := p.opts.redisClient.Del(context.TODO(), key).Result()
 		if err != nil {
 			return err
 		}

@@ -3,7 +3,6 @@ package rbac_mysql_redis
 import (
 	"errors"
 	"framework/class/rbac"
-	"framework/env"
 	"strconv"
 	"strings"
 )
@@ -19,13 +18,13 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) CreateApi(operator rbac.Operator, api rbac.Api) error {
-	return env.ApiAdapter.Create(api)
+	return p.opts.ApiAdapter.Create(api)
 }
 
 func (p *plugin) DeleteApi(operator rbac.Operator, apiId uint64) (bool, error) {
 	// 校验操作者权限
 	{
-		ok, err := env.ApiAdapter.Authority(operator, apiId)
+		ok, err := p.opts.ApiAdapter.Authority(operator, apiId)
 		if err != nil {
 			return false, err
 		}
@@ -34,13 +33,13 @@ func (p *plugin) DeleteApi(operator rbac.Operator, apiId uint64) (bool, error) {
 		}
 	}
 
-	return env.ApiAdapter.Delete(apiId)
+	return p.opts.ApiAdapter.Delete(apiId)
 }
 
 func (p *plugin) UpdateApi(operator rbac.Operator, apiId uint64, api rbac.Api) error {
 	// 校验操作者权限
 	{
-		ok, err := env.ApiAdapter.Authority(operator, apiId)
+		ok, err := p.opts.ApiAdapter.Authority(operator, apiId)
 		if err != nil {
 			return err
 		}
@@ -49,12 +48,12 @@ func (p *plugin) UpdateApi(operator rbac.Operator, apiId uint64, api rbac.Api) e
 		}
 	}
 
-	return env.ApiAdapter.Update(apiId, api)
+	return p.opts.ApiAdapter.Update(apiId, api)
 }
 
 func (p *plugin) CreateMenu(operator rbac.Operator, groupId uint64, menu rbac.Menu) error {
 	{
-		ok, err := env.MenuAdapter.AuthorityMenuGroup(operator, groupId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenuGroup(operator, groupId)
 		if err != nil {
 			return err
 		}
@@ -63,12 +62,12 @@ func (p *plugin) CreateMenu(operator rbac.Operator, groupId uint64, menu rbac.Me
 		}
 	}
 
-	return env.MenuAdapter.CreateMenu(menu)
+	return p.opts.MenuAdapter.CreateMenu(menu)
 }
 
 func (p *plugin) DeleteMenu(operator rbac.Operator, menuId uint64) (bool, error) {
 	{
-		ok, err := env.MenuAdapter.AuthorityMenu(operator, menuId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenu(operator, menuId)
 		if err != nil {
 			return false, err
 		}
@@ -76,13 +75,13 @@ func (p *plugin) DeleteMenu(operator rbac.Operator, menuId uint64) (bool, error)
 			return false, errors.New("权限不足")
 		}
 	}
-	return env.MenuAdapter.DeleteMenu(menuId)
+	return p.opts.MenuAdapter.DeleteMenu(menuId)
 }
 
 func (p *plugin) UpdateMenu(operator rbac.Operator, menuId uint64, menu rbac.Menu) error {
 	// 校验操作者权限
 	{
-		ok, err := env.MenuAdapter.AuthorityMenu(operator, menuId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenu(operator, menuId)
 		if err != nil {
 			return err
 		}
@@ -91,16 +90,16 @@ func (p *plugin) UpdateMenu(operator rbac.Operator, menuId uint64, menu rbac.Men
 		}
 	}
 
-	return env.MenuAdapter.UpdateMenu(menuId, menu)
+	return p.opts.MenuAdapter.UpdateMenu(menuId, menu)
 }
 
 func (p *plugin) CreateMenuGroup(operator rbac.Operator, group rbac.MenuGroup) error {
-	return env.MenuAdapter.CreateMenuGroup(group)
+	return p.opts.MenuAdapter.CreateMenuGroup(group)
 }
 
 func (p *plugin) DeleteMenuGroup(operator rbac.Operator, menuGroupId uint64) (bool, error) {
 	{
-		ok, err := env.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
 		if err != nil {
 			return false, err
 		}
@@ -109,13 +108,13 @@ func (p *plugin) DeleteMenuGroup(operator rbac.Operator, menuGroupId uint64) (bo
 		}
 	}
 
-	return env.MenuAdapter.DeleteMenuGroup(menuGroupId)
+	return p.opts.MenuAdapter.DeleteMenuGroup(menuGroupId)
 }
 
 func (p *plugin) UpdateMenuGroup(operator rbac.Operator, menuGroupId uint64, group rbac.MenuGroup) error {
 	// 校验操作者权限
 	{
-		ok, err := env.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
 		if err != nil {
 			return err
 		}
@@ -124,39 +123,39 @@ func (p *plugin) UpdateMenuGroup(operator rbac.Operator, menuGroupId uint64, gro
 		}
 	}
 
-	return env.MenuAdapter.UpdateMenuGroup(menuGroupId, group)
+	return p.opts.MenuAdapter.UpdateMenuGroup(menuGroupId, group)
 }
 
 func (p *plugin) CreateRole(operator rbac.Operator, role rbac.Role) error {
-	return env.RoleAdapter.CreateRole(role)
+	return p.opts.RoleAdapter.CreateRole(role)
 }
 
 func (p *plugin) DeleteRole(operator rbac.Operator, roleId uint64) (bool, error) {
-	ok, err := env.RoleAdapter.Authority(operator, roleId)
+	ok, err := p.opts.RoleAdapter.Authority(operator, roleId)
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return false, errors.New("权限不足")
 	}
-	return env.RoleAdapter.DeleteRole(roleId)
+	return p.opts.RoleAdapter.DeleteRole(roleId)
 }
 
 func (p *plugin) UpdateRole(operator rbac.Operator, roleId uint64, role rbac.Role) error {
-	ok, err := env.RoleAdapter.Authority(operator, roleId)
+	ok, err := p.opts.RoleAdapter.Authority(operator, roleId)
 	if err != nil {
 		return err
 	}
 	if !ok {
 		return errors.New("权限不足")
 	}
-	return env.RoleAdapter.UpdateRole(roleId, role)
+	return p.opts.RoleAdapter.UpdateRole(roleId, role)
 }
 
 func (p *plugin) RoleAssocApi(operator rbac.Operator, roleId uint64, apiId uint64) error {
 	// 校验操作者权限
 	{
-		ok, err := env.RoleAdapter.Authority(operator, roleId)
+		ok, err := p.opts.RoleAdapter.Authority(operator, roleId)
 		if err != nil {
 			return err
 		}
@@ -165,7 +164,7 @@ func (p *plugin) RoleAssocApi(operator rbac.Operator, roleId uint64, apiId uint6
 		}
 	}
 	{
-		ok, err := env.ApiAdapter.Authority(operator, apiId)
+		ok, err := p.opts.ApiAdapter.Authority(operator, apiId)
 		if err != nil {
 			return err
 		}
@@ -175,17 +174,17 @@ func (p *plugin) RoleAssocApi(operator rbac.Operator, roleId uint64, apiId uint6
 	}
 
 	// 查询角色
-	role, err := env.RoleAdapter.SelectById(roleId)
+	role, err := p.opts.RoleAdapter.SelectById(roleId)
 	if err != nil {
 		return err
 	}
-	api, err := env.ApiAdapter.SelectById(apiId)
+	api, err := p.opts.ApiAdapter.SelectById(apiId)
 	if err != nil {
 		return err
 	}
 
 	// 角色关联API
-	if err := env.RoleAdapter.AssocApi(role, api); err != nil {
+	if err := p.opts.RoleAdapter.AssocApi(role, api); err != nil {
 		return err
 	}
 
@@ -193,13 +192,13 @@ func (p *plugin) RoleAssocApi(operator rbac.Operator, roleId uint64, apiId uint6
 }
 
 func (p *plugin) RoleDisassociateApi(operator rbac.Operator, assocId uint64) error {
-	assoc, err := env.RoleAdapter.SelectAssocApiById(assocId)
+	assoc, err := p.opts.RoleAdapter.SelectAssocApiById(assocId)
 	if err != nil {
 		return err
 	}
 
 	{
-		ok, err := env.RoleAdapter.Authority(operator, assoc.GetRoleId())
+		ok, err := p.opts.RoleAdapter.Authority(operator, assoc.GetRoleId())
 		if err != nil {
 			return err
 		}
@@ -208,7 +207,7 @@ func (p *plugin) RoleDisassociateApi(operator rbac.Operator, assocId uint64) err
 		}
 	}
 	{
-		ok, err := env.ApiAdapter.Authority(operator, assoc.GetApiId())
+		ok, err := p.opts.ApiAdapter.Authority(operator, assoc.GetApiId())
 		if err != nil {
 			return err
 		}
@@ -218,7 +217,7 @@ func (p *plugin) RoleDisassociateApi(operator rbac.Operator, assocId uint64) err
 	}
 
 	{
-		_, err := env.RoleAdapter.DisassociateApi(assocId)
+		_, err := p.opts.RoleAdapter.DisassociateApi(assocId)
 		if err != nil {
 			return err
 		}
@@ -229,7 +228,7 @@ func (p *plugin) RoleDisassociateApi(operator rbac.Operator, assocId uint64) err
 func (p *plugin) RoleAssocMenu(operator rbac.Operator, roleId uint64, menuId uint64) error {
 	// 校验操作者权限
 	{
-		ok, err := env.RoleAdapter.Authority(operator, roleId)
+		ok, err := p.opts.RoleAdapter.Authority(operator, roleId)
 		if err != nil {
 			return err
 		}
@@ -238,7 +237,7 @@ func (p *plugin) RoleAssocMenu(operator rbac.Operator, roleId uint64, menuId uin
 		}
 	}
 	{
-		ok, err := env.MenuAdapter.AuthorityMenu(operator, menuId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenu(operator, menuId)
 		if err != nil {
 			return err
 		}
@@ -248,19 +247,19 @@ func (p *plugin) RoleAssocMenu(operator rbac.Operator, roleId uint64, menuId uin
 	}
 
 	// 查询角色
-	role, err := env.RoleAdapter.SelectById(roleId)
+	role, err := p.opts.RoleAdapter.SelectById(roleId)
 	if err != nil {
 		return err
 	}
 
 	// 查询菜单
-	menu, err := env.MenuAdapter.SelectMenuById(menuId)
+	menu, err := p.opts.MenuAdapter.SelectMenuById(menuId)
 	if err != nil {
 		return err
 	}
 
 	// 关联
-	if err := env.RoleAdapter.AssocMenu(role, menu); err != nil {
+	if err := p.opts.RoleAdapter.AssocMenu(role, menu); err != nil {
 		return err
 	}
 
@@ -268,13 +267,13 @@ func (p *plugin) RoleAssocMenu(operator rbac.Operator, roleId uint64, menuId uin
 }
 
 func (p *plugin) RoleDisassociateMenu(operator rbac.Operator, assocId uint64) error {
-	assoc, err := env.RoleAdapter.SelectAssocMenuById(assocId)
+	assoc, err := p.opts.RoleAdapter.SelectAssocMenuById(assocId)
 	if err != nil {
 		return err
 	}
 
 	{
-		ok, err := env.RoleAdapter.Authority(operator, assoc.GetRoleId())
+		ok, err := p.opts.RoleAdapter.Authority(operator, assoc.GetRoleId())
 		if err != nil {
 			return err
 		}
@@ -283,7 +282,7 @@ func (p *plugin) RoleDisassociateMenu(operator rbac.Operator, assocId uint64) er
 		}
 	}
 	{
-		ok, err := env.MenuAdapter.AuthorityMenu(operator, assoc.GetMenuId())
+		ok, err := p.opts.MenuAdapter.AuthorityMenu(operator, assoc.GetMenuId())
 		if err != nil {
 			return err
 		}
@@ -293,7 +292,7 @@ func (p *plugin) RoleDisassociateMenu(operator rbac.Operator, assocId uint64) er
 	}
 
 	{
-		_, err := env.RoleAdapter.DisassociateMenu(assocId)
+		_, err := p.opts.RoleAdapter.DisassociateMenu(assocId)
 		if err != nil {
 			return err
 		}
@@ -304,7 +303,7 @@ func (p *plugin) RoleDisassociateMenu(operator rbac.Operator, assocId uint64) er
 
 func (p *plugin) RoleAssocMenuGroup(operator rbac.Operator, roleId uint64, menuGroupId uint64) error {
 	{
-		ok, err := env.RoleAdapter.Authority(operator, roleId)
+		ok, err := p.opts.RoleAdapter.Authority(operator, roleId)
 		if err != nil {
 			return err
 		}
@@ -313,7 +312,7 @@ func (p *plugin) RoleAssocMenuGroup(operator rbac.Operator, roleId uint64, menuG
 		}
 	}
 	{
-		ok, err := env.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
+		ok, err := p.opts.MenuAdapter.AuthorityMenuGroup(operator, menuGroupId)
 		if err != nil {
 			return err
 		}
@@ -323,29 +322,29 @@ func (p *plugin) RoleAssocMenuGroup(operator rbac.Operator, roleId uint64, menuG
 	}
 
 	// 查询角色
-	role, err := env.RoleAdapter.SelectById(roleId)
+	role, err := p.opts.RoleAdapter.SelectById(roleId)
 	if err != nil {
 		return err
 	}
 
 	// 查询菜单
-	group, err := env.MenuAdapter.SelectMenuGroupById(menuGroupId)
+	group, err := p.opts.MenuAdapter.SelectMenuGroupById(menuGroupId)
 	if err != nil {
 		return err
 	}
 
 	// 关联操作
-	return env.RoleAdapter.AssocMenuGroup(role, group)
+	return p.opts.RoleAdapter.AssocMenuGroup(role, group)
 }
 
 func (p *plugin) RoleDisassociateMenuGroup(operator rbac.Operator, assocId uint64) error {
-	assoc, err := env.RoleAdapter.SelectAssocMenuGroupById(assocId)
+	assoc, err := p.opts.RoleAdapter.SelectAssocMenuGroupById(assocId)
 	if err != nil {
 		return err
 	}
 
 	{
-		ok, err := env.RoleAdapter.Authority(operator, assoc.GetRoleId())
+		ok, err := p.opts.RoleAdapter.Authority(operator, assoc.GetRoleId())
 		if err != nil {
 			return err
 		}
@@ -355,7 +354,7 @@ func (p *plugin) RoleDisassociateMenuGroup(operator rbac.Operator, assocId uint6
 	}
 
 	{
-		ok, err := env.MenuAdapter.AuthorityMenuGroup(operator, assoc.GetMenuGroupId())
+		ok, err := p.opts.MenuAdapter.AuthorityMenuGroup(operator, assoc.GetMenuGroupId())
 		if err != nil {
 			return err
 		}
@@ -365,7 +364,7 @@ func (p *plugin) RoleDisassociateMenuGroup(operator rbac.Operator, assocId uint6
 	}
 
 	{
-		_, err := env.RoleAdapter.DisassociateMenuGroup(assocId)
+		_, err := p.opts.RoleAdapter.DisassociateMenuGroup(assocId)
 		if err != nil {
 			return err
 		}
@@ -383,7 +382,7 @@ func (p *plugin) Enforcer(authorityId string, method string, path string) (bool,
 		if err != nil {
 			return false, err
 		}
-		ok, err := env.RoleAdapter.EnforcerApi(uint64(num), method, path)
+		ok, err := p.opts.RoleAdapter.EnforcerApi(uint64(num), method, path)
 		if err != nil {
 			return false, err
 		}

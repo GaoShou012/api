@@ -2,7 +2,6 @@ package models
 
 type RbacRoleAssocApi struct {
 	Model
-	//TenantId *uint64
 	RoleId   *uint64
 	ApiId    *uint64
 }
@@ -18,7 +17,3 @@ func (m *RbacRoleAssocApi) GetApiId() uint64 {
 	return *m.ApiId
 }
 
-func (m *RbacRoleAssocApi) BeforeUpdate() {
-	//m.TenantId = nil
-	m.Model.BeforeUpdate()
-}

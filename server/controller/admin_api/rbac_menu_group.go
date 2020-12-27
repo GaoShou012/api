@@ -22,8 +22,6 @@ func (c *RbacMenuGroup) Create(ctx *gin.Context) {
 	{
 
 		menuGroup := &params
-		tenantId := uint64(1)
-		menuGroup.TenantId = &tenantId
 		if err := global.RBAC.CreateMenuGroup(operator,menuGroup); err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return

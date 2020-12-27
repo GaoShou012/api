@@ -26,10 +26,8 @@ func (c *RbacApi) Create(ctx *gin.Context) {
 	}
 
 	operator := GetOperator(ctx)
-	tenantId := uint64(1)
 	model := &models.RbacApi{
 		Model:    models.Model{},
-		TenantId: &tenantId,
 		Method:   &params.Method,
 		Path:     &params.Path,
 	}

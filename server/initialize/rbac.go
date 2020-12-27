@@ -4,15 +4,21 @@ import (
 	"api/global"
 	"api/models"
 	"framework/class/rbac"
-	"framework/env"
 	"framework/plugin/rbac/rbac_mysql_redis"
 	"framework/plugin/rbac/rbac_mysql_redis/api_adapter"
 	"framework/plugin/rbac/rbac_mysql_redis/menu_adapter"
 	"framework/plugin/rbac/rbac_mysql_redis/role_adapter"
 )
 
+
 func InitRBAC() {
-	global.RBAC = rbac_mysql_redis.New()
+	var roleAdapter rbac.RoleAdapter
+	var menuAdapter rbac.MenuAdapter
+	var apiAdapter rbac.ApiAdapter
+
+	global.RBAC = rbac_mysql_redis.New(
+		rbac_mysql_redis.WithAdapter(roleAdapter, apiAdapter, menuAdapter),
+	)
 
 	{
 		callback := &api_adapter.Callback{}
@@ -28,7 +34,7 @@ func InitRBAC() {
 			//		//}
 			return true, nil
 		}
-		env.ApiAdapter = api_adapter.New(
+		apiAdapter = api_adapter.New(
 			api_adapter.WithModel(&models.RbacApi{}),
 			api_adapter.WithGorm(global.DBMaster, global.DBSlave),
 			api_adapter.WithRedisClient(global.RedisClient),
@@ -45,7 +51,7 @@ func InitRBAC() {
 				return true, nil
 			}),
 		}
-		env.MenuAdapter = menu_adapter.New(
+		menuAdapter = menu_adapter.New(
 			menu_adapter.WithModel(&models.RbacMenu{}, &models.RbacMenuGroup{}),
 			menu_adapter.WithCallback(callback),
 			menu_adapter.WithGorm(global.DBMaster, global.DBSlave),
@@ -73,10 +79,10 @@ func InitRBAC() {
 				_role := role.(*models.RbacRole)
 				_api := api.(*models.RbacApi)
 				return &models.RbacRoleAssocApi{
-					Model:    models.Model{},
+					Model: models.Model{},
 					//TenantId: _role.TenantId,
-					RoleId:   _role.Id,
-					ApiId:    _api.Id,
+					RoleId: _role.Id,
+					ApiId:  _api.Id,
 				}
 			}),
 			AssocMenuGroup: role_adapter.AssocMenuGroup(func(role rbac.Role, group rbac.MenuGroup) rbac.Model {
@@ -84,7 +90,6 @@ func InitRBAC() {
 				_menuGroup := group.(*models.RbacMenuGroup)
 				return &models.RbacRoleAssocMenuGroup{
 					Model:       models.Model{},
-					TenantId:    _role.TenantId,
 					RoleId:      _role.Id,
 					MenuGroupId: _menuGroup.Id,
 				}
@@ -94,13 +99,12 @@ func InitRBAC() {
 				_menu := menu.(*models.RbacMenu)
 				return &models.RbacRoleAssocMenu{
 					Model:    models.Model{},
-					TenantId: _role.TenantId,
 					RoleId:   _role.Id,
 					MenuId:   _menu.Id,
 				}
 			}),
 		}
-		env.RoleAdapter = role_adapter.New(
+		roleAdapter = role_adapter.New(
 			role_adapter.WithCallback(callback),
 			role_adapter.WithGorm(global.DBMaster, global.DBSlave),
 			role_adapter.WithModel(&models.RbacRole{}, &models.RbacRoleAssocApi{}, &models.RbacMenuGroup{}, &models.RbacMenu{}),

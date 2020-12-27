@@ -21,8 +21,6 @@ func (c *RbacRole) Create(ctx *gin.Context) {
 	operator := GetOperator(ctx)
 	{
 		role := &params
-		tenantId := uint64(1)
-		role.TenantId = &tenantId
 		if err := global.RBAC.CreateRole(operator, role); err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
