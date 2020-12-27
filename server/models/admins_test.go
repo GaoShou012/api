@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/global"
 	"api/initialize"
+	"api/models/bak"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -22,7 +23,7 @@ func TestAdmins(t *testing.T) {
 	//fmt.Println(admin)
 
 	//roleMenu := &[]AuthorityRolesMenus{}
-	roleMenuId := &[]AuthorityRolesMenus{}
+	roleMenuId := &[]bak.AuthorityRolesMenus{}
 	//根据role_id获取菜单树和相应的api
 	res := global.DBMaster.Select("menu_id").Find(roleMenuId, "role_id in (?)", []int64{1, 2})
 	if res.Error != nil {
@@ -32,7 +33,7 @@ func TestAdmins(t *testing.T) {
 	for _, i := range *roleMenuId {
 		menuId = append(menuId, *i.MenuId)
 	}
-	menu := &[]Menus{}
+	menu := &[]bak.Menus{}
 	menuGroupId := []uint64{}
 	//fmt.Println(menuId)
 	{
@@ -51,7 +52,7 @@ func TestAdmins(t *testing.T) {
 		//fmt.Println(menuGroupId)
 	}
 
-	menuGroups := &[]MenusGroups{}
+	menuGroups := &[]bak.MenusGroups{}
 	{
 		res := global.DBMaster.Select("*").Find(menuGroups, "id in (?)", menuId)
 		if res.Error != nil {
@@ -63,7 +64,7 @@ func TestAdmins(t *testing.T) {
 		}
 	}
 
-	authorityRolesApi := &[]AuthorityRolesApis{}
+	authorityRolesApi := &[]bak.AuthorityRolesApis{}
 	{
 		res := global.DBMaster.Find(authorityRolesApi, "role_id in (?)", []int64{1, 2})
 		if res.Error != nil {

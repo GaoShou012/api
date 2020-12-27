@@ -1,4 +1,4 @@
-package admin_api
+package tenant_admin_api
 
 import (
 	"api/global"
@@ -32,7 +32,7 @@ func (c *RbacApi) Create(ctx *gin.Context) {
 		Path:     &params.Path,
 	}
 
-	if err := global.RBAC.CreateApi(operator, model); err != nil {
+	if err := global.TenantRBAC.CreateApi(operator, model); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
@@ -58,7 +58,7 @@ func (c *RbacApi) Delete(ctx *gin.Context) {
 
 	{
 		apiId := params.Id
-		ok, err := global.RBAC.DeleteApi(operator, apiId)
+		ok, err := global.TenantRBAC.DeleteApi(operator, apiId)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
@@ -88,7 +88,7 @@ func (c *RbacApi) Update(ctx *gin.Context) {
 
 	apiId := *params.Id
 	api := &params
-	if err := global.RBAC.UpdateApi(operator, apiId, api); err != nil {
+	if err := global.TenantRBAC.UpdateApi(operator, apiId, api); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}

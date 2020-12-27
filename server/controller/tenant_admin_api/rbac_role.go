@@ -1,4 +1,4 @@
-package admin_api
+package tenant_admin_api
 
 import (
 	"api/global"
@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RbacMenuGroup struct {
+type RbacRole struct {
 }
 
-func (c *RbacMenuGroup) Create(ctx *gin.Context) {
-	var params models.RbacMenuGroup
+func (c *RbacRole) Create(ctx *gin.Context) {
+	var params models.RbacRole
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
@@ -20,19 +20,19 @@ func (c *RbacMenuGroup) Create(ctx *gin.Context) {
 
 	operator := GetOperator(ctx)
 	{
-
-		menuGroup := &params
-		if err := global.RBAC.CreateMenuGroup(operator,menuGroup); err != nil {
+		role := &params
+		if err := global.TenantRBAC.CreateRole(operator, role); err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
 	}
 
-	libs_http.RspState(ctx, 0, "创建菜单组成功")
+	libs_http.RspState(ctx, 0, "创建角色成功")
 }
 
-func (c *RbacMenuGroup) Update(ctx *gin.Context){
-	var params models.RbacMenuGroup
+
+func (c *RbacRole) Update(ctx *gin.Context) {
+	var params models.RbacRole
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
@@ -40,18 +40,18 @@ func (c *RbacMenuGroup) Update(ctx *gin.Context){
 
 	operator := GetOperator(ctx)
 	{
-		menuGroupId := *params.Id
-		menuGroup := &params
-		if err := global.RBAC.UpdateMenuGroup(operator, menuGroupId, menuGroup); err != nil {
+		roleId := *params.Id
+		role := &params
+		if err := global.TenantRBAC.UpdateRole(operator, roleId, role); err != nil {
 			libs_http.RspState(ctx,1,err)
 			return
 		}
 	}
 
-	libs_http.RspState(ctx,0,"更新菜单组成功")
+	libs_http.RspState(ctx,0,"更新角色成功")
 }
 
-func (c *RbacMenuGroup) Delete(ctx *gin.Context) {
+func (c *RbacRole) Delete(ctx *gin.Context) {
 	var params struct {
 		Id uint64
 	}
@@ -64,13 +64,13 @@ func (c *RbacMenuGroup) Delete(ctx *gin.Context) {
 
 	{
 		id := params.Id
-		ok, err := global.RBAC.DeleteMenuGroup(operator, id)
+		ok, err := global.TenantRBAC.DeleteRole(operator, id)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
 		if !ok {
-			libs_http.RspState(ctx, 1, fmt.Errorf("删除失败，可能菜单组ID(%d)不存在", id))
+			libs_http.RspState(ctx, 1, fmt.Errorf("删除失败，可能角色ID(%d)不存在", id))
 		}
 	}
 

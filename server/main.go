@@ -6,6 +6,9 @@ import (
 	libs_ip_location "api/libs/ip_location"
 	libs_log "api/libs/logs"
 	"api/services/admin_api"
+	"api/services/tenant_admin_api"
+	"api/services/tenant_api"
+	"api/services/tenant_customer_api"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -78,6 +81,24 @@ func main() {
 	// admin api service
 	{
 		httpService := admin_api.HttpService{}
+		httpService.Route(r)
+	}
+
+	// tenant admin api service
+	{
+		httpService := tenant_admin_api.HttpService{}
+		httpService.Route(r)
+	}
+
+	// tenant api
+	{
+		httpService := tenant_api.HttpService{}
+		httpService.Route(r)
+	}
+
+	// tenant customer api
+	{
+		httpService := tenant_customer_api.HttpService{}
 		httpService.Route(r)
 	}
 

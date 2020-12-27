@@ -1,13 +1,14 @@
-package models
+package models_tenant
+
+import "api/models"
 
 type RbacApi struct {
-	Model
-	Method   *string
-	Path     *string
+	models.RbacApi
+	TenantId *uint64
 }
 
 func (m *RbacApi) GetTableName() string {
-	return "rbac_api"
+	return "tenants_rbac_api"
 }
 
 func (m *RbacApi) GetId() uint64 {
@@ -20,3 +21,7 @@ func (m *RbacApi) GetPath() string {
 	return *m.Path
 }
 
+func (m *RbacApi) BeforeUpdate() {
+	m.TenantId = nil
+	m.Model.BeforeUpdate()
+}

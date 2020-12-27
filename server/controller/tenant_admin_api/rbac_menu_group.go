@@ -1,4 +1,4 @@
-package admin_api
+package tenant_admin_api
 
 import (
 	"api/global"
@@ -22,7 +22,7 @@ func (c *RbacMenuGroup) Create(ctx *gin.Context) {
 	{
 
 		menuGroup := &params
-		if err := global.RBAC.CreateMenuGroup(operator,menuGroup); err != nil {
+		if err := global.TenantRBAC.CreateMenuGroup(operator,menuGroup); err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
@@ -42,7 +42,7 @@ func (c *RbacMenuGroup) Update(ctx *gin.Context){
 	{
 		menuGroupId := *params.Id
 		menuGroup := &params
-		if err := global.RBAC.UpdateMenuGroup(operator, menuGroupId, menuGroup); err != nil {
+		if err := global.TenantRBAC.UpdateMenuGroup(operator, menuGroupId, menuGroup); err != nil {
 			libs_http.RspState(ctx,1,err)
 			return
 		}
@@ -64,7 +64,7 @@ func (c *RbacMenuGroup) Delete(ctx *gin.Context) {
 
 	{
 		id := params.Id
-		ok, err := global.RBAC.DeleteMenuGroup(operator, id)
+		ok, err := global.TenantRBAC.DeleteMenuGroup(operator, id)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
