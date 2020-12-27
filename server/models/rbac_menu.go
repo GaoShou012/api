@@ -6,6 +6,7 @@ type RbacMenu struct {
 	GroupId  *uint64
 	Sort     *uint64
 	Name     *string
+	Code     *string
 	Icon     *string
 	Desc     *string
 }

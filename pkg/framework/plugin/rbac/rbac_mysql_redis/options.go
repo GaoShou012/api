@@ -6,6 +6,10 @@ import (
 )
 
 type Options struct {
+	rbac.RoleAdapter
+	rbac.MenuAdapter
+	rbac.ApiAdapter
+
 	dbMaster *gorm.DB
 	dbSlave  *gorm.DB
 }
@@ -32,5 +36,13 @@ func WithGorm(dbMaster *gorm.DB, dbSlave *gorm.DB) Option {
 	return func(o *Options) {
 		o.dbMaster = dbMaster
 		o.dbSlave = dbSlave
+	}
+}
+
+func WithAdapter(roleAdapter rbac.RoleAdapter, apiAdapter rbac.ApiAdapter, menuAdapter rbac.MenuAdapter) Option {
+	return func(o *Options) {
+		o.RoleAdapter = roleAdapter
+		o.MenuAdapter = menuAdapter
+		o.ApiAdapter = apiAdapter
 	}
 }
