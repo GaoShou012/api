@@ -7,7 +7,7 @@ type Session interface {
 
 	// 创建会话
 	// client是创建者
-	Create(sessionId string, session meta.Session, creator meta.Client) error
+	Create(session meta.Session, creator meta.Client) error
 
 	// 创建者信息
 	GetCreator(sessionId string) (meta.Client, error)

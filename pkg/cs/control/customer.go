@@ -5,23 +5,7 @@ import (
 	"cs/meta"
 )
 
-func CreateSession(session meta.Session, creator meta.Client) (uint64, error) {
-	// 创建会话
-	if err := env.Session.Create(session.GetSessionId(), session, creator); err != nil {
-		return 0, err
-	}
 
-	// 客户关联会话
-	if err := env.Client.SetSession(creator, session); err != nil {
-		return 0, err
-	}
-	// 会话关联客户
-	if err := env.Session.SetClient(session, creator); err != nil {
-		return 0, err
-	}
-
-
-}
 
 /*
 	访客创建会话
