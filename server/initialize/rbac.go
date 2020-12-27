@@ -74,7 +74,7 @@ func InitRBAC() {
 				_api := api.(*models.RbacApi)
 				return &models.RbacRoleAssocApi{
 					Model:    models.Model{},
-					TenantId: _role.TenantId,
+					//TenantId: _role.TenantId,
 					RoleId:   _role.Id,
 					ApiId:    _api.Id,
 				}
