@@ -17,7 +17,7 @@ type Client interface {
 	// 客户会话列表，移除会话
 	DelSession(client meta.Client, session meta.Session) error
 	// 客户会话列表，会话是否存在
-	ExistsSession(client meta.Client, session meta.Session) (bool, error)
+	ExistsSession(client meta.Client, sessionId string) (bool, error)
 	// 获取客户会话列表
 	GetAllSessions(client meta.Client) ([]string, error)
 	// 加入的会话数量

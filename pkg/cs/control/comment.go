@@ -38,6 +38,19 @@ func LeaveSession(session meta.Session, client meta.Client) error {
 }
 
 // 是否有加入会话
-func ExistsSession(client meta.Client, sessionId string) error {
+func ExistsSession(client meta.Client, sessionId string) (bool, error) {
+	return env.Client.ExistsSession(client, sessionId)
+}
 
+func Broadcast(session meta.Session, data []byte) error {
+	clients, err := env.Session.GetAllClients(session)
+	if err != nil {
+		return err
+	}
+	for _, client := range clients {
+		if err := env.Gateway.Publish(client.GetUUID(), data); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -6,11 +6,13 @@ import (
 	"cs/class/queue"
 	"cs/class/robot"
 	"cs/class/session"
+	"cs/class/tenant"
 	"framework/class/logger"
 	env2 "framework/env"
 )
 
 var (
+	Tenant tenant.Tenant
 	Client  client.Client
 	Session session.Session
 	Queue   queue.Queue
