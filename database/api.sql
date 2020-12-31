@@ -11,7 +11,7 @@
  Target Server Version : 80022
  File Encoding         : 65001
 
- Date: 29/12/2020 21:04:27
+ Date: 31/12/2020 13:21:58
 */
 
 SET NAMES utf8mb4;
@@ -35,12 +35,6 @@ CREATE TABLE `admins` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Records of admins
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for admins_login_stats
 -- ----------------------------
 DROP TABLE IF EXISTS `admins_login_stats`;
@@ -53,12 +47,6 @@ CREATE TABLE `admins_login_stats` (
   `testing` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Records of admins_login_stats
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for ip_whitelist
@@ -76,12 +64,6 @@ CREATE TABLE `ip_whitelist` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `opt_id` (`merchant_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='黑名单表';
-
--- ----------------------------
--- Records of ip_whitelist
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for merchant
@@ -104,12 +86,6 @@ CREATE TABLE `merchant` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='商户表';
 
 -- ----------------------------
--- Records of merchant
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for question_type
 -- ----------------------------
 DROP TABLE IF EXISTS `question_type`;
@@ -129,12 +105,6 @@ CREATE TABLE `question_type` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='问题类型表';
 
 -- ----------------------------
--- Records of question_type
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for rbac_api
 -- ----------------------------
 DROP TABLE IF EXISTS `rbac_api`;
@@ -146,12 +116,6 @@ CREATE TABLE `rbac_api` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统API';
-
--- ----------------------------
--- Records of rbac_api
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for rbac_menu
@@ -171,12 +135,6 @@ CREATE TABLE `rbac_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单项（二级菜单）';
 
 -- ----------------------------
--- Records of rbac_menu
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for rbac_menu_group
 -- ----------------------------
 DROP TABLE IF EXISTS `rbac_menu_group`;
@@ -191,12 +149,6 @@ CREATE TABLE `rbac_menu_group` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单组（一级菜单）';
-
--- ----------------------------
--- Records of rbac_menu_group
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for rbac_role
@@ -214,12 +166,6 @@ CREATE TABLE `rbac_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色表';
 
 -- ----------------------------
--- Records of rbac_role
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for rbac_role_assoc_api
 -- ----------------------------
 DROP TABLE IF EXISTS `rbac_role_assoc_api`;
@@ -232,12 +178,6 @@ CREATE TABLE `rbac_role_assoc_api` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UIDX` (`role_id`,`api_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联API';
-
--- ----------------------------
--- Records of rbac_role_assoc_api
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for rbac_role_assoc_menu
@@ -254,12 +194,6 @@ CREATE TABLE `rbac_role_assoc_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联菜单（二级菜单）';
 
 -- ----------------------------
--- Records of rbac_role_assoc_menu
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for rbac_role_assoc_menu_group
 -- ----------------------------
 DROP TABLE IF EXISTS `rbac_role_assoc_menu_group`;
@@ -272,12 +206,6 @@ CREATE TABLE `rbac_role_assoc_menu_group` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UIDX` (`role_id`,`menu_group_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联菜单组（一级菜单）';
-
--- ----------------------------
--- Records of rbac_role_assoc_menu_group
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for sessions
@@ -320,12 +248,6 @@ CREATE TABLE `sessions` (
 ) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='会话列表';
 
 -- ----------------------------
--- Records of sessions
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for sessions_records
 -- ----------------------------
 DROP TABLE IF EXISTS `sessions_records`;
@@ -345,23 +267,17 @@ CREATE TABLE `sessions_records` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='记录会话的聊天信息表';
 
 -- ----------------------------
--- Records of sessions_records
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for stats_operate_log
 -- ----------------------------
 DROP TABLE IF EXISTS `stats_operate_log`;
 CREATE TABLE `stats_operate_log` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `operator_tentant` int unsigned DEFAULT NULL COMMENT '操作者id',
-  `operator_tentant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '操作者名称',
-  `operator_tentant_role_id` int unsigned DEFAULT NULL COMMENT '角色id',
-  `operator_tentant_role_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '角色',
-  `be_operator_tentant_id` int DEFAULT NULL COMMENT '被操作者客服角色',
-  `be_operator_tentant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '被操作客服角色',
+  `operator_tenant_id` int unsigned DEFAULT NULL COMMENT '操作者id',
+  `operator_tenant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '操作者名称',
+  `operator_tenant_role_id` int unsigned DEFAULT NULL COMMENT '角色id',
+  `operator_tenant_role_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '角色',
+  `be_operator_tenant_id` int DEFAULT NULL COMMENT '被操作者客服角色',
+  `be_operator_tenant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '被操作客服角色',
   `operate_log` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '日志',
   `merchant_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商户ID',
   `params` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '请求参数',
@@ -369,12 +285,6 @@ CREATE TABLE `stats_operate_log` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='客服操作统计';
-
--- ----------------------------
--- Records of stats_operate_log
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for stats_tenants_attendance
@@ -392,12 +302,6 @@ CREATE TABLE `stats_tenants_attendance` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='客服考勤统计';
-
--- ----------------------------
--- Records of stats_tenants_attendance
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for stats_tenants_state
@@ -418,12 +322,6 @@ CREATE TABLE `stats_tenants_state` (
 ) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='客服状态统计';
 
 -- ----------------------------
--- Records of stats_tenants_state
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenants
 -- ----------------------------
 DROP TABLE IF EXISTS `tenants`;
@@ -437,12 +335,6 @@ CREATE TABLE `tenants` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Records of tenants
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for tenants_admins
@@ -462,12 +354,6 @@ CREATE TABLE `tenants_admins` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Records of tenants_admins
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenants_admins_login_stats
 -- ----------------------------
 DROP TABLE IF EXISTS `tenants_admins_login_stats`;
@@ -480,12 +366,6 @@ CREATE TABLE `tenants_admins_login_stats` (
   `testing` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Records of tenants_admins_login_stats
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for tenants_department
@@ -504,12 +384,6 @@ CREATE TABLE `tenants_department` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='租户部门表';
 
 -- ----------------------------
--- Records of tenants_department
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenants_rbac_api
 -- ----------------------------
 DROP TABLE IF EXISTS `tenants_rbac_api`;
@@ -522,12 +396,6 @@ CREATE TABLE `tenants_rbac_api` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统API';
-
--- ----------------------------
--- Records of tenants_rbac_api
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for tenants_rbac_menu
@@ -548,12 +416,6 @@ CREATE TABLE `tenants_rbac_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单项（二级菜单）';
 
 -- ----------------------------
--- Records of tenants_rbac_menu
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenants_rbac_menu_group
 -- ----------------------------
 DROP TABLE IF EXISTS `tenants_rbac_menu_group`;
@@ -569,12 +431,6 @@ CREATE TABLE `tenants_rbac_menu_group` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单组（一级菜单）';
-
--- ----------------------------
--- Records of tenants_rbac_menu_group
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for tenants_rbac_role
@@ -593,12 +449,6 @@ CREATE TABLE `tenants_rbac_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色表';
 
 -- ----------------------------
--- Records of tenants_rbac_role
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenants_rbac_role_assoc_api
 -- ----------------------------
 DROP TABLE IF EXISTS `tenants_rbac_role_assoc_api`;
@@ -611,12 +461,6 @@ CREATE TABLE `tenants_rbac_role_assoc_api` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UIDX` (`role_id`,`api_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联API';
-
--- ----------------------------
--- Records of tenants_rbac_role_assoc_api
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for tenants_rbac_role_assoc_menu
@@ -633,12 +477,6 @@ CREATE TABLE `tenants_rbac_role_assoc_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联菜单（二级菜单）';
 
 -- ----------------------------
--- Records of tenants_rbac_role_assoc_menu
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for tenants_rbac_role_assoc_menu_group
 -- ----------------------------
 DROP TABLE IF EXISTS `tenants_rbac_role_assoc_menu_group`;
@@ -651,12 +489,6 @@ CREATE TABLE `tenants_rbac_role_assoc_menu_group` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UIDX` (`role_id`,`menu_group_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联菜单组（一级菜单）';
-
--- ----------------------------
--- Records of tenants_rbac_role_assoc_menu_group
--- ----------------------------
-BEGIN;
-COMMIT;
 
 -- ----------------------------
 -- Table structure for visitor
@@ -685,11 +517,5 @@ CREATE TABLE `visitor` (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `opt_id` (`merchant_id`,`customer_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='游客信息表';
-
--- ----------------------------
--- Records of visitor
--- ----------------------------
-BEGIN;
-COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
