@@ -2,11 +2,15 @@ package session_redis
 
 import (
 	"cs/class/session"
+	"im/class/channel"
+	"framework/class/stream"
 	"github.com/go-redis/redis/v8"
 )
 
 type Options struct {
+	channel.Channel
 	redisClient *redis.Client
+	stream.Stream
 }
 
 type Option func(o *Options)
@@ -19,8 +23,7 @@ func New(opts ...Option) session.Session {
 	}
 
 	p := &plugin{
-		redisClient: nil,
-		opts:        options,
+		opts: options,
 	}
 	if err := p.Init(); err != nil {
 		panic(err)
@@ -31,7 +34,12 @@ func New(opts ...Option) session.Session {
 
 func WithRedisClient(redisClient *redis.Client) Option {
 	return func(o *Options) {
-		o.redisClient = redisClient
+	}
+}
+
+func WithStream(stream stream.Stream) Option {
+	return func(o *Options) {
+		o.Stream = stream
 	}
 }
 

@@ -11,4 +11,10 @@ type Sys interface {
 	LeaveSession(client meta.Client, session meta.Session) error
 	// 客户是否加入了会话
 	IsClientInSession(client meta.Client, session meta.Session) (bool, error)
+
+	// 广播消息
+	// 消息存储到stream
+	// 然后广播通知到各个私人stream
+	// 并且异步消息入库
+	Broadcast(client meta.Client, sessionId string, data interface{}) (string, error)
 }

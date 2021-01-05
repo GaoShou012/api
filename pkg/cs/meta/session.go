@@ -10,6 +10,5 @@ const (
 )
 
 type Session interface {
-	NewInfo(client Client)
 	GetSessionId() string
 }

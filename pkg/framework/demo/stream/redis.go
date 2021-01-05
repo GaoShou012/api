@@ -10,6 +10,8 @@ import (
 func main() {
 	dns := fmt.Sprintf("redis://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
 
+	topic := "testing_stream1"
+
 	s := stream_redis_stream.NewStream()
 	if err := s.Connect(dns); err != nil {
 		panic(err)
@@ -24,11 +26,21 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		msgId, err := s.Push("testing_stream1", j)
+		msgId, err := s.Push(topic, j)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Println("message id:", msgId)
+
+		event, err := s.GetById(topic, msgId)
+		if err != nil {
+			panic(err)
+		}
+		if event == nil {
+			panic("message id is not exists")
+		}
+		fmt.Println("message:", event)
+		return
 	}
 
 	{
@@ -46,5 +58,9 @@ func main() {
 			// the ack to delete the event in stream.
 			event.Ack()
 		}
+	}
+
+	{
+
 	}
 }

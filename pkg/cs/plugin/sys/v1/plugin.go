@@ -16,8 +16,12 @@ func (p *plugin) Init() error {
 	return nil
 }
 
-func (p *plugin) CreateSession(client meta.Client, session meta.Session) error {
+func (p *plugin) CreateSession(tenantCode string, client meta.Client, session meta.Session) error {
 	return env.Session.Create(session, client)
+}
+
+func (p *plugin) DeleteSession(session meta.Session) error {
+	return env.Session.Delete(session)
 }
 
 func (p *plugin) JoinSession(client meta.Client, session meta.Session) error {
@@ -44,6 +48,19 @@ func (p *plugin) LeaveSession(client meta.Client, session meta.Session) error {
 	return nil
 }
 
-func (p *plugin) IsClientInSession(client meta.Client, session meta.Session) (bool, error) {
-	return env.Client.ExistsSession(client, session)
+func (p *plugin) IsClientInSession(client meta.Client, sessionId string) (bool, error) {
+	return env.Client.ExistsSession(client, sessionId)
+}
+
+func (p *plugin) Broadcast(session meta.Session, data []byte) error {
+	clients, err := env.Session.GetAllClients(session)
+	if err != nil {
+		return err
+	}
+	for _, client := range clients {
+		if err := env.Gateway.Publish(client.GetUUID(), data); err != nil {
+			return err
+		}
+	}
+	return nil
 }
