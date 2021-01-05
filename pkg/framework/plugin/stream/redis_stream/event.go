@@ -1,14 +1,13 @@
 package stream_redis_stream
 
 import (
-	"context"
 	"framework/class/stream"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 )
 
-var _ stream.Event = &redisEvent{}
+var _ stream.Event = &Event{}
 
-type redisEvent struct {
+type Event struct {
 	id          string
 	streamName  string
 	message     []byte
@@ -16,23 +15,23 @@ type redisEvent struct {
 	err         error
 }
 
-func (e *redisEvent) Id() string {
+func (e *Event) Id() string {
 	return e.id
 }
 
-func (e *redisEvent) Topic() string {
+func (e *Event) Topic() string {
 	return e.streamName
 }
 
-func (e *redisEvent) Message() []byte {
+func (e *Event) Message() []byte {
 	return e.message
 }
 
-func (e *redisEvent) Ack() error {
-	_, err := e.redisClient.XDel(context.TODO(), e.streamName, e.id).Result()
+func (e *Event) Ack() error {
+	_, err := e.redisClient.XDel(e.streamName, e.id).Result()
 	return err
 }
 
-func (e *redisEvent) Error() error {
+func (e *Event) Error() error {
 	return e.err
 }

@@ -1,6 +1,7 @@
 package tenant_customer_api
 
 import (
+	"api/cs"
 	"api/cs/message"
 	"api/cs/notification"
 	"api/global"
@@ -53,9 +54,13 @@ func (c *Session) Message(ctx *gin.Context) {
 
 	// 读取会话信息
 	// 会话鉴权
-	session, err := cs_env.Session.GetInfo(operator.SessionId)
-	if err != nil {
+	session := &cs.Session{}
+	if err := cs_env.Session.GetInfo(operator.SessionId, session); err != nil {
 		libs_http.RspState(ctx, 1, err)
+		return
+	}
+	if session.IsClose() {
+		libs_http.RspState(ctx, 1, "会话已经关闭")
 		return
 	}
 
@@ -81,13 +86,15 @@ func (c *Session) Rating(ctx *gin.Context) {
 		return
 	}
 
+	// 获取操作者信息
 	operator := GetOperator(ctx)
+
 	sessionId := operator.SessionId
+	rating := params.Rating
+	comment := params.Comment
 
 	// 标记会话已经评价
 	{
-		rating := params.Rating
-		comment := params.Comment
 		model := &models.TenantsSessions{}
 		if err := model.Rating(sessionId, rating, comment); err != nil {
 			libs_http.RspState(ctx, 1, err)
@@ -97,8 +104,7 @@ func (c *Session) Rating(ctx *gin.Context) {
 
 	// 通知客服，会话已经被评价
 	go func() {
-		sender := make(map[string]string)
-		msg := notification.NewMessage(sender, &notification.SessionRating{
+		msg := cs.NewMessageWithContent(operator,&notification.SessionRating{
 			SessionId: "",
 			Rating:    0,
 			Comment:   "",
@@ -108,7 +114,8 @@ func (c *Session) Rating(ctx *gin.Context) {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
-		if err := cs_env.Gateway.Publish("", encode); err != nil {
+
+		if err := cs_env.Gateway.Publish(operator.GetUUID(), encode); err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}

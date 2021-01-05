@@ -1,14 +1,12 @@
 package stream_redis_stream
 
 import (
-	"framework/class/logger"
 	"framework/class/stream"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 )
 
 type Options struct {
 	redisClient *redis.Client
-	logger      logger.Logger
 }
 
 type Option func(o *Options)
@@ -20,8 +18,7 @@ func NewStream(opts ...Option) stream.Stream {
 		o(options)
 	}
 
-	s := &redisStream{
-		redisClient: nil,
+	s := &plugin{
 		opts:        options,
 	}
 	if err := s.Init(); err != nil {
@@ -37,8 +34,3 @@ func WithRedisClient(redisClient *redis.Client) Option {
 	}
 }
 
-func WithLogger(log logger.Logger) Option {
-	return func(o *Options) {
-		o.logger = log
-	}
-}

@@ -22,4 +22,9 @@ type Client interface {
 	GetAllSessions(client meta.Client) ([]string, error)
 	// 加入的会话数量
 	GetNumSessions(client meta.Client) (uint64, error)
+
+	// 获取客户端的个人频道
+	GetTopicOfPersonalChannel(uuid string) string
+
+	PushEvent(uuid string,event *Event) error
 }

@@ -2,12 +2,15 @@ package session_redis
 
 import (
 	"context"
+	"cs/class/client"
 	"cs/class/session"
+	"cs/env"
 	"cs/meta"
 	"encoding/json"
 	"fmt"
 	"framework/class/stream"
 	"github.com/go-redis/redis/v8"
+	"time"
 )
 
 func keyOfSessionInfo(sessionId string) string {
@@ -20,6 +23,13 @@ func keyOfSessionRecords(sessionId string) string {
 	return fmt.Sprintf("cs:sessin:records:%s", sessionId)
 }
 
+func topicOfSessionRecords(sessionId string) string {
+	return fmt.Sprintf("session:records:%s", sessionId)
+}
+func topicOfClientEvents(uuid string) string {
+	return fmt.Sprintf("stream:client:events:%s", uuid)
+}
+
 var _ session.Session = &plugin{}
 
 type plugin struct {
@@ -29,6 +39,7 @@ type plugin struct {
 }
 
 func (p *plugin) Init() error {
+
 	return nil
 }
 
@@ -170,7 +181,7 @@ func (p *plugin) ExistsClient(session meta.Session, client meta.Client) (bool, e
 	key := keyOfSessionInfo(session.GetSessionId())
 
 	{
-		exists, err := p.redisClient.HExists(context.TODO(), key, client.GetUUID()).Result()
+		exists, err := p.opts.redisClient.HExists(context.TODO(), key, client.GetUUID()).Result()
 		if err != nil {
 			return false, err
 		}
@@ -178,12 +189,31 @@ func (p *plugin) ExistsClient(session meta.Session, client meta.Client) (bool, e
 	}
 }
 
-func (p *plugin) GetAllClients(session meta.Session, clients interface{}) error {
-	panic("implement me")
+func (p *plugin) GetAllClients(sessionId string) ([]*session.ClientItem, error) {
+	key := keyOfSessionClients(sessionId)
+
+	res, err := p.opts.redisClient.HGetAll(context.TODO(), key).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var items []*session.ClientItem
+
+	for _, row := range res {
+		item := &session.ClientItem{}
+		if err := json.Unmarshal([]byte(row), item); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	return items, nil
 }
 
-func (p *plugin) DelAllClients(session meta.Session) error {
-	panic("implement me")
+func (p *plugin) DelAllClients(sessionId string) error {
+	key := keyOfSessionClients(sessionId)
+	_, err := p.opts.redisClient.Del(context.TODO(), key).Result()
+	return err
 }
 
 func (p *plugin) PushMessage(session meta.Session, message []byte) (string, error) {
@@ -202,4 +232,42 @@ func (p *plugin) PullMessage(session meta.Session, lastMessageId string, count u
 		rows = append(rows, row.Message())
 	}
 	return rows, nil
+}
+
+func (p *plugin) Broadcast(sessionId string, message []byte) error {
+	// 推送消息到频道
+	var err error
+	var clients map[string]time.Time
+
+	{
+		topic := topicOfSessionRecords(sessionId)
+		clients, err = p.opts.Channel.Clients(topic)
+		if err != nil {
+			return err
+		}
+		_, err = p.opts.Channel.Publish(topic, message)
+		if err != nil {
+			return err
+		}
+		for uuid, _ := range clients {
+			env.Client.PushEvent(uuid,)
+		}
+	}
+
+	// 推送通知到网关
+	{
+		clientEvent := &client.Event{
+			Type: client.EventTypeNotice,
+			Data: []byte(sessionId),
+		}
+		clientEventEncode, err := json.Marshal(clientEvent)
+		if err != nil {
+			return err
+		}
+		for uuid, _ := range clients {
+			env.Gateway.Publish(uuid, clientEventEncode)
+		}
+	}
+
+	return nil
 }

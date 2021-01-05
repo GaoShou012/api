@@ -25,6 +25,9 @@ type Operator struct {
 	Username string
 	// 用户昵称
 	Nickname string
+	//
+	Thumb string
+
 	// 登陆时间
 	LoginTime time.Time
 	// 上下文ID
@@ -41,6 +44,23 @@ func (c *Operator) GetContextId() string {
 func (c *Operator) GetTenantId() uint64 {
 	return 0
 }
+
+func (c *Operator) GetTenantCode() string {
+	return c.TenantCode
+}
+func (c *Operator) GetUserId() uint64 {
+	return c.UserId
+}
+func (c *Operator) GetUserType() uint64 {
+	return c.UserType
+}
+func (c *Operator) GetNickname() string {
+	return c.Nickname
+}
+func (c *Operator) GetThumb() string {
+	return c.Thumb
+}
+
 func (c *Operator) GetId() uint64 {
 	return c.UserId
 }

@@ -3,34 +3,52 @@ package stream_redis_stream
 import (
 	"context"
 	"fmt"
-	"framework/class/logger"
 	"framework/class/stream"
-	"github.com/go-redis/redis/v8"
+	"framework/env"
+	"github.com/go-redis/redis"
 	"sync"
 )
 
-var _ stream.Stream = &redisStream{}
+var _ stream.Stream = &plugin{}
 
-type redisStream struct {
-	redisClient *redis.Client
-	opts        *Options
+type plugin struct {
+	opts *Options
 }
 
-func (s *redisStream) Init() error {
-	s.redisClient = s.opts.redisClient
+func (s *plugin) Init() error {
 	return nil
 }
 
-func (s *redisStream) Connect(dns string) error {
+func (s *plugin) Connect(dns string) error {
 	client, err := connect(dns)
 	if err != nil {
 		return err
 	}
-	s.redisClient = client
+	s.opts.redisClient = client
 	return nil
 }
 
-func (s *redisStream) Push(topic string, message []byte) (string, error) {
+func (s *plugin) GetById(topic string, messageId string) (stream.Event, error) {
+	res, err := s.opts.redisClient.XRange(topic, messageId, messageId).Result()
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, nil
+	}
+	event := res[0]
+	message := event.Values["Payload"].(string)
+	evt := &Event{
+		id:          event.ID,
+		streamName:  topic,
+		message:     []byte(message),
+		redisClient: s.opts.redisClient,
+		err:         nil,
+	}
+	return evt, nil
+}
+
+func (s *plugin) Push(topic string, message []byte) (string, error) {
 	values := make(map[string]interface{})
 	values["Payload"] = message
 	xAddArgs := &redis.XAddArgs{
@@ -40,17 +58,17 @@ func (s *redisStream) Push(topic string, message []byte) (string, error) {
 		ID:           "*",
 		Values:       values,
 	}
-	msgId, err := s.redisClient.XAdd(context.TODO(), xAddArgs).Result()
+	msgId, err := s.opts.redisClient.XAdd(xAddArgs).Result()
 	return msgId, err
 }
 
-func (s *redisStream) Pull(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
+func (s *plugin) Pull(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
 	readArgs := &redis.XReadArgs{
 		Streams: []string{topic, lastMessageId},
 		Count:   int64(count),
 		Block:   -1,
 	}
-	res, err := s.redisClient.XRead(context.TODO(), readArgs).Result()
+	res, err := s.opts.redisClient.XRead(readArgs).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, nil
@@ -65,16 +83,16 @@ func (s *redisStream) Pull(topic string, lastMessageId string, count uint64) ([]
 		for _, message := range row.Messages {
 			payload, ok := message.Values["Payload"].(string)
 			if !ok {
-				s.redisClient.XDel(context.TODO(), topic, message.ID)
-				s.opts.logger.Log(logger.ErrorLevel, "Assert payload is failed")
+				s.opts.redisClient.XDel(topic, message.ID)
+				env.Logger.Error("Assert payload is failed")
 				continue
 			}
 
-			evt := &redisEvent{
+			evt := &Event{
 				id:          message.ID,
 				streamName:  topic,
 				message:     []byte(payload),
-				redisClient: s.redisClient,
+				redisClient: s.opts.redisClient,
 			}
 			events = append(events, evt)
 		}
@@ -83,7 +101,7 @@ func (s *redisStream) Pull(topic string, lastMessageId string, count uint64) ([]
 	return events, nil
 }
 
-func (s *redisStream) Subscribe(topic string, handler stream.Handler) (stream.Subscriber, error) {
+func (s *plugin) Subscribe(topic string, handler stream.Handler) (stream.Subscriber, error) {
 	wg := sync.WaitGroup{}
 	ctx, cancel := context.WithCancel(context.Background())
 	sub := &subscriber{}
@@ -106,18 +124,18 @@ func (s *redisStream) Subscribe(topic string, handler stream.Handler) (stream.Su
 			case <-ctx.Done():
 				return
 			default:
-				res, err := s.redisClient.XRead(context.TODO(), xReadArgs).Result()
+				res, err := s.opts.redisClient.XRead(xReadArgs).Result()
 				if err != nil {
-					s.opts.logger.Log(logger.ErrorLevel, err)
+					env.Logger.Error(err)
 					continue
 				}
 				for _, theStream := range res {
 					for _, message := range theStream.Messages {
-						evt := &redisEvent{
+						evt := &Event{
 							id:          message.ID,
 							streamName:  theStream.Stream,
 							message:     nil,
-							redisClient: s.redisClient,
+							redisClient: s.opts.redisClient,
 							err:         nil,
 						}
 
@@ -125,14 +143,14 @@ func (s *redisStream) Subscribe(topic string, handler stream.Handler) (stream.Su
 						if !ok {
 							evt.err = fmt.Errorf("Assert Type field is failed\n")
 							if err := handler(evt); err != nil {
-								s.opts.logger.Log(logger.ErrorLevel, err)
+								env.Logger.Error(err)
 							}
 							continue
 						}
 						evt.message = []byte(payload)
 
 						if err := handler(evt); err != nil {
-							s.opts.logger.Log(logger.ErrorLevel, err)
+							env.Logger.Error(err)
 						}
 					}
 				}

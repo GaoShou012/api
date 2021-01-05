@@ -51,7 +51,7 @@ func (p *plugin) Publish(uuid string, message []byte) error {
 
 func (p *plugin) PublishControl(control gateway.Control) error {
 	evt := &event{
-		T: gateway.MessageTypeText,
+		T: gateway.MessageTypeControl,
 		H: map[string]string{"CtlType": control.CtlType()},
 		B: nil,
 	}

@@ -49,3 +49,15 @@ func (p *plugin) Logf(lv logger.Level, format string, v ...interface{}) error {
 	}
 	return nil
 }
+
+func (p *plugin) Error(v ...interface{}) {
+	p.Log(logger.ErrorLevel, v)
+}
+
+func (p *plugin) Warn(v ...interface{}) {
+	p.Log(logger.WarnLevel, v)
+}
+
+func (p *plugin) Info(v ...interface{}) {
+	p.Log(logger.InfoLevel, v)
+}

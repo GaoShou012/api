@@ -1,7 +1,9 @@
 package env
 
 import (
+	"cs/class/channel"
 	"cs/class/client"
+	"cs/class/client_event"
 	"cs/class/gateway"
 	"cs/class/queue"
 	"cs/class/robot"
@@ -12,13 +14,15 @@ import (
 )
 
 var (
-	Tenant tenant.Tenant
-	Client  client.Client
-	Session session.Session
-	Queue   queue.Queue
-	Gateway gateway.Gateway
-	Robot   robot.Robot
-	Logger  logger.Logger
+	Tenant      tenant.Tenant
+	Client      client.Client
+	Session     session.Session
+	Queue       queue.Queue
+	Gateway     gateway.Gateway
+	Robot       robot.Robot
+	Logger      logger.Logger
+	ClientEvent client_event.ClientEvent
+	Channels    channel.Channel
 )
 
 func init() {

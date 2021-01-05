@@ -10,11 +10,18 @@ type MsgType uint8
 const (
 	// 消息
 	MsgTypeCommon MsgType = iota
+	// 系统提示
+	MsgTypeSystemNotice
 	// 通知
 	MsgTypeNotification
 	// 租户自定义
 	MsgTypeCustomize
 )
+
+type Content interface {
+	GetMessageType() MsgType
+	GetContentType() string
+}
 
 type Message struct {
 	Type        MsgType
