@@ -3,12 +3,10 @@ package client_v1
 import (
 	"framework/class/stream"
 	"github.com/go-redis/redis"
-	"im/class/channel"
 	"im/class/client"
 )
 
 type Options struct {
-	infoModel   channel.Info
 	redisClient *redis.Client
 	stream.Stream
 }

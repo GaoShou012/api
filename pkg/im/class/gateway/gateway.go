@@ -11,7 +11,7 @@ const (
 
 type Gateway interface {
 	Init() error
-	Publish(uuid string, message []byte) error
+	Publish(uuid string, messageType string, message []byte) error
 	PublishControl(control Control) error
 	Subscribe(handler Handler) (broker.Subscriber, error)
 }

@@ -1,6 +1,7 @@
 package im_v1
 
 import (
+	"framework/class/broker"
 	"github.com/go-redis/redis"
 	"im/class/channel"
 	"im/class/client"
@@ -9,11 +10,13 @@ import (
 )
 
 type Options struct {
-	clientAdapter  client.Client
-	client         client.Client
-	channelAdapter channel.Channel
-	gateway        gateway.Gateway
-	redisClient    *redis.Client
+	// 用于分发消息到网关
+	broker broker.Broker
+	// 客户端消息
+	client      client.Client
+	channel     channel.Channel
+	gateway     gateway.Gateway
+	redisClient *redis.Client
 }
 
 type Option func(o *Options)
@@ -35,14 +38,32 @@ func New(opts ...Option) im.IM {
 	return p
 }
 
-func WithClientAdapter(clientAdapter client.Client) Option {
+func WithBroker(broker2 broker.Broker) Option {
 	return func(o *Options) {
-		o.clientAdapter = clientAdapter
+		o.broker = broker2
 	}
 }
 
-func WithChannelAdapter(channelAdapter channel.Channel) Option {
+func WithChannel(channel2 channel.Channel) Option {
 	return func(o *Options) {
-		o.channelAdapter = channelAdapter
+		o.channel = channel2
+	}
+}
+
+func WithClient(client2 client.Client) Option {
+	return func(o *Options) {
+		o.client = client2
+	}
+}
+
+func WithGateway(gateway2 gateway.Gateway) Option {
+	return func(o *Options) {
+		o.gateway = gateway2
+	}
+}
+
+func WithRedisClient(client2 *redis.Client) Option {
+	return func(o *Options) {
+		o.redisClient = client2
 	}
 }
