@@ -5,6 +5,8 @@ type Channel interface {
 	Create(info Info) error
 	// 删除频道
 	Delete(topic string) error
+	// 是否存在
+	Exists(topic string) (bool, error)
 
 	// 设置频道是否开启
 	SetEnable(topic string, enable bool) error
@@ -17,12 +19,17 @@ type Channel interface {
 	Clients(topic string) (Clients, error)
 
 	// 推送消息
-	Publish(topic string, message []byte) (messageId string, err error)
+	Push(topic string, message []byte) (messageId string, err error)
+
+	// 消息
+	Pull(topic string, lastMessageId string, count uint64) ([]Event, error)
+
+	// 拉取消息，指定ID
+	PullById(topic string, messageId string) ([]byte, error)
+
 	// 订阅
 	Subscribe(topic string, clientUUID string) error
+
 	// 取消订阅
 	UnSubscribe(topic string, clientUUID string) error
-
-	// 释放频道
-	Release(topic string) error
 }

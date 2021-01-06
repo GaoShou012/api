@@ -2,7 +2,7 @@ package global
 
 import (
 	"framework/class/logger"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 )
 

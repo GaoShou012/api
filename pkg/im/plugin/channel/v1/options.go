@@ -1,4 +1,4 @@
-package v1
+package channel_v1
 
 import (
 	"framework/class/stream"

@@ -1,4 +1,4 @@
-package client_v1
+package channel_v1
 
 type event struct {
 	msgId   string
