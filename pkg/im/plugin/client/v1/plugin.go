@@ -25,22 +25,13 @@ func (p *plugin) Init() error {
 	return nil
 }
 
-func (p *plugin) Push(uuid string, eventData client.EventData) error {
-	evt, err := EncodeEvent(eventData)
-	if err != nil {
-		return err
-	}
-	_, err = p.opts.Stream.Push(keyOfClientMessageStream(uuid), evt)
-	return err
+func (p *plugin) Push(uuid string, message []byte) (messageId string, err error) {
+	return p.opts.Stream.Push(keyOfClientMessageStream(uuid), message)
 }
 
-func (p *plugin) PushClients(uuid []string, eventData client.EventData) error {
-	evt, err := EncodeEvent(eventData)
-	if err != nil {
-		return err
-	}
+func (p *plugin) PushClients(uuid []string, message []byte) error {
 	for _, id := range uuid {
-		if _, err := p.opts.Stream.Push(keyOfClientMessageStream(id), evt); err != nil {
+		if _, err := p.opts.Stream.Push(keyOfClientMessageStream(id), message); err != nil {
 			env.Logger.Error(err)
 			continue
 		}
@@ -48,8 +39,25 @@ func (p *plugin) PushClients(uuid []string, eventData client.EventData) error {
 	return nil
 }
 
-func (p *plugin) Pull(uuid string, count int) ([]client.Event, error) {
-	panic("implement me")
+func (p *plugin) Pull(uuid string, lastMessageId string, count uint64) ([]client.Event, error) {
+	res, err := p.opts.Stream.Pull(keyOfClientMessageStream(uuid), lastMessageId, count)
+	if err != nil {
+		return nil, err
+	}
+
+	i := 0
+	events := make([]client.Event,len(res))
+
+	for _, val := range res {
+		evt := &event{
+			msgId:   val.Id(),
+			msgData: val.Message(),
+		}
+		events[i] = evt
+		i++
+	}
+
+	return events, nil
 }
 
 func (p *plugin) Subscribe(uuid string, topic string) error {

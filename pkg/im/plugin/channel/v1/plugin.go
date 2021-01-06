@@ -1,4 +1,4 @@
-package v1
+package channel_v1
 
 import (
 	"encoding/json"
@@ -7,6 +7,11 @@ import (
 	"im/env"
 	"time"
 )
+
+// 频道列表
+func keyOfChannels() string {
+	return fmt.Sprintf("channel:all-channels")
+}
 
 // 频道信息
 func keyOfChannelInfo(topic string) string {
@@ -23,26 +28,15 @@ func keyOfClientListOfChannel(topic string) string {
 	return fmt.Sprintf("channel:client_list:%s", topic)
 }
 
+// 频道标记
+func keyOfChannelFlag(topic string) string {
+	return fmt.Sprintf("channel:flag:%s", topic)
+}
+
 var _ channel.Channel = &plugin{}
 
 type plugin struct {
 	opts *Options
-}
-
-// 如果不存在返回频道信息不存在
-func (p *plugin) isInfoExists(topic string) error {
-	num, err := p.opts.redisClient.Exists(keyOfChannelInfo(topic)).Result()
-	if err != nil {
-		return err
-	}
-	if num == 0 {
-		return fmt.Errorf("频道信息不存在")
-	}
-	if num == 1 {
-		return nil
-	} else {
-		return fmt.Errorf("频道信息key(%s),不是唯一性", topic)
-	}
 }
 
 func (p *plugin) Init() error {
@@ -50,6 +44,7 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) Create(info channel.Info) error {
+	p.opts.redisClient.ZAdd(keyOfChannels(),)
 	return p.SetInfo(info.GetTopic(), info)
 }
 
@@ -68,11 +63,44 @@ func (p *plugin) Delete(topic string) error {
 			return err
 		}
 	}
+	// 删除频道标记
+	{
+		_, err := p.opts.redisClient.Del(keyOfChannelFlag(topic)).Result()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (p *plugin) Exists(topic string) (bool, error) {
+	num, err := p.opts.redisClient.Exists(keyOfChannelInfo(topic)).Result()
+	if err != nil {
+		return false, err
+	}
+	if num == 0 {
+		return false, nil
+	}
+	if num == 1 {
+		return true, nil
+	} else {
+		return true, fmt.Errorf("频道信息key(%s),不是唯一性", topic)
+	}
+}
+
+func (p *plugin) isExists(topic string) error {
+	exists, err := p.Exists(topic)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("频道不存在")
+	}
 	return nil
 }
 
 func (p *plugin) SetEnable(topic string, enable bool) error {
-	if err := p.isInfoExists(topic); err != nil {
+	if err := p.isExists(topic); err != nil {
 		return err
 	}
 
@@ -97,7 +125,7 @@ func (p *plugin) GetEnable(topic string) bool {
 }
 
 func (p *plugin) SetInfo(topic string, info channel.Info) error {
-	if err := p.isInfoExists(topic); err != nil {
+	if err := p.isExists(topic); err != nil {
 		return err
 	}
 
@@ -117,7 +145,7 @@ func (p *plugin) SetInfo(topic string, info channel.Info) error {
 }
 
 func (p *plugin) GetInfo(topic string, info channel.Info) error {
-	if err := p.isInfoExists(topic); err != nil {
+	if err := p.isExists(topic); err != nil {
 		return err
 	}
 	res, err := p.opts.redisClient.HGetAll(keyOfChannelInfo(topic)).Result()
@@ -154,7 +182,7 @@ func (p *plugin) Clients(topic string) (channel.Clients, error) {
 	return clients, nil
 }
 
-func (p *plugin) Publish(topic string, message []byte) (messageId string, err error) {
+func (p *plugin) Push(topic string, message []byte) (messageId string, err error) {
 	// 检查频道是否开启
 	if p.GetEnable(topic) == false {
 		err = fmt.Errorf("频道未启用，不能推送消息")
@@ -168,6 +196,38 @@ func (p *plugin) Publish(topic string, message []byte) (messageId string, err er
 	}
 
 	return
+}
+
+func (p *plugin) Pull(topic string, lastMessageId string, count uint64) ([]channel.Event, error) {
+	res, err := p.opts.Stream.Pull(keyOfChannelMessage(topic), lastMessageId, count)
+	if err != nil {
+		return nil, err
+	}
+
+	i := 0
+	events := make([]channel.Event, len(res))
+	for _, val := range res {
+		evt := &event{
+			msgId:   val.Id(),
+			msgData: val.Message(),
+		}
+		events[i] = evt
+		i++
+	}
+
+	return events, nil
+}
+
+func (p *plugin) PullById(topic string, messageId string) ([]byte, error) {
+	event, err := p.opts.Stream.PullById(topic, messageId)
+	if err != nil {
+		return nil, err
+	}
+	if event == nil {
+		return nil, nil
+	} else {
+		return event.Message(), nil
+	}
 }
 
 func (p *plugin) Subscribe(topic string, clientUUID string) error {
@@ -187,10 +247,5 @@ func (p *plugin) UnSubscribe(topic string, clientUUID string) error {
 	}
 
 	_, err := p.opts.redisClient.HDel(keyOfClientListOfChannel(topic), clientUUID).Result()
-	return err
-}
-
-func (p *plugin) Release(topic string) error {
-	_, err := p.opts.redisClient.Del(keyOfClientListOfChannel(topic)).Result()
 	return err
 }

@@ -1,4 +1,4 @@
-package client
+package channel
 
 type Event interface {
 	Id() string

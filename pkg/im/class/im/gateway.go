@@ -1,3 +1,4 @@
 package im
 
-type GatewayHandler func(message []byte)
+
+type OnPublishCallback func(uuid string,message []byte)

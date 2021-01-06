@@ -1,9 +1,5 @@
 package global
 
-import (
-	"cs/class/session"
-	"cs/class/sys"
-)
+import "im/class/im"
 
-var CsSys sys.Sys
-var CsSession session.Session
+var IM im.IM
