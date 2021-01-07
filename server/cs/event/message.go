@@ -39,5 +39,3 @@ func New(msgType MsgType, sender interface{}, content interface{}, contentType s
 		ContentType: contentType,
 	}
 }
-
-

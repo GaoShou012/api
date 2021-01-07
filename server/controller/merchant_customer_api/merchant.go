@@ -11,4 +11,5 @@ type Merchant struct {
 */
 func (c *Merchant) Welcome(ctx *gin.Context) {
 	operator := GetOperator(ctx)
+
 }
