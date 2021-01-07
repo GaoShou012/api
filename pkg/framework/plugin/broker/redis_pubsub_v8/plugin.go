@@ -19,6 +19,13 @@ type plugin struct {
 }
 
 func (p *plugin) Init() error {
+<<<<<<< HEAD
+	p.redisClient = p.opts.redisClient
+	if p.redisClient == nil {
+		return errors.New("redis_sortdset client is nil\n")
+	}
+=======
+>>>>>>> eeef28e189a032d2a4b7cc074b3ec94b250959b2
 	return nil
 }
 

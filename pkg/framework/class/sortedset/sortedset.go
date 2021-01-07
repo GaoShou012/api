@@ -15,9 +15,9 @@ type Sortedset interface {
 	// 获取item位置，负向排序，距离最少数字偏移位置
 	GetOffsetN(topic string, key string) (int64, error)
 	// 从正向获取item
-	GetItemFormPositive(topic string) (Item, error)
+	GetItemFormPositive(topic string) ([]Item, error)
 	// 从反向获取item
-	GetItemFromNegative(topic string) (Item, error)
+	GetItemFromNegative(topic string) ([]Item, error)
 	// item是否存在
 	ExistsItem(topic string, key string) (bool, error)
 }

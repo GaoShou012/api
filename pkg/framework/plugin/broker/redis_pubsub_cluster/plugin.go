@@ -24,7 +24,7 @@ type plugin struct {
 func (p *plugin) Init() error {
 	p.redisClient = p.opts.redisClient
 	if p.redisClient == nil {
-		return errors.New("redis client is nil\n")
+		return errors.New("redis_sortdset client is nil\n")
 	}
 	return nil
 }

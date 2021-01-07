@@ -53,7 +53,7 @@ func init() {
 		}
 	}
 
-	// 初始化 redis
+	// 初始化 redis_sortdset
 	{
 		conf := config.GetConfig().Redis
 		if err := initialize.InitRedis(conf); err != nil {
