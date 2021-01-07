@@ -6,10 +6,10 @@ type Sortedset interface {
 	// 获取整个sortedset数量
 	Len(topic string) int64
 	// 查询指定页面
-	Find(topic string, page uint64, pageSize uint64) ([]Item, error)
+	Find(topic string, page int64, pageSize int64) ([]Item, error)
 
 	// 设置一个item
-	SetItem(topic string, key string, val int64) error
+	SetItem(topic string, key string, val float64) error
 	// 获取item位置，正向排序，距离最大数字偏移位置
 	GetOffset(topic string, key string) (int64, error)
 	// 获取item位置，负向排序，距离最少数字偏移位置
