@@ -92,6 +92,12 @@ func (c *Session) Create(ctx *gin.Context) {
 	// 返回数据
 	rspData := make(map[string]interface{})
 
+	// 会话信息
+	{
+		info := make(map[string]interface{})
+		info["CreatedAt"] = session.CreatedAt
+	}
+
 	// 会话token
 	{
 		token, err := cs.CipherOfToken.Encrypt(session)
