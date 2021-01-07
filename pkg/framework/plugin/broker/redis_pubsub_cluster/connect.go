@@ -52,7 +52,7 @@ func connect(dns string) (*redis.ClusterClient, error) {
 		}
 	}
 
-	// new redis client
+	// new redis_sortdset client
 	redisClient := redis.NewClusterClient(&redis.ClusterOptions{
 		Addrs:              addr,
 		NewClient:          nil,
@@ -80,7 +80,7 @@ func connect(dns string) (*redis.ClusterClient, error) {
 		TLSConfig:          nil,
 	})
 
-	// ping redis server
+	// ping redis_sortdset server
 	if _, err := redisClient.Ping(context.TODO()).Result(); err != nil {
 		return nil, err
 	}

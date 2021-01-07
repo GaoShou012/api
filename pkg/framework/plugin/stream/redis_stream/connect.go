@@ -51,7 +51,7 @@ func connect(dns string) (*redis.Client, error) {
 		}
 	}
 
-	// new redis client
+	// new redis_sortdset client
 	redisClient := redis.NewClient(&redis.Options{
 		Network:            "",
 		Addr:               addr,
@@ -74,7 +74,7 @@ func connect(dns string) (*redis.Client, error) {
 		TLSConfig:          nil,
 	})
 
-	// ping redis server
+	// ping redis_sortdset server
 	if _, err := redisClient.Ping().Result(); err != nil {
 		return nil, err
 	}
