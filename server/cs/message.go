@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func NewMessageWithContent(sender Sender, content message.Content) *message.Message {
+func NewMessageWithContent(sender Sender, content event.Content) *event.Message {
 	client := &Client{
 		TenantCode: sender.GetTenantCode(),
 		UserId:     sender.GetUserId(),
@@ -13,7 +13,7 @@ func NewMessageWithContent(sender Sender, content message.Content) *message.Mess
 		Nickname:   sender.GetNickname(),
 		Thumb:      sender.GetThumb(),
 	}
-	return &message.Message{
+	return &event.Message{
 		Type:        content.GetMessageType(),
 		Time:        time.Now(),
 		Sender:      client,

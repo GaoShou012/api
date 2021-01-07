@@ -23,16 +23,16 @@ func GetOperator(ctx *gin.Context) *Operator {
 
 func InitOperatorContext() {
 	conf := config.GetConfig().Base
-	callback := &middleware_gin.Callback{
-		Expiration: middleware_gin.Expiration(func(ctx *gin.Context) {
+	callback := &middleware_gin_redis_v8.Callback{
+		Expiration: middleware_gin_redis_v8.Expiration(func(ctx *gin.Context) {
 			libs_http.RspAuthFailed(ctx, 1, "登陆已经过期")
 		}),
 	}
-	OperatorContext = middleware_gin.New(
-		middleware_gin.WithModel(&Operator{}),
-		middleware_gin.WithExpiration(time.Duration(conf.OperatorContextExpiration)*time.Second),
-		middleware_gin.WithRedisClient(global.RedisClient),
-		middleware_gin.WithCallback(callback),
-		middleware_gin.WithCipherKey([]byte(conf.OperatorContextCipherKey)),
+	OperatorContext = middleware_gin_redis_v8.New(
+		middleware_gin_redis_v8.WithModel(&Operator{}),
+		middleware_gin_redis_v8.WithExpiration(time.Duration(conf.OperatorContextExpiration)*time.Second),
+		middleware_gin_redis_v8.WithRedisClient(global.RedisClient),
+		middleware_gin_redis_v8.WithCallback(callback),
+		middleware_gin_redis_v8.WithCipherKey([]byte(conf.OperatorContextCipherKey)),
 	)
 }

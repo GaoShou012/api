@@ -1,6 +1,9 @@
 package notification
 
-import "api/cs/message"
+import (
+	"api/cs/event"
+	"api/cs/message"
+)
 
 type SessionRating struct {
 	SessionId string
@@ -8,8 +11,8 @@ type SessionRating struct {
 	Comment   string
 }
 
-func (n *SessionRating) GetMessageType() message.MsgType {
-	return message.MsgTypeOperation
+func (n *SessionRating) GetMessageType() event.MsgType {
+	return event.MsgTypeOperation
 }
 func (n *SessionRating) GetContentType() string {
 	return "session.rating"

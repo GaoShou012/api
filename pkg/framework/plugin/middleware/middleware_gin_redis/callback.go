@@ -1,4 +1,4 @@
-package middleware_gin
+package middleware_gin_redis
 
 import "github.com/gin-gonic/gin"
 

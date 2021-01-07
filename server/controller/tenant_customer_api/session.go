@@ -2,24 +2,40 @@ package tenant_customer_api
 
 import (
 	"api/cs"
-	"api/cs/message"
+	"api/cs/gateway"
 	"api/cs/notification"
 	"api/global"
 	libs_http "api/libs/http"
+	libs_ip_location "api/libs/ip_location"
 	"api/meta"
 	"api/models"
 	cs_env "cs/env"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
 
-type Session struct {
-}
+type Session struct{}
 
 // 客户创建会话
 func (c *Session) Create(ctx *gin.Context) {
+	var params struct {
+		// 租户编码，用于识别customer token，需要使用指定的租户密钥，解密customer token
+		TenantCode string
+		// 访客设备，手机，PC，等等
+		CustomerDevice uint64
+		// 访客Token，由租户生成，加密了访客的基本信息
+		CustomerToken string
+	}
+	if err := ctx.BindJSON(&params); err != nil {
+		libs_http.RspState(ctx, 1, err)
+		return
+	}
 
-	// 查询租户是否开通
+	// TODO 查询租户是否开通
+	{
+
+	}
 
 	client := &meta.Client{
 		TenantCode: "",
@@ -30,15 +46,51 @@ func (c *Session) Create(ctx *gin.Context) {
 	session := &meta.Session{Id: uuid.NewV1().String()}
 
 	// 创建会话
-	err := global.CsSys.CreateSession(client, session)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
+	{
+		customerIp := libs_http.GetIp(ctx)
+		tmp, err := libs_ip_location.GetLocation(customerIp)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		customerIpLocation := fmt.Sprintf("%s:%s:%s", tmp.Country, tmp.Province, tmp.City)
+		customerDevice := params.CustomerDevice
+		session, err := cs.CustomerCreateSession(client, customerDevice, customerIp, customerIpLocation)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
 	}
 
-	// 会话排队
+	// 返回数据
+	rspData := make(map[string]interface{})
 
-	// 广播会话数量给所有在线客服
+	// 会话token
+	{
+		token, err := cs.CipherOfToken.Encrypt(session)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		rspData["SessionToken"] = token
+	}
+
+	// 网关token
+	{
+		gatewayToken := gateway.Token{
+			TenantCode: "",
+			UserType:   "",
+			UserId:     0,
+		}
+		token, err := cs.CipherOfToken.Encrypt(gatewayToken)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		rspData["GatewayToken"] = token
+	}
+
+	libs_http.RspData(ctx, 0, "", rspData)
 }
 
 /*
@@ -104,12 +156,12 @@ func (c *Session) Rating(ctx *gin.Context) {
 
 	// 通知客服，会话已经被评价
 	go func() {
-		msg := cs.NewMessageWithContent(operator,&notification.SessionRating{
+		msg := cs.NewMessageWithContent(operator, &notification.SessionRating{
 			SessionId: "",
 			Rating:    0,
 			Comment:   "",
 		})
-		encode, err := message.Encode(msg)
+		encode, err := event.Encode(msg)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return

@@ -1,4 +1,4 @@
-package middleware_gin
+package middleware_gin_redis_v8
 
 import (
 	"framework/class/middleware"

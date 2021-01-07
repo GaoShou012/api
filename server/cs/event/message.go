@@ -1,7 +1,6 @@
-package message
+package event
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -41,6 +40,4 @@ func New(msgType MsgType, sender interface{}, content interface{}, contentType s
 	}
 }
 
-func Encode(message *Message) ([]byte, error) {
-	return json.Marshal(message)
-}
+

@@ -17,6 +17,7 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) CreateSession(tenantCode string, client meta.Client, session meta.Session) error {
+
 	return env.Session.Create(session, client)
 }
 
