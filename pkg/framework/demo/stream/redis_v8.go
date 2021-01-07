@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	stream_redis_stream "framework/plugin/stream/redis_stream"
+	stream_redis_stream "framework/plugin/stream/redis_stream_v8"
 	"time"
 )
 

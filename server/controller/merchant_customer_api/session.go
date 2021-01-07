@@ -2,6 +2,7 @@ package merchant_customer_api
 
 import (
 	"api/cs"
+	"api/cs/event"
 	"api/cs/gateway"
 	"api/cs/notification"
 	"api/global"
@@ -17,7 +18,16 @@ import (
 
 type Session struct{}
 
-// 客户创建会话
+/*
+	无需认证的接口
+	访客进行会话之前，先创建会话
+
+	POST
+
+	@params
+	Token 三方平台与客服平台，对称加密的用户信息
+	Device 访客端的设备类型
+*/
 func (c *Session) Create(ctx *gin.Context) {
 	var params struct {
 		// 商户编码，用于识别customer token，需要使用指定的租户密钥，解密customer token
@@ -32,10 +42,10 @@ func (c *Session) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO 查询租户是否开通
+	// 商户鉴权
 	{
-		merchant := models.Merchant{}
-		exists, err := merchant.SelectByCode(params.MerchantCode)
+		merchant := models.Merchants{}
+		exists, err := merchant.SelectByCode("*", params.MerchantCode)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
@@ -158,20 +168,21 @@ func (c *Session) Rating(ctx *gin.Context) {
 	// 获取操作者信息
 	operator := GetOperator(ctx)
 
+	// 会话ID，评分，评语
 	sessionId := operator.SessionId
 	rating := params.Rating
 	comment := params.Comment
 
 	// 标记会话已经评价
 	{
-		model := &models.TenantsSessions{}
+		model := &models.MerchantsSessions{}
 		if err := model.Rating(sessionId, rating, comment); err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
 	}
 
-	// 通知客服，会话已经被评价
+	// 推送系统消息到会话消息流
 	go func() {
 		msg := cs.NewMessageWithContent(operator, &notification.SessionRating{
 			SessionId: "",

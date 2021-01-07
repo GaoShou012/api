@@ -1,4 +1,4 @@
-package broker_redis_stream_v8
+package broker_redis_stream
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"framework/class/broker"
 	"framework/class/logger"
 	"framework/env"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 	"sync"
 	"time"
 )
@@ -17,12 +17,10 @@ import (
 var _ broker.Broker = &plugin{}
 
 type plugin struct {
-	redisClient *redis.Client
 	opts        *Options
 }
 
 func (p *plugin) Init() error {
-	p.redisClient = p.opts.redisClient
 	return nil
 }
 
@@ -31,7 +29,7 @@ func (p *plugin) Connect(dns string) error {
 	if err != nil {
 		return err
 	}
-	p.redisClient = client
+	p.opts.redisClient = client
 	return nil
 }
 
@@ -47,7 +45,7 @@ func (p *plugin) Publish(topic string, message []byte) error {
 			Values:       values,
 		}
 
-		_, err := p.redisClient.XAdd(context.TODO(), xAddArgs).Result()
+		_, err := p.opts.redisClient.XAdd(xAddArgs).Result()
 		return err
 	}
 }
@@ -75,7 +73,7 @@ func (p *plugin) Subscribe(topic string, handler broker.Handler) (broker.Subscri
 			case <-ctx.Done():
 				return
 			default:
-				res, err := p.redisClient.XRead(context.TODO(), xReadArgs).Result()
+				res, err := p.opts.redisClient.XRead(xReadArgs).Result()
 				if err != nil {
 					if err == redis.Nil {
 						time.Sleep(time.Millisecond * 100)
@@ -90,7 +88,7 @@ func (p *plugin) Subscribe(topic string, handler broker.Handler) (broker.Subscri
 							header:      map[string]string{"Id": message.ID},
 							topic:       stream.Stream,
 							message:     nil,
-							redisClient: p.redisClient,
+							redisClient: p.opts.redisClient,
 							err:         nil,
 						}
 

@@ -28,26 +28,6 @@ func (s *plugin) Connect(dns string) error {
 	return nil
 }
 
-func (s *plugin) GetById(topic string, messageId string) (stream.Event, error) {
-	res, err := s.opts.redisClient.XRange(context.TODO(), topic, messageId, messageId).Result()
-	if err != nil {
-		return nil, err
-	}
-	if len(res) == 0 {
-		return nil, nil
-	}
-	event := res[0]
-	message := event.Values["Payload"].(string)
-	evt := &Event{
-		id:          event.ID,
-		streamName:  topic,
-		message:     []byte(message),
-		redisClient: s.opts.redisClient,
-		err:         nil,
-	}
-	return evt, nil
-}
-
 func (s *plugin) Push(topic string, message []byte) (string, error) {
 	values := make(map[string]interface{})
 	values["Payload"] = message
@@ -99,6 +79,26 @@ func (s *plugin) Pull(topic string, lastMessageId string, count uint64) ([]strea
 	}
 
 	return events, nil
+}
+
+func (s *plugin) PullById(topic string, messageId string) (stream.Event, error) {
+	res, err := s.opts.redisClient.XRange(context.TODO(), topic, messageId, messageId).Result()
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, nil
+	}
+	event := res[0]
+	message := event.Values["Payload"].(string)
+	evt := &Event{
+		id:          event.ID,
+		streamName:  topic,
+		message:     []byte(message),
+		redisClient: s.opts.redisClient,
+		err:         nil,
+	}
+	return evt, nil
 }
 
 func (s *plugin) Subscribe(topic string, handler stream.Handler) (stream.Subscriber, error) {

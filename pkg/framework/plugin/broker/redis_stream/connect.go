@@ -1,22 +1,21 @@
-package broker_redis_pubsub_cluster
+package broker_redis_stream
 
 import (
-	"context"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 	"net/url"
 	"runtime"
 	"strconv"
 	"time"
 )
 
-func connect(dns string) (*redis.ClusterClient, error) {
+func connect(dns string) (*redis.Client, error) {
 	u, err := url.Parse(dns)
 	if err != nil {
 		return nil, err
 	}
 
 	addr := u.Host
-	username := u.User.Username()
+	//username := u.User.Username()
 	password, _ := u.User.Password()
 
 	params, err := url.ParseQuery(u.RawQuery)
@@ -53,26 +52,21 @@ func connect(dns string) (*redis.ClusterClient, error) {
 	}
 
 	// new redis client
-	redisClient := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:              addr,
-		NewClient:          nil,
-		MaxRedirects:       0,
-		ReadOnly:           false,
-		RouteByLatency:     false,
-		RouteRandomly:      false,
-		ClusterSlots:       nil,
+	redisClient := redis.NewClient(&redis.Options{
+		Network:            "",
+		Addr:               addr,
 		Dialer:             nil,
 		OnConnect:          nil,
-		Username:           "",
-		Password:           "",
+		Password:           password,
+		DB:                 0,
 		MaxRetries:         0,
 		MinRetryBackoff:    0,
 		MaxRetryBackoff:    0,
-		DialTimeout:        0,
-		ReadTimeout:        0,
-		WriteTimeout:       0,
-		PoolSize:           0,
-		MinIdleConns:       0,
+		DialTimeout:        10 * time.Second,
+		ReadTimeout:        30 * time.Second,
+		WriteTimeout:       30 * time.Second,
+		PoolSize:           poolMax,
+		MinIdleConns:       poolMin,
 		MaxConnAge:         0,
 		PoolTimeout:        0,
 		IdleTimeout:        0,
@@ -81,7 +75,7 @@ func connect(dns string) (*redis.ClusterClient, error) {
 	})
 
 	// ping redis server
-	if _, err := redisClient.Ping(context.TODO()).Result(); err != nil {
+	if _, err := redisClient.Ping().Result(); err != nil {
 		return nil, err
 	}
 

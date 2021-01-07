@@ -1,4 +1,4 @@
-package broker_redis_pubsub
+package broker_redis_pubsub_v8
 
 import (
 	"framework/class/broker"
@@ -21,7 +21,6 @@ func New(opts ...Option) broker.Broker {
 	}
 
 	b := &plugin{
-		redisClient: nil,
 		opts:        options,
 	}
 	if err := b.Init(); err != nil {
