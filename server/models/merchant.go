@@ -33,6 +33,7 @@ type Merchants struct {
 	MaxVisitor *int
 	Desc       *string
 }
+
 func (m *Merchants) GetTableName() string {
 	return "merchants"
 }
@@ -47,4 +48,14 @@ func (m *Merchants) SelectByCode(fields string, code string) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+// 商户是否启用
+func (m *Merchants) IsEnable() bool {
+
+}
+
+// 商户是否租约过期
+func (m *Merchants) IsExpiration() bool {
+
 }

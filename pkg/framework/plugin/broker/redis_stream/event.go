@@ -1,9 +1,8 @@
-package broker_redis_stream_v8
+package broker_redis_stream
 
 import (
-	"context"
 	"framework/class/broker"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 )
 
 var _ broker.Event = &redisStreamEvent{}
@@ -30,7 +29,7 @@ func (e *redisStreamEvent) Message() []byte {
 
 func (e *redisStreamEvent) Ack() error {
 	id := e.header["Id"]
-	_, err := e.redisClient.XDel(context.TODO(), e.topic, id).Result()
+	_, err := e.redisClient.XDel(e.topic, id).Result()
 	return err
 }
 

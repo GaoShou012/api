@@ -13,7 +13,7 @@ type Options struct {
 
 type Option func(o *Options)
 
-func NewStream(opts ...Option) stream.Stream {
+func New(opts ...Option) stream.Stream {
 	options := &Options{}
 
 	for _, o := range opts {

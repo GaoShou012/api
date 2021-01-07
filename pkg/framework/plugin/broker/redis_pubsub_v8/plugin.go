@@ -1,12 +1,10 @@
-package broker_redis_pubsub
+package broker_redis_pubsub_v8
 
 import (
 	"context"
-	"errors"
 	"framework/class/broker"
 	"framework/class/logger"
 	"framework/env"
-	"github.com/go-redis/redis/v8"
 	"os"
 	"sync"
 )
@@ -17,15 +15,17 @@ import (
 var _ broker.Broker = &plugin{}
 
 type plugin struct {
-	redisClient *redis.Client
 	opts        *Options
 }
 
 func (p *plugin) Init() error {
+<<<<<<< HEAD
 	p.redisClient = p.opts.redisClient
 	if p.redisClient == nil {
 		return errors.New("redis_sortdset client is nil\n")
 	}
+=======
+>>>>>>> eeef28e189a032d2a4b7cc074b3ec94b250959b2
 	return nil
 }
 
@@ -34,17 +34,17 @@ func (p *plugin) Connect(dns string) error {
 	if err != nil {
 		return err
 	}
-	p.redisClient = client
+	p.opts.redisClient = client
 	return nil
 }
 
 func (p *plugin) Publish(topic string, message []byte) error {
 	// encode the message
-	_, err := p.redisClient.Publish(context.TODO(), topic, message).Result()
+	_, err := p.opts.redisClient.Publish(context.TODO(), topic, message).Result()
 	return err
 }
 func (p *plugin) Subscribe(topic string, handler broker.Handler) (broker.Subscriber, error) {
-	sub := p.redisClient.Subscribe(context.TODO(), topic)
+	sub := p.opts.redisClient.Subscribe(context.TODO(), topic)
 
 	wg := sync.WaitGroup{}
 	subscriber := &subscriber{}

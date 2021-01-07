@@ -3,12 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	stream_redis_stream "framework/plugin/stream/redis_stream"
+	stream_redis_stream "framework/plugin/stream/redis_stream_v8"
 	"time"
 )
 
 func main() {
-	dns := fmt.Sprintf("redis_sortdset://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
+	dns := fmt.Sprintf("redis://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
 
 	topic := "testing_stream1"
 

@@ -1,4 +1,4 @@
-package broker_redis_pubsub_cluster
+package broker_redis_stream
 
 type subscriber struct {
 	unSubscribe func()

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"framework/class/broker"
-	broker_redis_pubsub "framework/plugin/broker/redis_pubsub"
+	broker_redis_pubsub "framework/plugin/broker/redis_pubsub_v8"
 	"os"
 	"os/signal"
 	"syscall"

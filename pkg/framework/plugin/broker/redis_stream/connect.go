@@ -1,8 +1,7 @@
-package broker_redis_stream_v8
+package broker_redis_stream
 
 import (
-	"context"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 	"net/url"
 	"runtime"
 	"strconv"
@@ -16,7 +15,7 @@ func connect(dns string) (*redis.Client, error) {
 	}
 
 	addr := u.Host
-	username := u.User.Username()
+	//username := u.User.Username()
 	password, _ := u.User.Password()
 
 	params, err := url.ParseQuery(u.RawQuery)
@@ -52,13 +51,12 @@ func connect(dns string) (*redis.Client, error) {
 		}
 	}
 
-	// new redis_sortdset client
+	// new redis client
 	redisClient := redis.NewClient(&redis.Options{
 		Network:            "",
 		Addr:               addr,
 		Dialer:             nil,
 		OnConnect:          nil,
-		Username:           username,
 		Password:           password,
 		DB:                 0,
 		MaxRetries:         0,
@@ -74,11 +72,10 @@ func connect(dns string) (*redis.Client, error) {
 		IdleTimeout:        0,
 		IdleCheckFrequency: 0,
 		TLSConfig:          nil,
-		Limiter:            nil,
 	})
 
-	// ping redis_sortdset server
-	if _, err := redisClient.Ping(context.TODO()).Result(); err != nil {
+	// ping redis server
+	if _, err := redisClient.Ping().Result(); err != nil {
 		return nil, err
 	}
 
