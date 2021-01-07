@@ -2,6 +2,7 @@ package tenant_customer_api
 
 import (
 	libs_http "api/libs/http"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -77,7 +78,7 @@ func (c *Operator) GetAuthorityId() string {
 	网关通过client uuid路由消息
 */
 func (c *Operator) GetUUID() string {
-
+	return fmt.Sprintf("%s:%d:%d", c.TenantCode, c.UserType, c.UserId)
 }
 
 /*

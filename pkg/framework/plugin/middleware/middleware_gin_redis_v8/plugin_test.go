@@ -1,4 +1,4 @@
-package middleware_gin
+package middleware_gin_redis_v8
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ func TestPlugin_Init(t *testing.T) {
 	{
 		opInfo := &operatorTest{}
 		p := pluginTest.(*plugin)
-		if err := p.decrypt(p.cipherKey,str,opInfo); err != nil {
+		if err := p.decrypt(p.opts.cipherKey, str, opInfo); err != nil {
 			panic(err)
 		}
 		fmt.Println(opInfo)
