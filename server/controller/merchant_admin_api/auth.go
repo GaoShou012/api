@@ -1,10 +1,10 @@
-package tenant_admin_api
+package merchant_admin_api
 
 import (
 	"api/config"
 	libs_http "api/libs/http"
 	"api/models"
-	models_tenant "api/models/tenant"
+	models_tenant "api/models/merchant"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"

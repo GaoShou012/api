@@ -1,4 +1,4 @@
-package tenant_customer_api
+package merchant_customer_api
 
 import (
 	"api/config"

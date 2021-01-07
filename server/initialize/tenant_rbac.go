@@ -3,7 +3,7 @@ package initialize
 import (
 	"api/global"
 	"api/models"
-	models_tenant "api/models/tenant"
+	models_tenant "api/models/merchant"
 	"framework/class/rbac"
 	"framework/plugin/rbac/rbac_mysql_redis"
 	"framework/plugin/rbac/rbac_mysql_redis/api_adapter"
