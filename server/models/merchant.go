@@ -2,7 +2,6 @@ package models
 
 import (
 	"api/global"
-	"fmt"
 	"time"
 )
 
@@ -24,7 +23,7 @@ CREATE TABLE `merchant` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='商户表';
 */
 
-type Merchant struct {
+type Merchants struct {
 	Name       *string
 	Code       *string
 	StartAt    *time.Time
@@ -35,8 +34,12 @@ type Merchant struct {
 	Desc       *string
 }
 
-func (m *Merchant) SelectByCode(code string) (bool, error) {
-	res := global.DBSlave.Where("code=?", code).First(m)
+func (m *Merchants) GetTableName() string {
+	return "merchants"
+}
+
+func (m *Merchants) SelectByCode(fields string, code string) (bool, error) {
+	res := global.DBSlave.Table(m.GetTableName()).Select(fields).Where("code=?", code).First(m)
 	if res.Error != nil {
 		if res.RecordNotFound() {
 			return false, nil
@@ -48,11 +51,11 @@ func (m *Merchant) SelectByCode(code string) (bool, error) {
 }
 
 // 商户是否启用
-func (m *Merchant) IsEnable() bool {
+func (m *Merchants) IsEnable() bool {
 
 }
 
 // 商户是否租约过期
-func (m *Merchant) IsExpiration() bool {
+func (m *Merchants) IsExpiration() bool {
 
 }

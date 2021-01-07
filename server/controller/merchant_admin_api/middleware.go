@@ -1,4 +1,4 @@
-package tenant_admin_api
+package merchant_admin_api
 
 import (
 	"api/config"
