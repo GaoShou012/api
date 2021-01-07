@@ -21,5 +21,5 @@ type MerchantsSettings struct {
 }
 
 func (m *MerchantsSettings) SelectById(fields string,id uint64) (bool,error){
-	
+
 }
