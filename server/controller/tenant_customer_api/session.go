@@ -20,8 +20,8 @@ type Session struct{}
 // 客户创建会话
 func (c *Session) Create(ctx *gin.Context) {
 	var params struct {
-		// 租户编码，用于识别customer token，需要使用指定的租户密钥，解密customer token
-		TenantCode string
+		// 商户编码，用于识别customer token，需要使用指定的租户密钥，解密customer token
+		MerchantCode string
 		// 访客设备，手机，PC，等等
 		CustomerDevice uint64
 		// 访客Token，由租户生成，加密了访客的基本信息
@@ -34,7 +34,24 @@ func (c *Session) Create(ctx *gin.Context) {
 
 	// TODO 查询租户是否开通
 	{
-
+		merchant := models.Merchant{}
+		exists, err := merchant.SelectByCode(params.MerchantCode)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		if !exists {
+			libs_http.RspState(ctx, 1, fmt.Errorf("商户不存在"))
+			return
+		}
+		if merchant.IsEnable() != true {
+			libs_http.RspState(ctx, 1, fmt.Errorf("商户未启用"))
+			return
+		}
+		if merchant.IsExpiration() {
+			libs_http.RspState(ctx, 1, fmt.Errorf("商户已经过期"))
+			return
+		}
 	}
 
 	client := &meta.Client{

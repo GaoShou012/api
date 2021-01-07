@@ -58,7 +58,7 @@ CREATE TABLE `ip_whitelist` (
   `ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'IP 地址',
   `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '备注',
   `ip_group` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'IP 组',
-  `last_login_time` int unsigned NOT NULL DEFAULT '0' COMMENT 'ip最后登陆时间',
+  `last_login_time` datetime NOT NULL COMMENT 'ip最后登陆时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -213,8 +213,8 @@ CREATE TABLE `rbac_role_assoc_menu_group` (
 DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE `sessions` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `status` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '0派对中，1会话处理中，2会话结束',
-  `opt_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商户ID',
+  `state` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '0派对中，1会话处理中，2会话结束',
+  `merchant_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商户ID',
   `session_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '会话ID',
   `user_id` int unsigned NOT NULL COMMENT '访客ID',
   `user_source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '访客来源url',
@@ -501,7 +501,7 @@ CREATE TABLE `visitor` (
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '访客姓名',
   `account` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '访客帐号',
   `level` int unsigned NOT NULL COMMENT '访客等级',
-  `lable` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '访客标签',
+  `label` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '访客标签',
   `gender` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '1为男性，0为女性，2未知',
   `phone` int unsigned NOT NULL DEFAULT '0' COMMENT '访客电话',
   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '访客邮箱',
