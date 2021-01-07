@@ -19,7 +19,8 @@ type Sender interface {
 type Client struct {
 	TenantCode string
 	UserId     uint64
-	UserType   uint64
+	UserType   string
+	Username   string
 	Nickname   string
 	Thumb      string
 }

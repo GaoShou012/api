@@ -1,7 +1,6 @@
-package middleware_gin
+package middleware_gin_redis
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -63,7 +62,7 @@ func (p *plugin) Init() error {
 		for {
 			operator := <-p.refreshExpirationQueue
 			key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-			p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration)
+			p.opts.redisClient.Set(key, time.Now().String(), p.opts.expiration)
 		}
 	}()
 	return nil
@@ -146,7 +145,7 @@ func (p *plugin) SignedString(args ...interface{}) (string, error) {
 	operator := args[0].(middleware.Operator)
 	operator.SetContextId(uuid.NewV1().String())
 	key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-	_, err := p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration).Result()
+	_, err := p.opts.redisClient.Set(key, time.Now().String(), p.opts.expiration).Result()
 	if err != nil {
 		return "", err
 	}
@@ -196,7 +195,7 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 		// 如果存在，代表用户已经进行了释放操作
 		{
 			key := fmt.Sprintf("ctx:operator:release:%s", operator.GetContextId())
-			_, err := p.opts.redisClient.Exists(context.TODO(), key).Result()
+			_, err := p.opts.redisClient.Exists(key).Result()
 			if err != nil {
 				env.Logger.Error(err)
 				ctx.Abort()
@@ -208,7 +207,7 @@ func (p *plugin) Expiration(args ...interface{}) interface{} {
 		// 如果不存在，代表用户的登陆已经过期
 		{
 			key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-			num, err := p.opts.redisClient.Exists(context.TODO(), key).Result()
+			num, err := p.opts.redisClient.Exists(key).Result()
 			if err != nil {
 				env.Logger.Error(err)
 				ctx.Abort()
@@ -237,7 +236,7 @@ func (p *plugin) Release(args ...interface{}) error {
 
 	{
 		key := fmt.Sprintf("ctx:operator:release:%s", operator.GetContextId())
-		_, err := p.opts.redisClient.Set(context.TODO(), key, time.Now().String(), p.opts.expiration+time.Minute).Result()
+		_, err := p.opts.redisClient.Set(key, time.Now().String(), p.opts.expiration+time.Minute).Result()
 		if err != nil {
 			return err
 		}
@@ -245,7 +244,7 @@ func (p *plugin) Release(args ...interface{}) error {
 
 	{
 		key := fmt.Sprintf("ctx:operator:expiration:%s", operator.GetContextId())
-		num, err := p.opts.redisClient.Del(context.TODO(), key).Result()
+		num, err := p.opts.redisClient.Del(key).Result()
 		if err != nil {
 			return err
 		}

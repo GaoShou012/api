@@ -1,4 +1,4 @@
-package middleware_gin
+package middleware_gin_redis
 
 type operatorTest struct {
 	UserId    uint64
