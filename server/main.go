@@ -84,19 +84,19 @@ func main() {
 		httpService.Route(r)
 	}
 
-	// tenant admin api service
+	// merchant admin api service
 	{
 		httpService := tenant_admin_api.HttpService{}
 		httpService.Route(r)
 	}
 
-	// tenant api
+	// merchant api
 	{
 		httpService := tenant_api.HttpService{}
 		httpService.Route(r)
 	}
 
-	// tenant customer api
+	// merchant customer api
 	{
 		httpService := tenant_customer_api.HttpService{}
 		httpService.Route(r)

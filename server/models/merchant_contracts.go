@@ -12,12 +12,12 @@ const (
 )
 
 // 租户合同
-type TenantsContracts struct {
+type MerchantsContracts struct {
 	Model
 
 	// 状态需要梳理，合同的流程，再设计出状态标记
 	State          *uint64    // 合同状态 0=作废，1=不同过审核，2=已经确认生效，3=已经顺利完成，4=中途毁约
-	TenantId       *uint64    // 租户ID
+	MerchantId       *uint64    // 租户ID
 	EffectiveDate  *time.Time // 合同生效日期
 	ExpirationDate *time.Time // 合同截止日期
 
@@ -37,22 +37,22 @@ type TenantsContracts struct {
 	ReviewerNote *string // 审核人添加的合同备注
 }
 
-func (m *TenantsContracts) GetTableName() string {
+func (m *MerchantsContracts) GetTableName() string {
 	return "tenants_contracts"
 }
 
 // 创建合同
-func (m *TenantsContracts) Create(
+func (m *MerchantsContracts) Create(
 	tenantId uint64,
 	effectiveDate time.Time, expirationDate time.Time,
 	shouldPayment float64,
 	creatorId uint64, creatorName string, creatorNote string,
 ) error {
 	state := uint64(TenantsContractStateCreated)
-	i := &TenantsContracts{
+	i := &MerchantsContracts{
 		Model:          Model{},
 		State:          &state,
-		TenantId:       &tenantId,
+		MerchantId:       &tenantId,
 		EffectiveDate:  &effectiveDate,
 		ExpirationDate: &expirationDate,
 		ShouldPayment:  &shouldPayment,
@@ -71,13 +71,13 @@ func (m *TenantsContracts) Create(
 }
 
 // 审核合同
-func (m *TenantsContracts) Review(id uint64, reviewerId uint64, reviewerName string, reviewerNote string) error {
+func (m *MerchantsContracts) Review(id uint64, reviewerId uint64, reviewerName string, reviewerNote string) error {
 	state := uint64(TenantsContractStateReviewed)
 	reviewerTime := time.Now()
-	i := &TenantsContracts{
+	i := &MerchantsContracts{
 		Model:          Model{},
 		State:          &state,
-		TenantId:       nil,
+		MerchantId:       nil,
 		EffectiveDate:  nil,
 		ExpirationDate: nil,
 		CreatorId:      nil,
@@ -102,11 +102,11 @@ func (m *TenantsContracts) Review(id uint64, reviewerId uint64, reviewerName str
 }
 
 // 支付
-func (m *TenantsContracts) Payment(id uint64, realPayment float64, paymentNote string) error {
-	i := &TenantsContracts{
+func (m *MerchantsContracts) Payment(id uint64, realPayment float64, paymentNote string) error {
+	i := &MerchantsContracts{
 		Model:          Model{},
 		State:          nil,
-		TenantId:       nil,
+		MerchantId:       nil,
 		EffectiveDate:  nil,
 		ExpirationDate: nil,
 		CreatorId:      nil,

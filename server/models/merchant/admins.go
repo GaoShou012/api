@@ -1,4 +1,4 @@
-package models_tenant
+package models_merchant
 
 import (
 	"api/global"

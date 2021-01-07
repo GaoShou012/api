@@ -1,7 +1,7 @@
 package tenant_admin_api
 
 import (
-	controller "api/controller/tenant_admin_api"
+	controller "api/controller/merchant_admin_api"
 	"api/meta"
 	"fmt"
 	"github.com/gin-gonic/gin"

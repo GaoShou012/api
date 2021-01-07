@@ -1,8 +1,8 @@
 package models
 
-type TenantsSettings struct {
+type MerchantsSettings struct {
 	Model
-	TenantId *uint64
+	MerchantId *uint64
 
 	// 访客端的连接
 	CustomerUrl *string

@@ -96,7 +96,6 @@ CREATE TABLE `question_type` (
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '问题名称',
   `binding_setting` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '绑定设置 1所有客服 2 对话组 3 客服',
   `dialogue_group` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '对话组',
-  `tenant_id` int unsigned NOT NULL COMMENT '客服',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -272,12 +271,12 @@ CREATE TABLE `sessions_records` (
 DROP TABLE IF EXISTS `stats_operate_log`;
 CREATE TABLE `stats_operate_log` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `operator_tenant_id` int unsigned DEFAULT NULL COMMENT '操作者id',
-  `operator_tenant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '操作者名称',
-  `operator_tenant_role_id` int unsigned DEFAULT NULL COMMENT '角色id',
-  `operator_tenant_role_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '角色',
-  `be_operator_tenant_id` int DEFAULT NULL COMMENT '被操作者客服角色',
-  `be_operator_tenant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '被操作客服角色',
+  `operator_merchant_id` int unsigned DEFAULT NULL COMMENT '操作者id',
+  `operator_merchant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '操作者名称',
+  `operator_merchant_role_id` int unsigned DEFAULT NULL COMMENT '角色id',
+  `operator_merchant_role_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '角色',
+  `be_operator_merchant_id` int DEFAULT NULL COMMENT '被操作者客服角色',
+  `be_operator_merchant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '被操作客服角色',
   `operate_log` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '日志',
   `merchant_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商户ID',
   `params` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '请求参数',
@@ -287,13 +286,12 @@ CREATE TABLE `stats_operate_log` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='客服操作统计';
 
 -- ----------------------------
--- Table structure for stats_tenants_attendance
+-- Table structure for stats_merchants_attendance
 -- ----------------------------
-DROP TABLE IF EXISTS `stats_tenants_attendance`;
-CREATE TABLE `stats_tenants_attendance` (
+DROP TABLE IF EXISTS `stats_merchants_attendance`;
+CREATE TABLE `stats_merchants_attendance` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `tenant_id` int unsigned DEFAULT NULL COMMENT '客服ID',
-  `tenant_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '客服姓名',
+  `merchant_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '客服姓名',
   `merchant_id` int unsigned DEFAULT NULL COMMENT '商户ID',
   `chat_group` int unsigned NOT NULL DEFAULT '0' COMMENT '对话组id',
   `login_time` datetime DEFAULT NULL COMMENT '登录时间',
@@ -304,14 +302,13 @@ CREATE TABLE `stats_tenants_attendance` (
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='客服考勤统计';
 
 -- ----------------------------
--- Table structure for stats_tenants_state
+-- Table structure for stats_merchants_state
 -- ----------------------------
-DROP TABLE IF EXISTS `stats_tenants_state`;
-CREATE TABLE `stats_tenants_state` (
+DROP TABLE IF EXISTS `stats_merchants_state`;
+CREATE TABLE `stats_merchants_state` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `merchant_id` int unsigned DEFAULT NULL COMMENT '商户ID',
-  `tenant_id` int unsigned DEFAULT NULL,
-  `tentant_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '客服名',
+  `merchant_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '客服名',
   `cs_group` int DEFAULT NULL COMMENT '客服组ID',
   `state` tinyint DEFAULT NULL COMMENT '状态',
   `start_at` datetime DEFAULT NULL COMMENT '开始时间',
@@ -322,10 +319,10 @@ CREATE TABLE `stats_tenants_state` (
 ) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='客服状态统计';
 
 -- ----------------------------
--- Table structure for tenants
+-- Table structure for merchants
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants`;
-CREATE TABLE `tenants` (
+DROP TABLE IF EXISTS `merchants`;
+CREATE TABLE `merchants` (
   `id` int NOT NULL,
   `enable` tinyint(1) NOT NULL,
   `expiration` datetime NOT NULL,
@@ -337,10 +334,10 @@ CREATE TABLE `tenants` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Table structure for tenants_admins
+-- Table structure for merchants_admins
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_admins`;
-CREATE TABLE `tenants_admins` (
+DROP TABLE IF EXISTS `merchants_admins`;
+CREATE TABLE `merchants_admins` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `enable` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否启用',
   `state` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '状态',
@@ -354,10 +351,10 @@ CREATE TABLE `tenants_admins` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Table structure for tenants_admins_login_stats
+-- Table structure for merchants_admins_login_stats
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_admins_login_stats`;
-CREATE TABLE `tenants_admins_login_stats` (
+DROP TABLE IF EXISTS `merchants_admins_login_stats`;
+CREATE TABLE `merchants_admins_login_stats` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
   `login_times` int unsigned NOT NULL DEFAULT '0',
@@ -368,10 +365,10 @@ CREATE TABLE `tenants_admins_login_stats` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
--- Table structure for tenants_department
+-- Table structure for merchants_department
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_department`;
-CREATE TABLE `tenants_department` (
+DROP TABLE IF EXISTS `merchants_department`;
+CREATE TABLE `merchants_department` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '部门id',
   `merchant_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商户ID',
   `parent_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父id',
@@ -384,12 +381,12 @@ CREATE TABLE `tenants_department` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='租户部门表';
 
 -- ----------------------------
--- Table structure for tenants_rbac_api
+-- Table structure for merchants_rbac_api
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_api`;
-CREATE TABLE `tenants_rbac_api` (
+DROP TABLE IF EXISTS `merchants_rbac_api`;
+CREATE TABLE `merchants_rbac_api` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `tenant_id` int unsigned NOT NULL COMMENT '租户ID',
+  `merchant_id` int unsigned NOT NULL COMMENT '租户ID',
   `method` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'API 请求方式',
   `path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'API 请求路径',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -398,12 +395,12 @@ CREATE TABLE `tenants_rbac_api` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统API';
 
 -- ----------------------------
--- Table structure for tenants_rbac_menu
+-- Table structure for merchants_rbac_menu
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_menu`;
-CREATE TABLE `tenants_rbac_menu` (
+DROP TABLE IF EXISTS `merchants_rbac_menu`;
+CREATE TABLE `merchants_rbac_menu` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `tenant_id` int unsigned NOT NULL COMMENT '租户ID',
+  `merchant_id` int unsigned NOT NULL COMMENT '租户ID',
   `group_id` int unsigned NOT NULL COMMENT '菜单组ID',
   `sort` int unsigned NOT NULL COMMENT '排序',
   `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '菜单编码，关联前端',
@@ -416,12 +413,12 @@ CREATE TABLE `tenants_rbac_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单项（二级菜单）';
 
 -- ----------------------------
--- Table structure for tenants_rbac_menu_group
+-- Table structure for merchants_rbac_menu_group
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_menu_group`;
-CREATE TABLE `tenants_rbac_menu_group` (
+DROP TABLE IF EXISTS `merchants_rbac_menu_group`;
+CREATE TABLE `merchants_rbac_menu_group` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `tenant_id` int unsigned NOT NULL COMMENT '租户ID',
+  `merchant_id` int unsigned NOT NULL COMMENT '租户ID',
   `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '菜单编码',
   `sort` int unsigned NOT NULL DEFAULT '0' COMMENT '排序',
   `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '菜单组名字',
@@ -433,12 +430,12 @@ CREATE TABLE `tenants_rbac_menu_group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='菜单组（一级菜单）';
 
 -- ----------------------------
--- Table structure for tenants_rbac_role
+-- Table structure for merchants_rbac_role
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_role`;
-CREATE TABLE `tenants_rbac_role` (
+DROP TABLE IF EXISTS `merchants_rbac_role`;
+CREATE TABLE `merchants_rbac_role` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `tenant_id` int unsigned NOT NULL COMMENT '租户ID',
+  `merchant_id` int unsigned NOT NULL COMMENT '租户ID',
   `enable` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '是否启用，0=禁用，1=启用',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色名字',
   `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '角色图标',
@@ -449,10 +446,10 @@ CREATE TABLE `tenants_rbac_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色表';
 
 -- ----------------------------
--- Table structure for tenants_rbac_role_assoc_api
+-- Table structure for merchants_rbac_role_assoc_api
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_role_assoc_api`;
-CREATE TABLE `tenants_rbac_role_assoc_api` (
+DROP TABLE IF EXISTS `merchants_rbac_role_assoc_api`;
+CREATE TABLE `merchants_rbac_role_assoc_api` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `role_id` int unsigned NOT NULL COMMENT '角色ID',
   `api_id` int unsigned NOT NULL COMMENT 'API ID',
@@ -463,10 +460,10 @@ CREATE TABLE `tenants_rbac_role_assoc_api` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联API';
 
 -- ----------------------------
--- Table structure for tenants_rbac_role_assoc_menu
+-- Table structure for merchants_rbac_role_assoc_menu
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_role_assoc_menu`;
-CREATE TABLE `tenants_rbac_role_assoc_menu` (
+DROP TABLE IF EXISTS `merchants_rbac_role_assoc_menu`;
+CREATE TABLE `merchants_rbac_role_assoc_menu` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `role_id` int unsigned NOT NULL COMMENT '角色ID',
   `menu_id` int unsigned NOT NULL COMMENT '菜单ID',
@@ -477,10 +474,10 @@ CREATE TABLE `tenants_rbac_role_assoc_menu` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联菜单（二级菜单）';
 
 -- ----------------------------
--- Table structure for tenants_rbac_role_assoc_menu_group
+-- Table structure for merchants_rbac_role_assoc_menu_group
 -- ----------------------------
-DROP TABLE IF EXISTS `tenants_rbac_role_assoc_menu_group`;
-CREATE TABLE `tenants_rbac_role_assoc_menu_group` (
+DROP TABLE IF EXISTS `merchants_rbac_role_assoc_menu_group`;
+CREATE TABLE `merchants_rbac_role_assoc_menu_group` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `role_id` int unsigned NOT NULL COMMENT '角色ID',
   `menu_group_id` int unsigned NOT NULL COMMENT '菜单组ID',
