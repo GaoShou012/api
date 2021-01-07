@@ -1,7 +1,7 @@
 package cs
 
 import (
-	"api/cs/message"
+	"api/cs/event"
 	"time"
 )
 
@@ -21,3 +21,5 @@ func NewMessageWithContent(sender Sender, content event.Content) *event.Message 
 		ContentType: content.GetContentType(),
 	}
 }
+
+

@@ -13,7 +13,7 @@ import (
 
 func main() {
 	dns := fmt.Sprintf("redis://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
-	b := broker_redis_stream.NewBroker()
+	b := broker_redis_stream.New()
 	if err := b.Connect(dns); err != nil {
 		panic(err)
 	}

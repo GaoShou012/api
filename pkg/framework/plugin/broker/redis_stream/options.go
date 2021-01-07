@@ -1,14 +1,12 @@
-package broker_redis_pubsub
+package broker_redis_stream
 
 import (
 	"framework/class/broker"
-	"framework/class/logger"
 	"github.com/go-redis/redis"
 )
 
 type Options struct {
 	redisClient *redis.Client
-	logger      logger.Logger
 }
 
 type Option func(o *Options)
@@ -26,6 +24,7 @@ func New(opts ...Option) broker.Broker {
 	if err := b.Init(); err != nil {
 		panic(err)
 	}
+
 	return b
 }
 
