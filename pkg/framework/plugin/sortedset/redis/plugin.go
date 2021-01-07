@@ -3,7 +3,6 @@ package redis
 import (
 	"framework/class/sortedset"
 	"github.com/go-redis/redis"
-	"im/class/channel"
 )
 
 var _ sortedset.Sortedset = &plugin{}
