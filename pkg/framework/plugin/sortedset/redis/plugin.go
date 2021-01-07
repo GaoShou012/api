@@ -78,7 +78,14 @@ func (p *plugin) GetItemFromNegative(topic string) (sortedset.Item, error) {
 }
 
 func (p *plugin) ExistsItem(topic string, key string) (bool, error) {
-	panic("implement me")
+	num,err := p.opts.redisClient.ZScore(topic,key).Result()
+	if err != nil{
+		return false,err
+	}
+	if num == 0{
+		return false,nil
+	}
+	return true,nil
 }
 
 func (p *plugin) Init() error {
