@@ -17,7 +17,7 @@ type plugin struct {
 
 func (p *plugin) Init() error {
 	if p.opts.redisClient == nil {
-		return fmt.Errorf("Must init redis client.\n")
+		return fmt.Errorf("Must init redis_sortdset client.\n")
 	}
 	return nil
 }

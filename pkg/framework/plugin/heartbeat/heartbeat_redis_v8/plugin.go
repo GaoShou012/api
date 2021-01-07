@@ -24,7 +24,7 @@ func (p *plugin) key(uuid string) string {
 func (p *plugin) Init() error {
 	// 必须要配置redis
 	if p.opts.redisClient == nil {
-		return errors.New("redis can't be null\n")
+		return errors.New("redis_sortdset can't be null\n")
 	}
 	p.redisClient = p.opts.redisClient
 

@@ -1,4 +1,4 @@
-package redis
+package redis_sortdset
 
 type item struct {
 	iKey   string
