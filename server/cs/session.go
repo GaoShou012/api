@@ -21,7 +21,7 @@ type Session struct {
 }
 
 func (s *Session) GetTopic() string {
-	return s.Id
+	return fmt.Sprintf("session:%s", s.Id)
 }
 func (s *Session) GetEnable() bool {
 	return s.Enable
@@ -36,7 +36,7 @@ func topicOfSessionChannel(sessionId string) string {
 
 // 检查访客是否已经创建了会话
 // 如果已经创建，返回会话信息
-func GetCustomerSession(clientUUID string) (*Session, error) {
+func GetVisitorSession(clientUUID string) (*Session, error) {
 	channels, err := global.IM.Client().Channels(clientUUID)
 	if err != nil {
 		return nil, err
@@ -68,42 +68,32 @@ func GetSessionInfo(sessionId string) (*Session, error) {
 	return session, nil
 }
 
-// 访客、客服，通过此方法，发送消息
-func SessionMessage(sessionId string, sender Sender, content string, contentType string) (string, error) {
-	topic := topicOfSessionChannel(sessionId)
-
-	data, err := event.Encode(&event.ClientMessage{
-		Sender:      GetSenderInfoFrom(sender),
-		Content:     content,
-		ContentType: contentType,
-		Time:        time.Now(),
-	})
-	if err != nil {
-		return "", err
-	}
-	messageId, err := global.IM.Channel().Push(topic, data)
-	if err != nil {
-		return "", err
-	}
-
-	return messageId, nil
-}
-
 /*
+	访客创建会话
 	@params
 	customerDevice 访客设备，PC，手机
 	customerIp 访客IP
 	customerLocation 访客地址
 */
-func CustomerCreateSession(client *meta.Client, customerDevice uint64, customerIp string, customerLocation string) (*Session, error) {
+func VisitorCreateSession(client *meta.Client, customerDevice uint64, customerIp string, customerLocation string) (*Session, error) {
 	merchantCode := client.MerchantCode
 	clientUUID := client.GetUUID()
 
+	// TODO 访客分布式操作锁
 	{
-		// TODO 访客分布式操作锁
+		key := fmt.Sprintf("visitor:mutex:%s", clientUUID)
+		val := uuid.NewV1().String()
+		ok, err := env.Lock.Lock(key, val, time.Second*10)
+		if err != nil {
+			return nil, err
+		}
+		if !ok {
+			return nil, fmt.Errorf("操作过于频繁")
+		}
 	}
 
-	if session, err := GetCustomerSession(clientUUID); err != nil {
+	// TODO 获取访客原来的会话
+	if session, err := GetVisitorSession(clientUUID); err != nil {
 		return nil, err
 	} else {
 		if session != nil {
@@ -135,7 +125,7 @@ func CustomerCreateSession(client *meta.Client, customerDevice uint64, customerI
 		CreatorLocation: customerLocation,
 		CreatedAt:       time.Now(),
 	}
-	if err := global.IM.CreateChannel(session); err != nil {
+	if err := global.IM.CreateChannel(topicOfSessionChannel(sessionId), session); err != nil {
 		return nil, err
 	}
 
@@ -181,4 +171,25 @@ func CustomerCreateSession(client *meta.Client, customerDevice uint64, customerI
 	}()
 
 	return session, nil
+}
+
+// 访客、客服，通过此方法，发送消息
+func SessionMessage(sessionId string, sender Sender, content string, contentType string) (string, error) {
+	topic := topicOfSessionChannel(sessionId)
+
+	data, err := event.Encode(&event.ClientMessage{
+		Sender:      GetSenderInfoFrom(sender),
+		Content:     content,
+		ContentType: contentType,
+		Time:        time.Now(),
+	})
+	if err != nil {
+		return "", err
+	}
+	messageId, err := global.IM.Channel().Push(topic, data)
+	if err != nil {
+		return "", err
+	}
+
+	return messageId, nil
 }

@@ -17,7 +17,7 @@ type plugin struct {
 	opts *Options
 }
 
-func (p *plugin) Init() error {ß
+func (p *plugin) Init() error {
 	return nil
 }
 
