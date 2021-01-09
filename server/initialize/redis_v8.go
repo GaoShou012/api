@@ -2,23 +2,18 @@ package initialize
 
 import (
 	"api/config"
-	"api/global"
-	"github.com/go-redis/redis"
+	"context"
+	"github.com/go-redis/redis/v8"
 	"time"
 )
 
-func InitRedis(conf *config.Redis) error {
-	client, err := ConnectRedis(conf)
-	global.RedisClient = client
-	return err
-}
-
-func ConnectRedis(conf *config.Redis) (*redis.Client, error) {
+func ConnectRedisV8(conf *config.Redis) (*redis.Client, error) {
 	redisClient := redis.NewClient(&redis.Options{
 		Network:            "",
 		Addr:               conf.Addr,
 		Dialer:             nil,
 		OnConnect:          nil,
+		Username:           "",
 		Password:           conf.Password,
 		DB:                 0,
 		MaxRetries:         2,
@@ -34,9 +29,10 @@ func ConnectRedis(conf *config.Redis) (*redis.Client, error) {
 		IdleTimeout:        time.Minute * 5,
 		IdleCheckFrequency: 0,
 		TLSConfig:          nil,
+		Limiter:            nil,
 	})
 
-	if _, err := redisClient.Ping().Result(); err != nil {
+	if _, err := redisClient.Ping(context.TODO()).Result(); err != nil {
 		return nil, err
 	}
 

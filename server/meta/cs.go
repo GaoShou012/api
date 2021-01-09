@@ -1,6 +1,9 @@
 package meta
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Client struct {
 	// 租户ID
@@ -27,7 +30,8 @@ func (c *Client) GetUserType() string {
 }
 
 type Session struct {
-	Id string
+	Id        string
+	CreatedAt time.Time
 }
 
 func (s *Session) GetSessionId() string {

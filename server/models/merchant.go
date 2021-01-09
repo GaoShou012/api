@@ -24,6 +24,7 @@ CREATE TABLE `merchant` (
 */
 
 type Merchants struct {
+	Model
 	Name       *string
 	Code       *string
 	StartAt    *time.Time

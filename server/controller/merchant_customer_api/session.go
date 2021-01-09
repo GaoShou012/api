@@ -3,17 +3,16 @@ package merchant_customer_api
 import (
 	"api/cs"
 	"api/cs/event"
-	"api/cs/gateway"
+	"api/cs/meta"
 	"api/cs/notification"
 	"api/global"
 	libs_http "api/libs/http"
 	libs_ip_location "api/libs/ip_location"
-	"api/meta"
 	"api/models"
 	cs_env "cs/env"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
+	"time"
 )
 
 type Session struct{}
@@ -33,18 +32,21 @@ func (c *Session) Create(ctx *gin.Context) {
 		// 商户编码，用于识别customer token，需要使用指定的租户密钥，解密customer token
 		MerchantCode string
 		// 访客设备，手机，PC，等等
-		CustomerDevice uint64
+		VisitorDevice uint64
 		// 访客Token，由租户生成，加密了访客的基本信息
-		CustomerToken string
+		VisitorToken string
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
 
+	var session *cs.Session
+	merchant := &models.Merchants{}
+	merchantSettings := &models.MerchantsSettings{}
+
 	// 商户鉴权
 	{
-		merchant := models.Merchants{}
 		exists, err := merchant.SelectByCode("*", params.MerchantCode)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
@@ -59,18 +61,54 @@ func (c *Session) Create(ctx *gin.Context) {
 			return
 		}
 		if merchant.IsExpiration() {
-			libs_http.RspState(ctx, 1, fmt.Errorf("商户已经过期"))
+			libs_http.RspState(ctx, 1, fmt.Errorf("商户租约已经过期"))
 			return
 		}
 	}
 
-	client := &meta.Client{
-		TenantCode: "",
-		UserId:     0,
-		Username:   "",
-		UserType:   "",
+	// 商户的客户Token密文本
+	{
+		exists, err := merchantSettings.SelectById("*", *merchant.Id)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		if !exists {
+			libs_http.RspState(ctx, 1, fmt.Errorf("商户配置不存在"))
+			return
+		}
+		if *merchantSettings.VisitorTokenCipherKey == "" {
+			libs_http.RspState(ctx, 1, fmt.Errorf("商户的访客信息密本未设置"))
+			return
+		}
 	}
-	session := &meta.Session{Id: uuid.NewV1().String()}
+
+	// 客服系统-客户端
+	client := &meta.Client{
+		MerchantId:   *merchant.Id,
+		MerchantCode: *merchant.Code,
+		UserId:       0,
+		UserType:     uint64(meta.ClientTypeCustomer),
+		Username:     "",
+		Nickname:     "",
+		Thumb:        "",
+	}
+
+	// 商户UserToken解析
+	{
+		visitor := &meta.Visitor{}
+		token := params.VisitorToken
+		cipherKey := *merchantSettings.VisitorTokenCipherKey
+		if err := cs.CipherOfToken.DecryptWithCipherKey(token, visitor, []byte(cipherKey)); err != nil {
+			libs_http.RspState(ctx, 1, fmt.Errorf("解析访客Token失败"))
+			global.Logger.Error(err)
+			return
+		}
+		client.UserId = visitor.UserId
+		client.Username = visitor.Username
+		client.Nickname = visitor.Nickname
+		client.Thumb = visitor.Thumb
+	}
 
 	// 创建会话
 	{
@@ -81,35 +119,42 @@ func (c *Session) Create(ctx *gin.Context) {
 			return
 		}
 		customerIpLocation := fmt.Sprintf("%s:%s:%s", tmp.Country, tmp.Province, tmp.City)
-		customerDevice := params.CustomerDevice
-		session, err := cs.CustomerCreateSession(client, customerDevice, customerIp, customerIpLocation)
+		customerDevice := params.VisitorDevice
+		s, err := cs.CustomerCreateSession(client, customerDevice, customerIp, customerIpLocation)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
+		session = s
 	}
 
 	// 返回数据
 	rspData := make(map[string]interface{})
 
-	// 会话token
+	// 会话信息
 	{
-		token, err := cs.CipherOfToken.Encrypt(session)
+		info := make(map[string]interface{})
+		info["CreatedAt"] = session.CreatedAt
+
+	}
+	// 会话Token
+	// 访客端操作API的OperatorContext
+	{
+		operator := &Operator{
+			SessionId: session.Id,
+			Client:    client,
+			LoginTime: time.Now(),
+		}
+		token, err := OperatorContext.SignedString(operator)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
 		rspData["SessionToken"] = token
 	}
-
-	// 网关token
+	// 网关Token
 	{
-		gatewayToken := gateway.Token{
-			TenantCode: "",
-			UserType:   "",
-			UserId:     0,
-		}
-		token, err := cs.CipherOfToken.Encrypt(gatewayToken)
+		token, err := cs.CipherOfToken.Encrypt(client)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
@@ -131,25 +176,34 @@ func (c *Session) Message(ctx *gin.Context) {
 
 	operator := GetOperator(ctx)
 
-	// 读取会话信息
 	// 会话鉴权
-	session := &cs.Session{}
-	if err := cs_env.Session.GetInfo(operator.SessionId, session); err != nil {
-		libs_http.RspState(ctx, 1, err)
-		return
-	}
-	if session.IsClose() {
-		libs_http.RspState(ctx, 1, "会话已经关闭")
-		return
+	{
+		sessionId := operator.SessionId
+		session, err := cs.GetSessionInfo(sessionId)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		if session.GetEnable() == false {
+			libs_http.RspState(ctx, 1, "会话已经关闭")
+			return
+		}
 	}
 
-	// 广播消息
-	messageId, err := global.CsSys.Broadcast(operator, operator.SessionId, params)
-	if err != nil {
-		libs_http.RspState(ctx, 1, err)
+	// 会话消息
+	{
+		sessionId := operator.SessionId
+		client := operator.Client
+		content := params.Content
+		contentType := params.ContentType
+		messageId, err := cs.SessionMessage(sessionId, client, content, contentType)
+		if err != nil {
+			libs_http.RspState(ctx, 1, err)
+			return
+		}
+		libs_http.RspData(ctx, 0, "", messageId)
 		return
 	}
-	libs_http.RspData(ctx, 0, "", messageId)
 }
 
 /*

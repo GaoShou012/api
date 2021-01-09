@@ -1,8 +1,11 @@
 package cs
 
 import (
+	"api/cs/env"
 	"api/cs/event"
+	"api/cs/meta"
 	"api/global"
+	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"time"
 )
@@ -11,10 +14,7 @@ type Session struct {
 	Id              string
 	Enable          bool
 	State           uint64
-	CreatorId       uint64
-	CreatorType     string
-	CreatorUsername string
-	CreatorNickname string
+	Creator         *meta.Client
 	CreatorIp       string
 	CreatorLocation string
 	CreatedAt       time.Time
@@ -30,7 +30,12 @@ func (s *Session) SetEnable(enable bool) {
 	s.Enable = enable
 }
 
+func topicOfSessionChannel(sessionId string) string {
+	return fmt.Sprintf("session:channel:%s", sessionId)
+}
+
 // 检查访客是否已经创建了会话
+// 如果已经创建，返回会话信息
 func GetCustomerSession(clientUUID string) (*Session, error) {
 	channels, err := global.IM.Client().Channels(clientUUID)
 	if err != nil {
@@ -53,13 +58,45 @@ func GetCustomerSession(clientUUID string) (*Session, error) {
 	return session, nil
 }
 
+// 保存会话信息
+func GetSessionInfo(sessionId string) (*Session, error) {
+	topic := topicOfSessionChannel(sessionId)
+	session := &Session{}
+	if err := global.IM.Channel().GetInfo(topic, session); err != nil {
+		return nil, err
+	}
+	return session, nil
+}
+
+// 访客、客服，通过此方法，发送消息
+func SessionMessage(sessionId string, sender Sender, content string, contentType string) (string, error) {
+	topic := topicOfSessionChannel(sessionId)
+
+	data, err := event.Encode(&event.ClientMessage{
+		Sender:      GetSenderInfoFrom(sender),
+		Content:     content,
+		ContentType: contentType,
+		Time:        time.Now(),
+	})
+	if err != nil {
+		return "", err
+	}
+	messageId, err := global.IM.Channel().Push(topic, data)
+	if err != nil {
+		return "", err
+	}
+
+	return messageId, nil
+}
+
 /*
 	@params
 	customerDevice 访客设备，PC，手机
 	customerIp 访客IP
 	customerLocation 访客地址
 */
-func CustomerCreateSession(client Client, customerDevice uint64, customerIp string, customerLocation string) (*Session, error) {
+func CustomerCreateSession(client *meta.Client, customerDevice uint64, customerIp string, customerLocation string) (*Session, error) {
+	merchantCode := client.MerchantCode
 	clientUUID := client.GetUUID()
 
 	{
@@ -74,15 +111,26 @@ func CustomerCreateSession(client Client, customerDevice uint64, customerIp stri
 		}
 	}
 
+	// 会话ID
+	sessionId := uuid.NewV1().String()
+	timestamp := time.Now().Unix()
+
+	// 先把会话ID，存储到会话集合中，用于异步对会话进行回收
+	if err := env.SessionsSet.SetItem(TopicOfSessionsSet, sessionId, float64(timestamp)); err != nil {
+		return nil, err
+	}
+
+	// 先把会话ID，存储到商户的会话集合中，用于统计会话信息
+	if err := env.SessionsSet.SetItem(TopicOfMerchantSessionSet(merchantCode), sessionId, float64(timestamp)); err != nil {
+		return nil, err
+	}
+
 	// 创建新会话
 	session := &Session{
-		Id:              uuid.NewV1().String(),
+		Id:              sessionId,
 		Enable:          true,
 		State:           0,
-		CreatorId:       client.UserId,
-		CreatorType:     client.UserType,
-		CreatorUsername: client.Username,
-		CreatorNickname: client.Nickname,
+		Creator:         client,
 		CreatorIp:       customerIp,
 		CreatorLocation: customerLocation,
 		CreatedAt:       time.Now(),
@@ -91,6 +139,7 @@ func CustomerCreateSession(client Client, customerDevice uint64, customerIp stri
 		return nil, err
 	}
 
+	// 访客订阅此会话频道
 	topic := session.GetTopic()
 	if err := global.IM.ClientSubscribeChannel(clientUUID, topic); err != nil {
 		return nil, err
