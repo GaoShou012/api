@@ -29,7 +29,7 @@ type Merchants struct {
 	StartAt    *time.Time
 	EndAt      *time.Time
 	Channel    *int
-	enable     *bool
+	Enable     *bool
 	MaxVisitor *int
 	Desc       *string
 }
