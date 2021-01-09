@@ -2,12 +2,12 @@ package channel
 
 type Channel interface {
 	// 创建频道
-	Create(info Info) error
+	Create(topic string, info Info) error
 	// 删除频道
 	Delete(topic string) error
 	// 是否存在
 	Exists(topic string) (bool, error)
-
+	
 	// 设置频道是否开启
 	SetEnable(topic string, enable bool) error
 	GetEnable(topic string) bool

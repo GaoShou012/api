@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-// 频道列表
-func keyOfChannels() string {
-	return fmt.Sprintf("channel:all-channels")
-}
-
 // 频道信息
 func keyOfChannelInfo(topic string) string {
 	return fmt.Sprintf("channel:info:%s", topic)
@@ -39,13 +34,35 @@ type plugin struct {
 	opts *Options
 }
 
+func (p *plugin) setInfo(topic string, info channel.Info) error {
+	j, err := json.Marshal(info)
+	if err != nil {
+		return err
+	}
+	m := make(map[string]interface{})
+	m["Enable"] = info.GetEnable()
+	m["Info"] = j
+
+	_, err = p.opts.redisClient.HMSet(keyOfChannelInfo(topic), m).Result()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p *plugin) Init() error {
 	return nil
 }
 
-func (p *plugin) Create(info channel.Info) error {
-	p.opts.redisClient.ZAdd(keyOfChannels(),)
-	return p.SetInfo(info.GetTopic(), info)
+func (p *plugin) Create(topic string, info channel.Info) error {
+	exists, err := p.Exists(topic)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return fmt.Errorf("频道已经存在，创建失败")
+	}
+	return p.setInfo(topic, info)
 }
 
 func (p *plugin) Delete(topic string) error {
@@ -128,20 +145,7 @@ func (p *plugin) SetInfo(topic string, info channel.Info) error {
 	if err := p.isExists(topic); err != nil {
 		return err
 	}
-
-	j, err := json.Marshal(info)
-	if err != nil {
-		return err
-	}
-	m := make(map[string]interface{})
-	m["Enable"] = info.GetEnable()
-	m["Info"] = j
-
-	_, err = p.opts.redisClient.HMSet(keyOfChannelInfo(topic), m).Result()
-	if err != nil {
-		return err
-	}
-	return nil
+	return p.setInfo(topic, info)
 }
 
 func (p *plugin) GetInfo(topic string, info channel.Info) error {
@@ -236,7 +240,7 @@ func (p *plugin) Subscribe(topic string, clientUUID string) error {
 		return fmt.Errorf("频道未启用，不能操作")
 	}
 
-	_, err := p.opts.redisClient.HSet(keyOfClientListOfChannel(topic), clientUUID, time.Now().String()).Result()
+	_, err := p.opts.redisClient.HSet(keyOfClientListOfChannel(topic), clientUUID, time.Now().Format(time.RFC3339)).Result()
 	return err
 }
 

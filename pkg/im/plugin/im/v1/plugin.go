@@ -2,6 +2,7 @@ package im_v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"im/class/channel"
 	"im/class/client"
 	"im/class/gateway"
@@ -16,6 +17,35 @@ type plugin struct {
 	syncRecord      *SyncRecord
 	gatewayHandlers *gatewayHandler
 	opts            *Options
+}
+
+func (p *plugin) PullMessageFromClient(uuid string, lastMessageId string, count uint64) ([]client.Event, error) {
+	res, err := p.opts.client.Pull(uuid, lastMessageId, count)
+	if err != nil {
+		return nil, err
+	}
+
+	i := 0
+	events := make([]client.Event, len(res))
+
+	for _, row := range res {
+		evt := &meta.ClientEvent{}
+		if err := json.Unmarshal(row.Data(), evt); err != nil {
+			return nil, err
+		}
+		events[i] = evt
+		i++
+	}
+}
+
+func (p *plugin) encodeMessage(messageType uint8, message []byte) ([]byte, error) {
+	max := len(message)
+	res := make([]byte, len(message)+1)
+	res[0] = messageType
+	for i := 0; i < len(message); i++ {
+		res[i+1] = message[i]
+	}
+	return res, nil
 }
 
 func (p *plugin) Init() error {
@@ -42,8 +72,8 @@ func (p *plugin) ClientDetach(uuid string) {
 	p.syncRecord.DelClient(uuid)
 }
 
-func (p *plugin) CreateChannel(info channel.Info) error {
-	return p.opts.channel.Create(info)
+func (p *plugin) CreateChannel(topic string, info channel.Info) error {
+	return p.opts.channel.Create(topic, info)
 }
 
 func (p *plugin) DeleteChannel(topic string) error {
@@ -120,7 +150,20 @@ func (p *plugin) PushMessageToClient(uuid string, message []byte) error {
 func (p *plugin) PushMessageToClientEvent(uuid string, message []byte) (messageId string, err error) {
 	// 推送消息到客户端的消息流
 	// 推送客户端通知到网关
-	messageId, err = p.opts.client.Push(uuid, message)
+
+	if message == nil {
+		err = fmt.Errorf("消息不能为空")
+		return
+	}
+
+	encodedMessage := make([]byte, len(message)+1)
+	encodedMessage[0] = 0x01
+	for i := 0; i < len(message); i++ {
+		encodedMessage[i+1] = message[i]
+	}
+	encodedMessage := p.encodeMessage(0x01,message)
+
+	messageId, err = p.opts.client.Push(uuid, encodedMessage)
 	if err != nil {
 		return
 	}

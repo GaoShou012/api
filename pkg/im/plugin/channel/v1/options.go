@@ -1,14 +1,16 @@
 package channel_v1
 
 import (
+	"framework/class/sortedset"
 	"framework/class/stream"
 	"github.com/go-redis/redis"
 	"im/class/channel"
 )
 
 type Options struct {
-	infoModel   channel.Info
+	//infoModel   channel.Info
 	redisClient *redis.Client
+	sortedset.Sortedset
 	stream.Stream
 }
 
@@ -33,6 +35,7 @@ func New(opts ...Option) channel.Channel {
 
 func WithRedisClient(redisClient *redis.Client) Option {
 	return func(o *Options) {
+		o.redisClient = redisClient
 	}
 }
 

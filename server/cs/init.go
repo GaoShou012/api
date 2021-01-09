@@ -6,4 +6,8 @@ import (
 )
 
 var IM im.IM
+
+/*
+	制作网关Token
+*/
 var CipherOfToken cipher.Cipher

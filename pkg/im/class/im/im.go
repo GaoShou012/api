@@ -19,7 +19,7 @@ type IM interface {
 	ClientDetach(uuid string)
 
 	// 创建频道
-	CreateChannel(info channel.Info) error
+	CreateChannel(topic string, info channel.Info) error
 	// 删除频道
 	DeleteChannel(topic string) error
 
@@ -36,6 +36,8 @@ type IM interface {
 	PushMessageToClient(uuid string, message []byte) error
 	// 使用stream推送消息给客户端
 	PushMessageToClientEvent(uuid string, message []byte) (messageId string, err error)
+
+	PullMessageFromClient(uuid string) ([]client.Event, error)
 
 	// 客户端订阅频道
 	ClientSubscribeChannel(uuid string, topic string) error

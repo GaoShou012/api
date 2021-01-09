@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	dns := fmt.Sprintf("redis_sortdset://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
+	dns := fmt.Sprintf("redis://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
 
 	topic := "testing_stream1"
 
@@ -40,11 +40,10 @@ func main() {
 			panic("message id is not exists")
 		}
 		fmt.Println("message:", event)
-		return
 	}
 
 	{
-		events, err := s.Pull("testing_stream1", "0", 10)
+		events, err := s.Pull(topic, "0", 10)
 		if err != nil {
 			panic(err)
 		}
@@ -56,7 +55,7 @@ func main() {
 			fmt.Println(m)
 
 			// the ack to delete the event in stream.
-			event.Ack()
+			//event.Ack()
 		}
 	}
 
