@@ -32,6 +32,7 @@ func New(opts ...Option) client.Client {
 
 func WithRedisClient(redisClient *redis.Client) Option {
 	return func(o *Options) {
+		o.redisClient = redisClient
 	}
 }
 

@@ -1,7 +1,6 @@
 package im_v1
 
 import (
-	"framework/class/broker"
 	"github.com/go-redis/redis"
 	"im/class/channel"
 	"im/class/client"
@@ -10,8 +9,6 @@ import (
 )
 
 type Options struct {
-	// 用于分发消息到网关
-	broker broker.Broker
 	// 客户端消息
 	client      client.Client
 	channel     channel.Channel
@@ -36,12 +33,6 @@ func New(opts ...Option) im.IM {
 	}
 
 	return p
-}
-
-func WithBroker(broker2 broker.Broker) Option {
-	return func(o *Options) {
-		o.broker = broker2
-	}
 }
 
 func WithChannel(channel2 channel.Channel) Option {

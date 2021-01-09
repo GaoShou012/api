@@ -1,4 +1,4 @@
-package merchant_customer_api
+package merchant_visitor_api
 
 import (
 	"api/cs/meta"
