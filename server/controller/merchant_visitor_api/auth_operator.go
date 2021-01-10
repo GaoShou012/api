@@ -38,7 +38,7 @@ func (c *Operator) GetUserId() uint64 {
 	return c.UserId
 }
 func (c *Operator) GetUserType() uint64 {
-	return uint64(c.ClientType)
+	return c.UserType
 }
 func (c *Operator) GetNickname() string {
 	return c.Nickname
@@ -63,7 +63,7 @@ func (c *Operator) GetAuthorityId() string {
 	网关通过client uuid路由消息
 */
 func (c *Operator) GetUUID() string {
-	return fmt.Sprintf("%s:%d:%d", c.TenantCode, c.UserType, c.UserId)
+	return fmt.Sprintf("%s:%d:%d", c.MerchantCode, c.UserType, c.UserId)
 }
 
 /*

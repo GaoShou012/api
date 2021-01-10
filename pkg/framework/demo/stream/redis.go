@@ -43,7 +43,7 @@ func main() {
 	}
 
 	{
-		events, err := s.Pull(topic, "0", 10)
+		events, err := s.Pull(topic, "0", 100)
 		if err != nil {
 			panic(err)
 		}
@@ -52,7 +52,7 @@ func main() {
 			if err := json.Unmarshal(event.Message(), &m); err != nil {
 				panic(err)
 			}
-			fmt.Println(m)
+			fmt.Println(event.Id(), m)
 
 			// the ack to delete the event in stream.
 			//event.Ack()
@@ -60,6 +60,14 @@ func main() {
 	}
 
 	{
-
+		fmt.Println("pullN:")
+		events, err := s.PullN(topic, "1610006964273-1", 10)
+		if err != nil {
+			panic(err)
+		}
+		for _, event := range events {
+			fmt.Println(event.Id())
+			fmt.Println(string(event.Message()))
+		}
 	}
 }
