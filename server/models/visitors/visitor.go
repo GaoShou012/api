@@ -1,6 +1,7 @@
 package visitors
 
 import (
+	"api/global"
 	"api/models"
 	"time"
 )
@@ -32,6 +33,16 @@ type Visitors struct {
 
 func (m *Visitors) GetTableName() string {
 	return "visitors"
+}
+
+//返回数据的总数
+func (m *Visitors) Count(where string) (int64, error) {
+	var count int64 = 0
+	res := global.DBSlave.Table(m.GetTableName()).Where(where).Count(&count)
+	if res.Error != nil {
+		return count, res.Error
+	}
+	return count, nil
 }
 
 //func (m *Visitors) SelectByUsernameMerchantId(username string, merchantId uint64) Visitors {
