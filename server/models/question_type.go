@@ -9,3 +9,7 @@ type QuestionType struct {
 	DialogueGroup  *string
 	TenantId       *uint64
 }
+
+func (m *QuestionType) GetTableName() string {
+	return "question_type"
+}

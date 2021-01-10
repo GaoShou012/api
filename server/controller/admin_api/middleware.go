@@ -6,7 +6,7 @@ import (
 	libs_http "api/libs/http"
 	"fmt"
 	"framework/class/middleware"
-	"framework/plugin/middleware/middleware_gin"
+	"framework/plugin/middleware/middleware_gin_redis"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -23,16 +23,16 @@ func GetOperator(ctx *gin.Context) *Operator {
 
 func InitOperatorContext() {
 	conf := config.GetConfig().Base
-	callback := &middleware_gin_redis_v8.Callback{
-		Expiration: middleware_gin_redis_v8.Expiration(func(ctx *gin.Context) {
+	callback := &middleware_gin_redis.Callback{
+		Expiration: middleware_gin_redis.Expiration(func(ctx *gin.Context) {
 			libs_http.RspAuthFailed(ctx, 1, "登陆已经过期")
 		}),
 	}
-	OperatorContext = middleware_gin_redis_v8.New(
-		middleware_gin_redis_v8.WithModel(&Operator{}),
-		middleware_gin_redis_v8.WithExpiration(time.Duration(conf.OperatorContextExpiration)*time.Second),
-		middleware_gin_redis_v8.WithRedisClient(global.RedisClient),
-		middleware_gin_redis_v8.WithCallback(callback),
-		middleware_gin_redis_v8.WithCipherKey([]byte(conf.OperatorContextCipherKey)),
+	OperatorContext = middleware_gin_redis.New(
+		middleware_gin_redis.WithModel(&Operator{}),
+		middleware_gin_redis.WithExpiration(time.Duration(conf.OperatorContextExpiration)*time.Second),
+		middleware_gin_redis.WithRedisClient(global.RedisClient),
+		middleware_gin_redis.WithCallback(callback),
+		middleware_gin_redis.WithCipherKey([]byte(conf.OperatorContextCipherKey)),
 	)
 }

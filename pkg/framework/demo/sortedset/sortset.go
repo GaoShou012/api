@@ -84,6 +84,18 @@ func connect(dns string) (*redis.Client, error) {
 	return redisClient, nil
 }
 func main() {
+
+	var params struct {
+		Page       uint
+		PageSize   uint
+		MerchantId uint64
+		Username   string
+		StartAt    string
+		EndAt      string
+	}
+	//t := fmt.Sprintf("%d", 0)
+	fmt.Println(params)
+
 	dns := fmt.Sprintf("redis://:@192.168.0.233:17001?Db=0&PoolMax=100&PoolMin=10")
 	r, err := connect(dns)
 	if err != nil {
