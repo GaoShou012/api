@@ -16,11 +16,11 @@ type Admins struct {
 }
 
 func (m *Admins) GetTableName() string {
-	return "tenants_admins"
+	return "merchants_admins"
 }
 
 func (m *Admins) SelectByUsername(fields string, tenantId uint64, username string) (bool, error) {
-	res := global.DBSlave.Select(fields).Where("tenant_id =? and username=?", tenantId, username).First(m)
+	res := global.DBSlave.Select(fields).Where("merchant_id =? and username=?", tenantId, username).First(m)
 	if res.Error != nil {
 		if res.RecordNotFound() {
 			return false, nil

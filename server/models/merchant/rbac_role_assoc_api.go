@@ -7,7 +7,7 @@ type RbacRoleAssocApi struct {
 }
 
 func (m *RbacRoleAssocApi) GetTableName() string {
-	return "tenants_rbac_role_assoc_api"
+	return "merchants_rbac_role_assoc_api"
 }
 
 func (m *RbacRoleAssocApi) GetRoleId() uint64 {

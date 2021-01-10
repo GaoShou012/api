@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	TenantsContractStateCreated = iota
-	TenantsContractStateReviewed
+	MerchantsContractStateCreated = iota
+	MerchantsContractStateReviewed
 )
 
 // 租户合同
@@ -17,7 +17,7 @@ type MerchantsContracts struct {
 
 	// 状态需要梳理，合同的流程，再设计出状态标记
 	State          *uint64    // 合同状态 0=作废，1=不同过审核，2=已经确认生效，3=已经顺利完成，4=中途毁约
-	MerchantId       *uint64    // 租户ID
+	MerchantId     *uint64    // 租户ID
 	EffectiveDate  *time.Time // 合同生效日期
 	ExpirationDate *time.Time // 合同截止日期
 
@@ -38,7 +38,7 @@ type MerchantsContracts struct {
 }
 
 func (m *MerchantsContracts) GetTableName() string {
-	return "tenants_contracts"
+	return "merchants_contracts"
 }
 
 // 创建合同
@@ -48,11 +48,11 @@ func (m *MerchantsContracts) Create(
 	shouldPayment float64,
 	creatorId uint64, creatorName string, creatorNote string,
 ) error {
-	state := uint64(TenantsContractStateCreated)
+	state := uint64(MerchantsContractStateCreated)
 	i := &MerchantsContracts{
 		Model:          Model{},
 		State:          &state,
-		MerchantId:       &tenantId,
+		MerchantId:     &tenantId,
 		EffectiveDate:  &effectiveDate,
 		ExpirationDate: &expirationDate,
 		ShouldPayment:  &shouldPayment,
@@ -72,12 +72,12 @@ func (m *MerchantsContracts) Create(
 
 // 审核合同
 func (m *MerchantsContracts) Review(id uint64, reviewerId uint64, reviewerName string, reviewerNote string) error {
-	state := uint64(TenantsContractStateReviewed)
+	state := uint64(MerchantsContractStateReviewed)
 	reviewerTime := time.Now()
 	i := &MerchantsContracts{
 		Model:          Model{},
 		State:          &state,
-		MerchantId:       nil,
+		MerchantId:     nil,
 		EffectiveDate:  nil,
 		ExpirationDate: nil,
 		CreatorId:      nil,
@@ -106,7 +106,7 @@ func (m *MerchantsContracts) Payment(id uint64, realPayment float64, paymentNote
 	i := &MerchantsContracts{
 		Model:          Model{},
 		State:          nil,
-		MerchantId:       nil,
+		MerchantId:     nil,
 		EffectiveDate:  nil,
 		ExpirationDate: nil,
 		CreatorId:      nil,
