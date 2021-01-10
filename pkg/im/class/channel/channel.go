@@ -7,7 +7,7 @@ type Channel interface {
 	Delete(topic string) error
 	// 是否存在
 	Exists(topic string) (bool, error)
-	
+
 	// 设置频道是否开启
 	SetEnable(topic string, enable bool) error
 	GetEnable(topic string) bool
@@ -21,8 +21,11 @@ type Channel interface {
 	// 推送消息
 	Push(topic string, message []byte) (messageId string, err error)
 
-	// 消息
+	// 拉取消息，正向
 	Pull(topic string, lastMessageId string, count uint64) ([]Event, error)
+
+	// 拉取消息，反向
+	PUllN(topic string, lastMessageId string, count uint64) ([]Event, error)
 
 	// 拉取消息，指定ID
 	PullById(topic string, messageId string) ([]byte, error)

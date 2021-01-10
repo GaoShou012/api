@@ -20,4 +20,8 @@ type Sortedset interface {
 	GetItemFromNegative(topic string) ([]Item, error)
 	// item是否存在
 	ExistsItem(topic string, key string) (bool, error)
+	// 删除item
+	DelItem(topic string) (bool, error)
+	// 删除item下的key
+	DelKey(topic string, key string) (bool, error)
 }

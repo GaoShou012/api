@@ -46,7 +46,7 @@ func (p *plugin) Pull(uuid string, lastMessageId string, count uint64) ([]client
 	}
 
 	i := 0
-	events := make([]client.Event,len(res))
+	events := make([]client.Event, len(res))
 
 	for _, val := range res {
 		evt := &event{
@@ -58,6 +58,10 @@ func (p *plugin) Pull(uuid string, lastMessageId string, count uint64) ([]client
 	}
 
 	return events, nil
+}
+
+func (p *plugin) PullById(uuid string, messageId string) (client.Event, error) {
+
 }
 
 func (p *plugin) Subscribe(uuid string, topic string) error {

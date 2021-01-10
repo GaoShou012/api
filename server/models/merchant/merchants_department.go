@@ -16,7 +16,7 @@ CREATE TABLE `tenants_department` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='租户部门表';
 */
 
-type TenantsDepartment struct {
+type MerchantsDepartment struct {
 	models.Model
 	MerchantId     *uint64
 	ParentId       *uint64

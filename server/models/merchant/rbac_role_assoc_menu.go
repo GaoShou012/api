@@ -7,6 +7,5 @@ type RbacRoleAssocMenu struct {
 }
 
 func (m *RbacRoleAssocMenu) GetTableName() string {
-	return "tenants_rbac_role_assoc_menu"
+	return "merchants_rbac_role_assoc_menu"
 }
-

@@ -4,7 +4,7 @@ import (
 	"api/config"
 	libs_http "api/libs/http"
 	"api/models"
-	models_tenant "api/models/merchant"
+	models_merchant "api/models/merchant"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
@@ -37,28 +37,28 @@ func (c *Auth) Login(ctx *gin.Context) {
 		}
 	}
 
-	// 查询租户ID
-	tenant := &models.Tenants{}
+	// 查询商户ID
+	merchant := &models.Merchants{}
 	{
 		code := params.Code
-		ok, err := tenant.SelectByCode("*", code)
+		ok, err := merchant.SelectByCode("*", code)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
 		if !ok {
-			libs_http.RspState(ctx, 1, "租户编码不存在")
+			libs_http.RspState(ctx, 1, "商户编码不存在")
 			return
 		}
 	}
 
-	admin := &models_tenant.Admins{}
+	admin := &models_merchant.Admins{}
 
 	// 查询账号
 	{
-		tenantId := *tenant.Id
+		merchantId := *merchant.Id
 		username := params.Username
-		ok, err := admin.SelectByUsername("*", tenantId, username)
+		ok, err := admin.SelectByUsername("*", merchantId, username)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return
