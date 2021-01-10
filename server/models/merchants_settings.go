@@ -20,6 +20,6 @@ type MerchantsSettings struct {
 	EnableSessionAssignToTheCloseCs *bool
 }
 
-func (m *MerchantsSettings) SelectById(fields string,id uint64) (bool,error){
-
+func (m *MerchantsSettings) SelectById(fields string, id uint64) (bool, error) {
+	return true, nil
 }

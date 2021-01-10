@@ -8,7 +8,7 @@ type RbacApi struct {
 }
 
 func (m *RbacApi) GetTableName() string {
-	return "tenants_rbac_api"
+	return "merchants_rbac_api"
 }
 
 func (m *RbacApi) GetId() uint64 {

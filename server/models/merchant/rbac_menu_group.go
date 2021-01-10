@@ -8,7 +8,7 @@ type RbacMenuGroup struct {
 }
 
 func (m *RbacMenuGroup) GetTableName() string {
-	return "tenants_rbac_menu_group"
+	return "merchants_rbac_menu_group"
 }
 
 func (m *RbacMenuGroup) BeforeUpdate() {

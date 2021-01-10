@@ -8,7 +8,7 @@ type RbacRole struct {
 }
 
 func (m *RbacRole) GetTableName() string {
-	return "tenants_rbac_role"
+	return "merchants_rbac_role"
 }
 
 func (m *RbacRole) BeforeUpdate() {
