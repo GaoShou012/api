@@ -4,3 +4,20 @@ type clientEvent struct {
 	id   string
 	data []byte
 }
+
+func (e *clientEvent) Id() string {
+	return e.id
+}
+func (e *clientEvent) Data() []byte {
+	return e.data
+}
+
+const (
+	eventTypeMessage = iota
+	eventTypeChannelNotice
+)
+
+type clientEventOfChannelNotice struct {
+	topic     string
+	messageId string
+}

@@ -19,30 +19,13 @@ type plugin struct {
 	opts            *Options
 }
 
-func (p *plugin) PullMessageFromClient(uuid string, lastMessageId string, count uint64) ([]client.Event, error) {
-	res, err := p.opts.client.Pull(uuid, lastMessageId, count)
-	if err != nil {
-		return nil, err
-	}
-
-	i := 0
-	events := make([]client.Event, len(res))
-
-	for _, row := range res {
-		evt := &meta.ClientEvent{}
-		if err := json.Unmarshal(row.Data(), evt); err != nil {
-			return nil, err
-		}
-		events[i] = evt
-		i++
-	}
-}
-
+// 加密消息
+// messageType 0x01 消息，0x02 通知
 func (p *plugin) encodeMessage(messageType uint8, message []byte) ([]byte, error) {
 	max := len(message)
 	res := make([]byte, len(message)+1)
 	res[0] = messageType
-	for i := 0; i < len(message); i++ {
+	for i := 0; i < max; i++ {
 		res[i+1] = message[i]
 	}
 	return res, nil
@@ -161,7 +144,10 @@ func (p *plugin) PushMessageToClientEvent(uuid string, message []byte) (messageI
 	for i := 0; i < len(message); i++ {
 		encodedMessage[i+1] = message[i]
 	}
-	encodedMessage := p.encodeMessage(0x01,message)
+	encodedMessage, err = p.encodeMessage(eventTypeMessage, message)
+	if err != nil {
+		return
+	}
 
 	messageId, err = p.opts.client.Push(uuid, encodedMessage)
 	if err != nil {
@@ -172,6 +158,63 @@ func (p *plugin) PushMessageToClientEvent(uuid string, message []byte) (messageI
 		return
 	}
 	return
+}
+
+func (p *plugin) clientEvent(messageId string, data []byte) (*clientEvent, error) {
+	evt := &clientEvent{
+		id:   messageId,
+		data: nil,
+	}
+	switch data[0] {
+	case eventTypeMessage:
+		evt.data = data[1:]
+		break
+	case eventTypeChannelNotice:
+		// 从频道消息流拉取消息
+		notice := &clientEventOfChannelNotice{}
+		if err := json.Unmarshal(data[1:], notice); err != nil {
+			return nil, err
+		}
+		msg, err := p.opts.channel.PullById(notice.topic, notice.messageId)
+		if err != nil {
+			return nil, err
+		}
+
+		// 等于消息ID，使用客户端的消息流
+		// 消息数据，使用channel的消息
+		evt.data = msg
+		break
+	}
+	return evt, nil
+}
+
+func (p *plugin) PullMessageFromClient(uuid string, lastMessageId string, count uint64) ([]client.Event, error) {
+	res, err := p.opts.client.Pull(uuid, lastMessageId, count)
+	if err != nil {
+		return nil, err
+	}
+
+	events := make([]client.Event, 0)
+
+	for _, row := range res {
+		evt, err := p.clientEvent(row.Id(), row.Data())
+		if err != nil {
+			env.Logger.Error(err, uuid, row.Id(), row.Data())
+			continue
+		}
+		events = append(events, evt)
+	}
+
+	return events, nil
+}
+
+func (p *plugin) PullMessageFromClientById(uuid string, messageId string) (client.Event, error) {
+	event, err := p.opts.client.PullById(uuid, messageId)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.clientEvent(event.Id(), event.Data())
 }
 
 func (p *plugin) ClientSubscribeChannel(uuid string, topic string) error {

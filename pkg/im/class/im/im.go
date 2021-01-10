@@ -37,7 +37,9 @@ type IM interface {
 	// 使用stream推送消息给客户端
 	PushMessageToClientEvent(uuid string, message []byte) (messageId string, err error)
 
-	PullMessageFromClient(uuid string) ([]client.Event, error)
+	// 从客户端消息流，拉取消息
+	PullMessageFromClient(uuid string, lastMessageId string, count uint64) ([]client.Event, error)
+	PullMessageFromClientById(uuid string, lastMessageId string) (client.Event, error)
 
 	// 客户端订阅频道
 	ClientSubscribeChannel(uuid string, topic string) error

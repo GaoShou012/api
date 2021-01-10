@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"framework/class/logger"
 	"framework/class/stream"
+	"framework/env"
 	"github.com/go-redis/redis/v8"
 	"sync"
 )
@@ -15,20 +16,20 @@ type plugin struct {
 	opts *Options
 }
 
-func (s *plugin) Init() error {
+func (p *plugin) Init() error {
 	return nil
 }
 
-func (s *plugin) Connect(dns string) error {
+func (p *plugin) Connect(dns string) error {
 	client, err := connect(dns)
 	if err != nil {
 		return err
 	}
-	s.opts.redisClient = client
+	p.opts.redisClient = client
 	return nil
 }
 
-func (s *plugin) Push(topic string, message []byte) (string, error) {
+func (p *plugin) Push(topic string, message []byte) (string, error) {
 	values := make(map[string]interface{})
 	values["Payload"] = message
 	xAddArgs := &redis.XAddArgs{
@@ -38,17 +39,17 @@ func (s *plugin) Push(topic string, message []byte) (string, error) {
 		ID:           "*",
 		Values:       values,
 	}
-	msgId, err := s.opts.redisClient.XAdd(context.TODO(), xAddArgs).Result()
+	msgId, err := p.opts.redisClient.XAdd(context.TODO(), xAddArgs).Result()
 	return msgId, err
 }
 
-func (s *plugin) Pull(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
+func (p *plugin) Pull(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
 	readArgs := &redis.XReadArgs{
 		Streams: []string{topic, lastMessageId},
 		Count:   int64(count),
 		Block:   -1,
 	}
-	res, err := s.opts.redisClient.XRead(context.TODO(), readArgs).Result()
+	res, err := p.opts.redisClient.XRead(context.TODO(), readArgs).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, nil
@@ -63,8 +64,8 @@ func (s *plugin) Pull(topic string, lastMessageId string, count uint64) ([]strea
 		for _, message := range row.Messages {
 			payload, ok := message.Values["Payload"].(string)
 			if !ok {
-				s.opts.redisClient.XDel(context.TODO(), topic, message.ID)
-				s.opts.logger.Log(logger.ErrorLevel, "Assert payload is failed")
+				p.opts.redisClient.XDel(context.TODO(), topic, message.ID)
+				p.opts.logger.Log(logger.ErrorLevel, "Assert payload is failed")
 				continue
 			}
 
@@ -72,9 +73,53 @@ func (s *plugin) Pull(topic string, lastMessageId string, count uint64) ([]strea
 				id:          message.ID,
 				streamName:  topic,
 				message:     []byte(payload),
-				redisClient: s.opts.redisClient,
+				redisClient: p.opts.redisClient,
 			}
 			events = append(events, evt)
+		}
+	}
+
+	return events, nil
+}
+
+func (p *plugin) PullN(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
+	res, err := p.opts.redisClient.XRevRangeN(context.TODO(), topic, lastMessageId, "-", int64(count)+1).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	var events []stream.Event
+
+	for _, message := range res {
+		payload, ok := message.Values["Payload"].(string)
+		if !ok {
+			p.opts.redisClient.XDel(context.TODO(), topic, message.ID)
+			env.Logger.Error("Assert payload is failed")
+			continue
+		}
+
+		evt := &Event{
+			id:          message.ID,
+			streamName:  topic,
+			message:     []byte(payload),
+			redisClient: p.opts.redisClient,
+		}
+		events = append(events, evt)
+	}
+
+	// 如果第一条数据等于目标数据，去掉第一条数据
+	// 如果第一条数据不等于目标数据，去掉最后一条数据，保证最大条目数相等
+	if len(events) > 0 {
+		if events[0].Id() == lastMessageId {
+			events = events[1:]
+		} else {
+			if len(events) > count {
+				events = events[0 : len(events)-2]
+			}
 		}
 	}
 
