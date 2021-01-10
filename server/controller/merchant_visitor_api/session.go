@@ -120,7 +120,7 @@ func (c *Session) Create(ctx *gin.Context) {
 		}
 		customerIpLocation := fmt.Sprintf("%s:%s:%s", tmp.Country, tmp.Province, tmp.City)
 		customerDevice := params.VisitorDevice
-		s, err := cs.CustomerCreateSession(client, customerDevice, customerIp, customerIpLocation)
+		s, err := cs.VisitorCreateSession(client, customerDevice, customerIp, customerIpLocation)
 		if err != nil {
 			libs_http.RspState(ctx, 1, err)
 			return

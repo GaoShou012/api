@@ -11,6 +11,9 @@ type Client interface {
 	// 拉取事件
 	Pull(uuid string, lastMessageId string, count uint64) ([]Event, error)
 
+	// 根据消息ID，拉取事件
+	PullById(uuid string, messageId string) (Event, error)
+
 	// 客户端订阅频道
 	Subscribe(uuid string, topic string) error
 
