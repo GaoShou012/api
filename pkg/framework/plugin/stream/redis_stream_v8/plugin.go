@@ -82,7 +82,7 @@ func (p *plugin) Pull(topic string, lastMessageId string, count uint64) ([]strea
 	return events, nil
 }
 
-func (p *plugin) PullN(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
+func (p *plugin) RevPull(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
 	res, err := p.opts.redisClient.XRevRangeN(context.TODO(), topic, lastMessageId, "-", int64(count)+1).Result()
 	if err != nil {
 		if err == redis.Nil {
@@ -117,7 +117,7 @@ func (p *plugin) PullN(topic string, lastMessageId string, count uint64) ([]stre
 		if events[0].Id() == lastMessageId {
 			events = events[1:]
 		} else {
-			if len(events) > count {
+			if len(events) > int(count) {
 				events = events[0 : len(events)-2]
 			}
 		}
@@ -126,8 +126,8 @@ func (p *plugin) PullN(topic string, lastMessageId string, count uint64) ([]stre
 	return events, nil
 }
 
-func (s *plugin) PullById(topic string, messageId string) (stream.Event, error) {
-	res, err := s.opts.redisClient.XRange(context.TODO(), topic, messageId, messageId).Result()
+func (p *plugin) PullById(topic string, messageId string) (stream.Event, error) {
+	res, err := p.opts.redisClient.XRange(context.TODO(), topic, messageId, messageId).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (s *plugin) PullById(topic string, messageId string) (stream.Event, error) 
 		id:          event.ID,
 		streamName:  topic,
 		message:     []byte(message),
-		redisClient: s.opts.redisClient,
+		redisClient: p.opts.redisClient,
 		err:         nil,
 	}
 	return evt, nil

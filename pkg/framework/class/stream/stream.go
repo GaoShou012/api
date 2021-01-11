@@ -5,7 +5,7 @@ type Stream interface {
 	Connect(dns string) error
 	Push(topic string, message []byte) (string, error)
 	Pull(topic string, lastMessageId string, count uint64) ([]Event, error)
-	PullN(topic string, lastMessageId string, count uint64) ([]Event, error)
+	RevPull(topic string, lastMessageId string, count uint64) ([]Event, error)
 	PullById(topic string, messageId string) (Event, error)
 	Subscribe(topic string, handler Handler) (Subscriber, error)
 }
