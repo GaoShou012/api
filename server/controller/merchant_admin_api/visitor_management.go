@@ -3,7 +3,7 @@ package merchant_admin_api
 import (
 	"api/global"
 	libs_http "api/libs/http"
-	"api/models/visitors"
+	"api/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,8 +23,8 @@ func (c *VisitorManagement) VisitorList(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	model := &visitors.Visitors{}
-	data := &[]visitors.Visitors{}
+	model := &models.Visitors{}
+	data := &[]models.Visitors{}
 	//var where string
 	var total int64
 	db := global.DBSlave.Table(model.GetTableName())
@@ -66,7 +66,7 @@ func (c *VisitorManagement) Update(ctx *gin.Context) {
 		libs_http.RspState(ctx, 1, err)
 		return
 	}
-	visitor := &visitors.Visitors{
+	visitor := &models.Visitors{
 		Tags:           &params.Tags,
 		Gender:         &params.Gender,
 		Phone:          &params.Phone,

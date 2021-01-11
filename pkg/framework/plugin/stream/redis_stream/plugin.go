@@ -15,6 +15,11 @@ type plugin struct {
 	opts *Options
 }
 
+func (p *plugin) Delete(topic string) error {
+	_, err := p.opts.redisClient.Del(topic).Result()
+	return err
+}
+
 func (p *plugin) Init() error {
 	return nil
 }

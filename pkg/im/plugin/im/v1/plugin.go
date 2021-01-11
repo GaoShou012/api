@@ -8,7 +8,6 @@ import (
 	"im/class/gateway"
 	"im/class/im"
 	"im/env"
-	"im/meta"
 )
 
 var _ im.IM = &plugin{}
@@ -91,13 +90,9 @@ func (p *plugin) PushMessageToChannelWithClients(topic string, message []byte, c
 	// 推送通知到客户端事件流
 	var event []byte
 	{
-		evt := &meta.ClientEvent{
-			Type: meta.ClientEventTypeChannel,
-			ClientEventChannel: &meta.ClientEventChannel{
-				Topic: topic,
-				MsgId: messageId,
-			},
-			ClientEventMessage: nil,
+		evt := &clientEventOfChannelNotice{
+			Topic:     topic,
+			MessageId: messageId,
 		}
 		event, err = json.Marshal(evt)
 		if err != nil {
@@ -109,6 +104,7 @@ func (p *plugin) PushMessageToChannelWithClients(topic string, message []byte, c
 			arr[count] = uuid
 			count++
 		}
+		event, err = p.encodeMessage(eventTypeChannelNotice, event)
 		if err := p.opts.client.PushClients(arr, event); err != nil {
 			env.Logger.Error(err)
 		}
@@ -175,7 +171,7 @@ func (p *plugin) clientEvent(messageId string, data []byte) (*clientEvent, error
 		if err := json.Unmarshal(data[1:], notice); err != nil {
 			return nil, err
 		}
-		msg, err := p.opts.channel.PullById(notice.topic, notice.messageId)
+		msg, err := p.opts.channel.PullById(notice.Topic, notice.MessageId)
 		if err != nil {
 			return nil, err
 		}

@@ -30,7 +30,7 @@ func (s *session) GetTopic() string {
 }
 
 func main() {
-	dns := fmt.Sprintf("redis://:@127.0.0.1:17001?Db=0&PoolMax=100&PoolMin=10")
+	dns := fmt.Sprintf("redis://:@192.168.0.2:17001?Db=0&PoolMax=100&PoolMin=10")
 	redisClient, err := utils.RedisClient(dns)
 	if err != nil {
 		env.Logger.Error(err)
@@ -107,6 +107,26 @@ func main() {
 	}
 	fmt.Println("msgId:", msgId)
 
+	{
+		fmt.Println("拉取频道消息")
+		events, err := im.Channel().Pull(se.GetTopic(), "0", 10)
+		if err != nil {
+			env.Logger.Error(err)
+			return
+		}
+		for _, event := range events {
+			fmt.Println(event.Id(), string(event.Data()))
+		}
+
+		fmt.Println("拉取频道消息ByID·")
+		event, err := im.Channel().PullById(se.GetTopic(), "1610374556776-0")
+		if err != nil {
+			env.Logger.Error(err)
+			return
+		}
+		fmt.Println(string(event))
+	}
+
 	fmt.Println("客户端拉取消息")
 	events, err := cli.Pull("bob:1:100", "0", 10)
 	if err != nil {
@@ -117,5 +137,19 @@ func main() {
 		fmt.Println(event.Id(), string(event.Data()))
 	}
 
+	//cli.Delete("bob:1:100")
+	//return
+	{
+		fmt.Println("拉取客户端消息")
+		events, err := im.PullMessageFromClient("bob:1:100", "0", 10)
+		if err != nil {
+			env.Logger.Error(err)
+			return
+		}
+		for _, event := range events {
+			fmt.Println(event.Id(), string(event.Data()))
+		}
+	}
 
+	//im.Client().Delete("bob:1:100")
 }

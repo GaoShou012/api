@@ -25,7 +25,7 @@ type Channel interface {
 	Pull(topic string, lastMessageId string, count uint64) ([]Event, error)
 
 	// 拉取消息，反向
-	PUllN(topic string, lastMessageId string, count uint64) ([]Event, error)
+	RevPull(topic string, lastMessageId string, count uint64) ([]Event, error)
 
 	// 拉取消息，指定ID
 	PullById(topic string, messageId string) ([]byte, error)

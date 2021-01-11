@@ -5,7 +5,7 @@ import "github.com/gin-gonic/gin"
 type SysSetting struct {
 }
 
-func (c *SysSetting) GetSetting(ctx *gin.Context) {
+func (c *SysSetting) Get(ctx *gin.Context) {
 
 }
 

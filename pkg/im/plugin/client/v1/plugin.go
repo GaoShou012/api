@@ -61,7 +61,19 @@ func (p *plugin) Pull(uuid string, lastMessageId string, count uint64) ([]client
 }
 
 func (p *plugin) PullById(uuid string, messageId string) (client.Event, error) {
+	res, err := p.opts.Stream.PullById(keyOfClientMessageStream(uuid), messageId)
+	if err != nil {
+		return nil, err
+	}
+	evt := &event{
+		msgId:   res.Id(),
+		msgData: res.Message(),
+	}
+	return evt, nil
+}
 
+func (p *plugin) Delete(uuid string) error {
+	return p.opts.Stream.Delete(keyOfClientMessageStream(uuid))
 }
 
 func (p *plugin) Subscribe(uuid string, topic string) error {
