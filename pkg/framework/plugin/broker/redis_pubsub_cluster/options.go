@@ -3,7 +3,7 @@ package broker_redis_pubsub_cluster
 import (
 	"framework/class/broker"
 	"framework/class/logger"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 )
 
 type Options struct {

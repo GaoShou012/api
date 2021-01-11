@@ -81,7 +81,7 @@ func (p *plugin) Pull(topic string, lastMessageId string, count uint64) ([]strea
 	return events, nil
 }
 
-func (p *plugin) PullN(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
+func (p *plugin) RevPull(topic string, lastMessageId string, count uint64) ([]stream.Event, error) {
 	res, err := p.opts.redisClient.XRevRangeN(topic, lastMessageId, "-", int64(count)+1).Result()
 	if err != nil {
 		if err == redis.Nil {
