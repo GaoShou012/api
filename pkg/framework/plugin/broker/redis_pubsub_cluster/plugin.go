@@ -1,12 +1,11 @@
 package broker_redis_pubsub_cluster
 
 import (
-	"context"
 	"errors"
 	"framework/class/broker"
 	"framework/class/logger"
 	"framework/env"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis"
 	"os"
 	"sync"
 )
@@ -24,7 +23,7 @@ type plugin struct {
 func (p *plugin) Init() error {
 	p.redisClient = p.opts.redisClient
 	if p.redisClient == nil {
-		return errors.New("redis_sortdset client is nil\n")
+		return errors.New("redis client is nil\n")
 	}
 	return nil
 }
@@ -40,11 +39,12 @@ func (p *plugin) Connect(dns string) error {
 
 func (p *plugin) Publish(topic string, message []byte) error {
 	// encode the message
-	_, err := p.redisClient.Publish(context.TODO(), topic, message).Result()
+	_, err := p.redisClient.Publish(topic, message).Result()
 	return err
 }
+
 func (p *plugin) Subscribe(topic string, handler broker.Handler) (broker.Subscriber, error) {
-	sub := p.redisClient.Subscribe(context.TODO(), topic)
+	sub := p.redisClient.Subscribe(topic)
 
 	wg := sync.WaitGroup{}
 	subscriber := &subscriber{}
@@ -60,7 +60,7 @@ func (p *plugin) Subscribe(topic string, handler broker.Handler) (broker.Subscri
 		wg.Add(1)
 		defer wg.Done()
 		for {
-			msg, err := sub.ReceiveMessage(context.TODO())
+			msg, err := sub.ReceiveMessage()
 			if err != nil {
 				env.Logger.Log(logger.ErrorLevel, msg, err)
 				return
