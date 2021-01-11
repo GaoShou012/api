@@ -13,3 +13,6 @@ type Questions struct {
 func (m *Questions) GetTableName() string {
 	return "questions"
 }
+func (m *Questions) EnableQuestion() bool {
+	return *m.Enable
+}

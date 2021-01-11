@@ -11,3 +11,6 @@ type QuestionTypes struct {
 func (m *QuestionTypes) GetTableName() string {
 	return "question_types"
 }
+func (m *QuestionTypes) EnableQuestionType() bool {
+	return *m.Enable
+}
