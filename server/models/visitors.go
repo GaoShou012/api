@@ -1,14 +1,13 @@
-package visitors
+package models
 
 import (
 	"api/global"
-	"api/models"
 	"time"
 )
 
 //访客信息表
 type Visitors struct {
-	models.Model
+	Model
 	MerchantId *uint64
 	Username   *string
 	Nickname   *string
