@@ -117,5 +117,4 @@ func main() {
 		fmt.Println(event.Id(), string(event.Data()))
 	}
 
-
 }
