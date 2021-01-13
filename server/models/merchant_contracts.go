@@ -16,7 +16,7 @@ type MerchantsContracts struct {
 	Model
 
 	// 状态需要梳理，合同的流程，再设计出状态标记
-	State          *uint64    // 合同状态 0=作废，1=不同过审核，2=已经确认生效，3=已经顺利完成，4=中途毁约
+	State          *uint64    // 合同状态0=作废，1=审核中，2=通过审核，3=审核不通过，4=已经确认生效，5=已经顺利完成，6=中途毁约，7=逾期
 	MerchantId     *uint64    // 租户ID
 	EffectiveDate  *time.Time // 合同生效日期
 	ExpirationDate *time.Time // 合同截止日期
@@ -28,7 +28,7 @@ type MerchantsContracts struct {
 
 	ShouldPayment *float64 // 应付金额
 	RealPayment   *float64 // 实付金额
-	PaymentNote   *string  // 支付记录，租户自定义填写
+	PaymentNote   *string  // 支付备注，租户自定义填写
 
 	// 审核人员
 	ReviewerId   *uint64
@@ -71,8 +71,8 @@ func (m *MerchantsContracts) Create(
 }
 
 // 审核合同
-func (m *MerchantsContracts) Review(id uint64, reviewerId uint64, reviewerName string, reviewerNote string) error {
-	state := uint64(MerchantsContractStateReviewed)
+func (m *MerchantsContracts) review(id uint64, state uint64, reviewerId uint64, reviewerName string, reviewerNote string) error {
+	//state := uint64(MerchantsContractStateReviewed)
 	reviewerTime := time.Now()
 	i := &MerchantsContracts{
 		Model:          Model{},
@@ -101,6 +101,20 @@ func (m *MerchantsContracts) Review(id uint64, reviewerId uint64, reviewerName s
 	return nil
 }
 
+func (m *MerchantsContracts) GenReviewer(state uint64, reviewerId uint64, reviewerName string, reviewerNote string) interface{} {
+	var args []interface{}
+	args = append(args, state, reviewerId, reviewerName, reviewerNote)
+	return args
+}
+
+func (m *MerchantsContracts) Review(id uint64, args ...interface{}) error {
+	state := args[0].(uint64)
+	reviewerId := args[1].(uint64)
+	reviewName := args[2].(string)
+	reviewerNote := args[3].(string)
+	return m.review(id, state, reviewerId, reviewName, reviewerNote)
+}
+
 // 支付
 func (m *MerchantsContracts) Payment(id uint64, realPayment float64, paymentNote string) error {
 	i := &MerchantsContracts{
@@ -127,5 +141,10 @@ func (m *MerchantsContracts) Payment(id uint64, realPayment float64, paymentNote
 	if res.RowsAffected == 0 {
 		return fmt.Errorf("支付失败")
 	}
+	return nil
+}
+
+// 作废合同，无效合同
+func (m *MerchantsContracts) Invalid(id uint64, args ...interface{}) error {
 	return nil
 }

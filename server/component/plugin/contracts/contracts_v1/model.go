@@ -15,7 +15,8 @@ type CustomerModel interface {
 type ContractModel interface {
 	GetTableName() string
 	GetContractLife() (time.Time, time.Time)
-	Invalid(id uint64) error
+	Invalid(id uint64, args ...interface{}) error
+	Review(id uint64, args ...interface{}) error
 	EffectiveWithTx(tx *gorm.DB, id uint64) error
 	TerminateWithTx(tx *gorm.DB, id uint64) error
 }

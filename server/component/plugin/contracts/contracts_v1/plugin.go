@@ -26,7 +26,7 @@ func (p *plugin) Create(contract contracts.Contract) error {
 }
 
 func (p *plugin) Review(id uint64, args ...interface{}) error {
-	panic("implement me")
+	return p.opts.contractModel.Review(id, args...)
 }
 
 func (p *plugin) Effective(contractId uint64, args ...interface{}) error {
@@ -77,7 +77,7 @@ func (p *plugin) Effective(contractId uint64, args ...interface{}) error {
 }
 
 func (p *plugin) Invalid(contractId uint64, args ...interface{}) error {
-	return p.opts.contractModel.Invalid(contractId)
+	return p.opts.contractModel.Invalid(contractId, args...)
 }
 
 func (p *plugin) Terminate(contractId uint64, args ...interface{}) error {
