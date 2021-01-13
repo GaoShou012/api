@@ -3,11 +3,11 @@ package stream
 type Stream interface {
 	Init() error
 	Connect(dns string) error
+	Delete(topic string) error
 	Push(topic string, message []byte) (string, error)
 	Pull(topic string, lastMessageId string, count uint64) ([]Event, error)
 	RevPull(topic string, lastMessageId string, count uint64) ([]Event, error)
 	PullById(topic string, messageId string) (Event, error)
-	Delete(topic string) error
 	Subscribe(topic string, handler Handler) (Subscriber, error)
 }
 

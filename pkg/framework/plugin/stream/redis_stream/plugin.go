@@ -15,11 +15,6 @@ type plugin struct {
 	opts *Options
 }
 
-func (p *plugin) Delete(topic string) error {
-	_, err := p.opts.redisClient.Del(topic).Result()
-	return err
-}
-
 func (p *plugin) Init() error {
 	return nil
 }
@@ -31,6 +26,11 @@ func (p *plugin) Connect(dns string) error {
 	}
 	p.opts.redisClient = client
 	return nil
+}
+
+func (p *plugin) Delete(topic string) error {
+	_, err := p.opts.redisClient.Del(topic).Result()
+	return err
 }
 
 func (p *plugin) Push(topic string, message []byte) (string, error) {

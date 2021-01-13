@@ -1,87 +1,86 @@
 package robot
 
 import (
+	"cs/env"
+	"encoding/json"
 	"fmt"
 	"framework/class/broker"
-	lib_countdown "framework/libs/countdown"
 )
-
-type EventOfSessionStateChange struct {
-	SessionId    string
-	SessionState SessionState
-}
 
 type Robot struct {
 	broker.Broker
-	lib_countdown.Countdown
 	Callback
-	sessionState map[string]SessionState
+	sessionStage map[string]SessionStage
 	forwardEvent chan Event
+	services     []Service
 }
 
-func Init() {
-
+func (p *Robot) GetSessionStage(sessionId string) SessionStage {
+	return p.sessionStage[sessionId]
+}
+func (p *Robot) SetSessionStage(sessionId string, stage SessionStage) {
+	p.sessionStage[sessionId] = stage
 }
 
-func Run() {
-
+func (p *Robot) Forward(evt Event, stage SessionStage) {
+	p.SetSessionStage(evt.GetSessionId(), stage)
+	p.OnEvent(evt)
 }
 
-func OnEvent(event Event) error {
-
+func (p *Robot) OnEntry(evt Event) {
+	p.SetSessionStage(evt.GetSessionId(), SessionStageStarting)
+	AgentOfStartingService.OnEntry(evt)
 }
 
-func (r *Robot) PushEvent(evt Event) error {
-	data, err := encodeEvent(evt)
-	if err != nil {
-		return err
-	}
-
-	if err := r.Broker.Publish("robot", data); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *Robot) OnEvent(evt Event) error {
-	state, ok := GetSessionState(evt.SessionId())
-	if !ok {
-		state = SessionStateStartingService
-		SetSessionState(evt.SessionId(), state)
-	}
-
-	switch state {
-	case SessionStateStartingService:
-		if err := StartingServiceAgent.OnEvent(evt); err != nil {
-			return err
-		}
+func (p *Robot) OnEvent(evt Event) {
+	switch p.GetSessionStage(evt.GetSessionId()) {
+	case SessionStageStarting:
+		AgentOfStartingService.OnEvent(evt)
 		break
-	case SessionStateRobotService:
-		if err := RobotServiceAgent.OnEvent(evt); err != nil {
-			return err
-		}
+	case SessionStageRobotServicing:
+		AgentOfRobotServicing.OnEvent(evt)
 		break
-	case SessionStateHumanService:
+	case SessionStageHumanServicing:
+		AgentOfHumanServicing.OnEvent(evt)
 		break
-	case SessionStateRating:
+	case SessionStageRating:
+		AgentOfRating.OnEvent(evt)
 		break
-	case SessionStateStopping:
+	case SessionStageStopping:
+		AgentOfStoppingService.OnEvent(evt)
 		break
 	default:
-		return fmt.Errorf("未知的会话阶段")
+		err := fmt.Errorf("未知的会话阶段")
+		env.Logger.Error(err)
+		break
 	}
-	return nil
 }
 
-func (r *Robot) Handler() {
-	r.Broker.Subscribe("robot", func(evt broker.Event) error {
-		defer evt.Ack()
-		robotEvt, err := decodeEvent(evt.Message())
+func (p *Robot) Push(eventType EventType, sessionId string, merchantCode string, data []byte) error {
+	robotEvent := &event{
+		T: eventType,
+		D: data,
+		S: sessionId,
+		M: merchantCode,
+	}
+
+	{
+		j, err := json.Marshal(robotEvent)
 		if err != nil {
 			return err
 		}
-		r.OnEvent(robotEvt)
+		return p.Broker.Publish("Robot", j)
+	}
+}
+
+func (p *Robot) Handler() {
+	p.Broker.Subscribe("Robot", func(evt broker.Event) error {
+		defer evt.Ack()
+		robotEvent := &event{}
+		if err := json.Unmarshal(evt.Message(), robotEvent); err != nil {
+			return err
+		}
+		p.OnEvent(robotEvent)
 		return nil
 	})
 }

@@ -1,22 +1,21 @@
-package api_adapter
+package menu_adapter
 
 import (
 	"framework/class/rbac"
-	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 )
 
 type Options struct {
-	model       rbac.Api
-	dbMaster    *gorm.DB
-	dbSlave     *gorm.DB
-	redisClient *redis.Client
+	menuModel      rbac.Menu
+	menuGroupModel rbac.MenuGroup
+	dbMaster       *gorm.DB
+	dbSlave        *gorm.DB
 	*Callback
 }
 
 type Option func(o *Options)
 
-func New(opts ...Option) rbac.ApiAdapter {
+func New(opts ...Option) rbac.MenuAdapter {
 	options := &Options{}
 
 	for _, o := range opts {
@@ -24,7 +23,7 @@ func New(opts ...Option) rbac.ApiAdapter {
 	}
 
 	p := &plugin{
-		opts:     options,
+		opts:           options,
 	}
 	if err := p.Init(); err != nil {
 		panic(err)
@@ -32,9 +31,10 @@ func New(opts ...Option) rbac.ApiAdapter {
 	return p
 }
 
-func WithModel(model rbac.Api) Option {
+func WithModel(menuModel rbac.Menu, menuGroupModel rbac.MenuGroup) Option {
 	return func(o *Options) {
-		o.model = model
+		o.menuModel = menuModel
+		o.menuGroupModel = menuGroupModel
 	}
 }
 
@@ -42,12 +42,6 @@ func WithGorm(master *gorm.DB, slave *gorm.DB) Option {
 	return func(o *Options) {
 		o.dbMaster = master
 		o.dbSlave = slave
-	}
-}
-
-func WithRedisClient(redisClient *redis.Client) Option {
-	return func(o *Options) {
-		o.redisClient = redisClient
 	}
 }
 

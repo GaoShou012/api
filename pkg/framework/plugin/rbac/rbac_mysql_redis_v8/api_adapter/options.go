@@ -2,7 +2,7 @@ package api_adapter
 
 import (
 	"framework/class/rbac"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 )
 

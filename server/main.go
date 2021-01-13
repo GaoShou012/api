@@ -6,9 +6,9 @@ import (
 	libs_ip_location "api/libs/ip_location"
 	libs_log "api/libs/logs"
 	"api/services/admin_api"
-	"api/services/tenant_admin_api"
-	"api/services/tenant_api"
-	"api/services/tenant_customer_api"
+	"api/services/merchant_admin_api"
+	"api/services/merchant_api"
+	"api/services/merchant_visitor_api"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -86,19 +86,19 @@ func main() {
 
 	// merchant admin api service
 	{
-		httpService := tenant_admin_api.HttpService{}
+		httpService := merchant_admin_api.HttpService{}
 		httpService.Route(r)
 	}
 
 	// merchant api
 	{
-		httpService := tenant_api.HttpService{}
+		httpService := merchant_api.HttpService{}
 		httpService.Route(r)
 	}
 
 	// merchant customer api
 	{
-		httpService := tenant_customer_api.HttpService{}
+		httpService := merchant_visitor_api.HttpService{}
 		httpService.Route(r)
 	}
 

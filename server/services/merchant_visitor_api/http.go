@@ -1,4 +1,4 @@
-package tenant_api
+package merchant_visitor_api
 
 import (
 	"github.com/gin-gonic/gin"
@@ -32,4 +32,3 @@ func (r *HttpService) Cors() gin.HandlerFunc {
 
 func (r *HttpService) Route(engine *gin.Engine) {
 }
-

@@ -1,21 +1,11 @@
 package robot
 
-var sessionState map[string]SessionState
-
-type SessionState int8
+type SessionStage int8
 
 const (
-	SessionStateStartingService SessionState = iota
-	SessionStateRobotService
-	SessionStateHumanService
-	SessionStateRating
-	SessionStateStopping
+	SessionStageStarting SessionStage = iota
+	SessionStageRobotServicing
+	SessionStageHumanServicing
+	SessionStageRating
+	SessionStageStopping
 )
-
-func SetSessionState(sessionId string, state SessionState) {
-	sessionState[sessionId] = state
-}
-func GetSessionState(sessionId string) (SessionState, bool) {
-	state, ok := sessionState[sessionId]
-	return state, ok
-}

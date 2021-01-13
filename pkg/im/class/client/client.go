@@ -2,6 +2,9 @@ package client
 
 type Client interface {
 
+	// 清空消息流
+	Delete(uuid string) error
+
 	// 发送事件
 	Push(uuid string, message []byte) (messageId string, err error)
 
@@ -13,9 +16,6 @@ type Client interface {
 
 	// 根据消息ID，拉取事件
 	PullById(uuid string, messageId string) (Event, error)
-
-	// 清空消息流
-	Delete(uuid string) error
 
 	// 客户端订阅频道
 	Subscribe(uuid string, topic string) error
