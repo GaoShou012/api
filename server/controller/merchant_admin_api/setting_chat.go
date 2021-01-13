@@ -17,6 +17,7 @@ func (c *SettingChat) Create(ctx *gin.Context) {
 	var params struct {
 		AssignRule          int
 		IsAssignLastService bool
+		RobotEnable         bool
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -25,6 +26,7 @@ func (c *SettingChat) Create(ctx *gin.Context) {
 	settingChat := &models.SettingChats{
 		AssignRule:          &params.AssignRule,
 		IsAssignLastService: &params.IsAssignLastService,
+		RobotEnable:         &params.RobotEnable,
 	}
 	res := global.DBMaster.Table(settingChat.GetTableName()).Create(settingChat)
 	if res.Error != nil {
@@ -39,6 +41,7 @@ func (c *SettingChat) Update(ctx *gin.Context) {
 		Id                  uint64
 		AssignRule          int
 		IsAssignLastService bool
+		RobotEnable         bool
 	}
 	if err := ctx.BindJSON(&params); err != nil {
 		libs_http.RspState(ctx, 1, err)
@@ -48,6 +51,8 @@ func (c *SettingChat) Update(ctx *gin.Context) {
 	settingChat.Id = &params.Id
 	settingChat.IsAssignLastService = &params.IsAssignLastService
 	settingChat.AssignRule = &params.AssignRule
+	settingChat.RobotEnable = &params.RobotEnable
+
 	res := global.DBMaster.Table(settingChat.GetTableName()).Update(&settingChat)
 	if res.Error != nil {
 		libs_http.RspState(ctx, 1, res.Error)
