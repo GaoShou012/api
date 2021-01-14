@@ -1,0 +1,20 @@
+rbac_menu_group:
+  - name: 菜单与权限
+    icon: icon
+    desc: desc
+    rbac_menu:
+      - name: 角色管理
+        code: role
+        sort: 1
+        icon: icon
+        desc: desc
+      - name: 菜单管理
+        code: menu
+        sort: 2
+        icon: icon
+        desc: desc
+      - name: 接口管理
+        code: api
+        sort: 4
+        icon: icon
+        desc: desc
