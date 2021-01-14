@@ -1,0 +1,58 @@
+rbac_api:
+  #登陆&验证
+  - method: POST
+    path: /login
+  - method: POST
+    path: /register
+  - method: GET
+    path: /auth_code
+  - method: GET
+    path: /logout
+  #操作者
+  - method: GET
+    path: /operateor/info
+  #RBAC API
+  - method: POST
+    path: /rbac/api/create
+  - method: POST
+    path: /rbac/api/update
+  - method: GET
+    path: /rbac/api/delete
+  # RBAC Menu
+  - method: POST
+    path: /rbac/menu/create
+  - method: POST
+    path: /rbac/menu/update
+  - method: GET
+    path: /rbac/menu/delete
+  - method: POST
+  #RBAC Role
+    path: /rbac/role/create
+  - method: POST
+    path: /rbac/role/update
+  - method: GET
+    path: /rbac/role/delete
+  - method: GET
+    path: /rbac/role/select
+  #RBAC MenuGroup
+  - method: POST
+    path: /rbac/menu_group/create
+  - method: POST
+    path: /rbac/menu_group/update
+  - method: GET
+    path: /rbac/menu_group/delete
+  #RBAC Role Assoc API
+  - method: POST
+    path: /rbac/role_assoc_api/create
+  - method: GET
+    path: /rbac/role_assoc_api/delete
+  #RBAC Role Assoc MenuGroup
+  - method: POST
+    path: /rbac/role_assoc_menu_group/create
+  - method: GET
+    path: /rbac/role_assoc_menu_group/delete
+  #RBAC Role Assoc Menu
+  - method: POST
+    path: /rbac/role_assoc_menu/create
+  - method: GET
+    path: /rbac/role_assoc_menu/delete
