@@ -26,6 +26,11 @@ func init() {
 	conf := config.GetConfig()
 	conf.Load(*confPath)
 
+	// 初始化 日志
+	{
+		initialize.InitLogger()
+	}
+
 	// 初始化 ip location
 	{
 		dbPath := config.GetConfig().IpLocation.Path
@@ -53,7 +58,7 @@ func init() {
 		}
 	}
 
-	// 初始化 redis_sortdset
+	// 初始化 redis
 	{
 		conf := config.GetConfig().Redis
 		if err := initialize.InitRedis(conf); err != nil {
@@ -77,6 +82,7 @@ func main() {
 	// 初始化Gin
 	r := gin.New()
 	gin.SetMode(ginMode)
+	r.Use(initialize.MiddlewareCors())
 
 	// admin api service
 	{

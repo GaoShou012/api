@@ -95,6 +95,10 @@ func (p *plugin) SelectById(roleId uint64) (rbac.Role, error) {
 	return newModel, nil
 }
 
+func (p *plugin) SelectByPersonId(personId uint64) ([]rbac.Role, error) {
+	return p.opts.Callback.SelectByOperator(personId)
+}
+
 func (p *plugin) AssocMenuGroup(role rbac.Role, group rbac.MenuGroup) error {
 	model := p.opts.Callback.AssocMenuGroup(role, group)
 	res := p.opts.dbMaster.Table(p.opts.roleAssocMenuModel.GetTableName()).Create(model)

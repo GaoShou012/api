@@ -62,6 +62,11 @@ type RBAC interface {
 	UpdateRole(operator Operator, roleId uint64, role Role) error
 
 	/*
+		查询角色
+	*/
+	SelectRoles(operator Operator, rolesId string) ([]Role, error)
+
+	/*
 		角色关联API
 	*/
 	RoleAssocApi(operator Operator, roleId uint64, apiId uint64) error

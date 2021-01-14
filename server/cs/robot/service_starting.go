@@ -18,10 +18,6 @@ type ServiceStarting struct {
 	callback    *CallbackOfStartingService
 }
 
-func (p *ServiceStarting) OnClean(sessionId string) {
-	panic("implement me")
-}
-
 func (p *ServiceStarting) OnInit(robot *Robot, callback *Callback) error {
 	p.robot = robot
 	p.callback = callback.CallbackOfStartingService
@@ -32,6 +28,18 @@ func (p *ServiceStarting) OnInit(robot *Robot, callback *Callback) error {
 
 func (p *ServiceStarting) OnEntry(evt Event) {
 	p.robot.SetSessionStage(evt.GetSessionId(), SessionStageStarting)
+	{
+		_, ok := p.countdownS1[evt.GetSessionId()]
+		if !ok {
+			p.countdownS1[evt.GetSessionId()] = NewCountdown()
+		}
+	}
+	{
+		_, ok := p.countdownS2[evt.GetSessionId()]
+		if !ok {
+			p.countdownS2[evt.GetSessionId()] = NewCountdown()
+		}
+	}
 	p.step[evt.GetSessionId()] = 0
 	p.onEvent(evt)
 }
@@ -49,9 +57,12 @@ func (p *ServiceStarting) OnExit(evt Event) {
 			ct.Disable()
 		}
 	}
+}
 
-	delete(p.countdownS1, evt.GetSessionId())
-	delete(p.countdownS2, evt.GetSessionId())
+func (p *ServiceStarting) OnClean(sessionId string) {
+	delete(p.step, sessionId)
+	delete(p.countdownS1, sessionId)
+	delete(p.countdownS2, sessionId)
 }
 
 func (p *ServiceStarting) onCountdownEvent(event countdown.Event) {

@@ -25,13 +25,14 @@ type RoleAdapter interface {
 	DeleteRole(roleId uint64) (bool, error)
 	UpdateRole(roleId uint64, role Role) error
 	SelectById(roleId uint64) (Role, error)
+	SelectByPersonId(personId uint64) ([]Role,error)
 
 	/*
 		根据ID，查询角色&API，关联数据
 	*/
 	SelectAssocApiById(assocId uint64) (RoleAssocApi, error)
-	SelectAssocMenuById(assocId uint64) (RoleAssocMenu,error)
-	SelectAssocMenuGroupById(assocId uint64) (RoleAssocMenuGroup,error)
+	SelectAssocMenuById(assocId uint64) (RoleAssocMenu, error)
+	SelectAssocMenuGroupById(assocId uint64) (RoleAssocMenuGroup, error)
 
 	/*
 		角色关联菜单组

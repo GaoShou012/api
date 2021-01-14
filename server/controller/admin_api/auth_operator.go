@@ -56,3 +56,11 @@ func (c *Operator) GetAuthorityId() string {
 func (c *Operator) Info(ctx *gin.Context) {
 	libs_http.RspData(ctx, 0, "",GetOperator(ctx))
 }
+
+/*
+	获取操作者菜单
+	@method GET
+*/
+func (c *Operator) Menu(ctx *gin.Context){
+	
+}

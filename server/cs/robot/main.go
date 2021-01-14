@@ -22,16 +22,6 @@ func (p *Robot) SetSessionStage(sessionId string, stage SessionStage) {
 	p.sessionStage[sessionId] = stage
 }
 
-func (p *Robot) Forward(evt Event, stage SessionStage) {
-	p.SetSessionStage(evt.GetSessionId(), stage)
-	p.OnEvent(evt)
-}
-
-func (p *Robot) OnEntry(evt Event) {
-	p.SetSessionStage(evt.GetSessionId(), SessionStageStarting)
-	AgentOfStartingService.OnEntry(evt)
-}
-
 func (p *Robot) OnEvent(evt Event) {
 	switch p.GetSessionStage(evt.GetSessionId()) {
 	case SessionStageStarting:

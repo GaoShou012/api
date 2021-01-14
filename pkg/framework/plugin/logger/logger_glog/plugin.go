@@ -16,34 +16,38 @@ func (p *plugin) Init() error {
 	return nil
 }
 
-func (p *plugin) Log(lv logger.Level, v ...interface{}) error {
+func (p *plugin) log(depth int, lv logger.Level, v ...interface{}) error {
 	switch lv {
 	case logger.ErrorLevel:
-		glog.Error(v)
+		glog.ErrorDepth(depth, v)
 		break
 	case logger.WarnLevel:
-		glog.Warning(v)
+		glog.WarningDepth(depth, v)
 		break
 	case logger.InfoLevel:
-		glog.Info(v)
+		glog.InfoDepth(depth, v)
 		break
 	}
 	return nil
 }
 
+func (p *plugin) Log(lv logger.Level, v ...interface{}) error {
+	return p.log(2, lv, v)
+}
+
 func (p *plugin) Logf(lv logger.Level, format string, v ...interface{}) error {
 	err := fmt.Errorf(format, v...)
-	return p.Log(lv, err)
+	return p.log(2, lv, err)
 }
 
 func (p *plugin) Error(v ...interface{}) {
-	p.Log(logger.ErrorLevel, v...)
+	p.log(2, logger.ErrorLevel, v...)
 }
 
 func (p *plugin) Warn(v ...interface{}) {
-	p.Log(logger.WarnLevel, v...)
+	p.log(2, logger.WarnLevel, v...)
 }
 
 func (p *plugin) Info(v ...interface{}) {
-	p.Log(logger.InfoLevel, v...)
+	p.log(2, logger.InfoLevel, v...)
 }

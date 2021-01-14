@@ -1,0 +1,91 @@
+version: '3.7'
+services:
+  redis9001:
+    image: 'redis'
+    container_name: redis9001
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis-cluster/9001/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-cluster/9001/data:/data
+    ports:
+      - "9001:9001"
+      - "19001:19001"
+    environment:
+      # 设置时区为上海，否则时间会有问题
+      - TZ=Asia/Shanghai
+
+  redis9002:
+    image: 'redis'
+    container_name: redis9002
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis-cluster/9002/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-cluster/9002/data:/data
+    ports:
+      - "9002:9002"
+      - "19002:19002"
+    environment:
+      # 设置时区为上海，否则时间会有问题
+      - TZ=Asia/Shanghai
+
+  redis9003:
+    image: 'redis'
+    container_name: redis9003
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis-cluster/9003/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-cluster/9003/data:/data
+    ports:
+      - "9003:9003"
+      - "19003:19003"
+    environment:
+      # 设置时区为上海，否则时间会有问题
+      - TZ=Asia/Shanghai
+
+  redis9004:
+    image: 'redis'
+    container_name: redis9004
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis-cluster/9004/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-cluster/9004/data:/data
+    ports:
+      - "9004:9004"
+      - "19004:19004"
+    environment:
+      # 设置时区为上海，否则时间会有问题
+      - TZ=Asia/Shanghai
+
+  redis9005:
+    image: 'redis'
+    container_name: redis9005
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis-cluster/9005/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-cluster/9005/data:/data
+    ports:
+      - "9005:9005"
+      - "19005:19005"
+    environment:
+      # 设置时区为上海，否则时间会有问题
+      - TZ=Asia/Shanghai
+
+  redis9006:
+    image: 'redis'
+    container_name: redis9006
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./redis-cluster/9006/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-cluster/9006/data:/data
+    ports:
+      - "9006:9006"
+      - "19006:19006"
+    environment:
+      # 设置时区为上海，否则时间会有问题
+      - TZ=Asia/Shanghai

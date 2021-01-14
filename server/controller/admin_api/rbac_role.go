@@ -30,7 +30,6 @@ func (c *RbacRole) Create(ctx *gin.Context) {
 	libs_http.RspState(ctx, 0, "创建角色成功")
 }
 
-
 func (c *RbacRole) Update(ctx *gin.Context) {
 	var params models.RbacRole
 	if err := ctx.BindJSON(&params); err != nil {
@@ -43,12 +42,12 @@ func (c *RbacRole) Update(ctx *gin.Context) {
 		roleId := *params.Id
 		role := &params
 		if err := global.RBAC.UpdateRole(operator, roleId, role); err != nil {
-			libs_http.RspState(ctx,1,err)
+			libs_http.RspState(ctx, 1, err)
 			return
 		}
 	}
 
-	libs_http.RspState(ctx,0,"更新角色成功")
+	libs_http.RspState(ctx, 0, "更新角色成功")
 }
 
 func (c *RbacRole) Delete(ctx *gin.Context) {
@@ -75,4 +74,8 @@ func (c *RbacRole) Delete(ctx *gin.Context) {
 	}
 
 	libs_http.RspState(ctx, 0, "删除成功")
+}
+
+func (c *RbacRole) Select(ctx *gin.Context) {
+
 }

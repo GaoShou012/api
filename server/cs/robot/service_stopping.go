@@ -10,22 +10,24 @@ import (
 var _ Service = &ServiceStopping{}
 
 type ServiceStopping struct {
+	robot       *Robot
 	countdownS1 map[string]countdown.Countdown
-	*Callback
+	callback    *CallbackOfStoppingService
 }
 
-func (p *ServiceStopping) OnInit(callback *Callback) error {
+func (p *ServiceStopping) OnInit(robot *Robot, callback *Callback) error {
 	p.Callback = callback
 	p.countdownS1 = make(map[string]countdown.Countdown)
 	return nil
 }
 
 func (p *ServiceStopping) OnEntry(evt Event) {
-	SetSessionState(evt.GetSessionId(), SessionStateStopping)
+	p.robot.SetSessionStage(evt.GetSessionId(), SessionStageStopping)
+	p.callback.OnEntry(evt)
 
-	p.Callback.StoppingServiceOnEntry(evt)
-	ct := countdown_context.New()
-
+	{
+		_,ok :=
+	}
 	timeout, err := p.Callback.StoppingServiceGetTimeoutS1(evt)
 	if err != nil {
 		env.Logger.Error(err)
@@ -49,6 +51,10 @@ func (p *ServiceStopping) OnExit(evt Event) {
 	}
 
 	delete(p.countdownS1, evt.GetSessionId())
+}
+
+func (p *ServiceStopping) OnClean(sessionId string) {
+	panic("implement me")
 }
 
 func (p *ServiceStopping) OnEvent(evt Event) {
