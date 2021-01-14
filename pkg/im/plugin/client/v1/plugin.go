@@ -25,6 +25,17 @@ func (p *plugin) Init() error {
 	return nil
 }
 
+func (p *plugin) Delete(uuid string) error {
+	if _, err := p.opts.redisClient.Del(keyOfClientChannels(uuid)).Result(); err != nil {
+		return err
+	}
+
+	if err := p.opts.Stream.Delete(keyOfClientMessageStream(uuid)); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p *plugin) Push(uuid string, message []byte) (messageId string, err error) {
 	return p.opts.Stream.Push(keyOfClientMessageStream(uuid), message)
 }
@@ -61,7 +72,15 @@ func (p *plugin) Pull(uuid string, lastMessageId string, count uint64) ([]client
 }
 
 func (p *plugin) PullById(uuid string, messageId string) (client.Event, error) {
-
+	res, err := p.opts.Stream.PullById(keyOfClientMessageStream(uuid), messageId)
+	if err != nil {
+		return nil, err
+	}
+	evt := &event{
+		msgId:   res.Id(),
+		msgData: res.Message(),
+	}
+	return evt, nil
 }
 
 func (p *plugin) Subscribe(uuid string, topic string) error {

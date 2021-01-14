@@ -28,6 +28,11 @@ func (p *plugin) Connect(dns string) error {
 	return nil
 }
 
+func (p *plugin) Delete(topic string) error {
+	_, err := p.opts.redisClient.Del(topic).Result()
+	return err
+}
+
 func (p *plugin) Push(topic string, message []byte) (string, error) {
 	values := make(map[string]interface{})
 	values["Payload"] = message

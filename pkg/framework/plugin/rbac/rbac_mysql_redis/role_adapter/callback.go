@@ -4,6 +4,7 @@ import "framework/class/rbac"
 
 type Callback struct {
 	Authority
+	SelectByOperator
 	ExistsByRoleIdReqMethodAndPath
 
 	AssocApi
@@ -13,6 +14,8 @@ type Callback struct {
 
 // 验证操作者是否有权限操作角色ID
 type Authority func(operator rbac.Operator, roleId uint64) (bool, error)
+
+type SelectByOperator func(operator rbac.Operator) ([]rbac.Role,error)
 
 //
 type ExistsByRoleIdReqMethodAndPath func(roleId uint64, method string, path string) (bool, error)

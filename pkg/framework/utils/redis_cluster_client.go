@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -53,7 +54,7 @@ func RedisClusterClient(dns string) (*redis.ClusterClient, error) {
 
 	// new redis_sortdset client
 	redisClient := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:              addr,
+		Addrs:              strings.Split(addr, ","),
 		MaxRedirects:       0,
 		ReadOnly:           false,
 		RouteByLatency:     false,

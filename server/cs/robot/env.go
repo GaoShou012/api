@@ -1,7 +1,7 @@
 package robot
 
-var StartingServiceAgent *StartingService
-var RobotServiceAgent *RobotService
-
-
-var RobotAgent *Robot
+var AgentOfStartingService *ServiceStarting
+var AgentOfRobotServicing *ServiceRobot
+var AgentOfHumanServicing *ServiceHuman
+var AgentOfRating *ServiceRating
+var AgentOfStoppingService *ServiceStopping

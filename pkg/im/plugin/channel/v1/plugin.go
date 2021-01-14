@@ -194,7 +194,7 @@ func (p *plugin) Push(topic string, message []byte) (messageId string, err error
 	}
 
 	// 消息推入频道
-	messageId, err = p.opts.Stream.Push(topic, message)
+	messageId, err = p.opts.Stream.Push(keyOfChannelMessage(topic), message)
 	if err != nil {
 		return
 	}
@@ -221,9 +221,28 @@ func (p *plugin) Pull(topic string, lastMessageId string, count uint64) ([]chann
 
 	return events, nil
 }
+func (p *plugin) RevPull(topic string, lastMessageId string, count uint64) ([]channel.Event, error) {
+	res, err := p.opts.Stream.RevPull(keyOfChannelMessage(topic), lastMessageId, count)
+	if err != nil {
+		return nil, err
+	}
+
+	i := 0
+	events := make([]channel.Event, len(res))
+	for _, val := range res {
+		evt := &event{
+			msgId:   val.Id(),
+			msgData: val.Message(),
+		}
+		events[i] = evt
+		i++
+	}
+
+	return events, nil
+}
 
 func (p *plugin) PullById(topic string, messageId string) ([]byte, error) {
-	event, err := p.opts.Stream.PullById(topic, messageId)
+	event, err := p.opts.Stream.PullById(keyOfChannelMessage(topic), messageId)
 	if err != nil {
 		return nil, err
 	}

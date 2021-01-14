@@ -18,6 +18,6 @@ const (
 )
 
 type clientEventOfChannelNotice struct {
-	topic     string
-	messageId string
+	Topic     string
+	MessageId string
 }

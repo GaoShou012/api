@@ -2,6 +2,9 @@ package client
 
 type Client interface {
 
+	// 清空消息流
+	Delete(uuid string) error
+
 	// 发送事件
 	Push(uuid string, message []byte) (messageId string, err error)
 

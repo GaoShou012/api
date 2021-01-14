@@ -13,6 +13,8 @@ type plugin struct {
 	opts *Options
 }
 
+
+
 func (p *plugin) Init() error {
 	return nil
 }
@@ -150,6 +152,10 @@ func (p *plugin) UpdateRole(operator rbac.Operator, roleId uint64, role rbac.Rol
 		return errors.New("权限不足")
 	}
 	return p.opts.RoleAdapter.UpdateRole(roleId, role)
+}
+
+func (p *plugin) SelectRoleByOperator(operator rbac.Operator) ([]rbac.Role, error) {
+	panic("implement me")
 }
 
 func (p *plugin) RoleAssocApi(operator rbac.Operator, roleId uint64, apiId uint64) error {

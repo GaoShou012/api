@@ -1,13 +1,11 @@
-package tenant_api
+package initialize
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-type HttpService struct{}
-
-func (r *HttpService) Cors() gin.HandlerFunc {
+func MiddlewareCors() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//请求方法
 		method := ctx.Request.Method
@@ -24,12 +22,10 @@ func (r *HttpService) Cors() gin.HandlerFunc {
 		//放行所有OPTIONS方法
 		if method == "OPTIONS" {
 			ctx.JSON(http.StatusOK, "Options Request!")
+			return
 		}
+
 		// 处理请求
 		ctx.Next() //  处理请求
 	}
 }
-
-func (r *HttpService) Route(engine *gin.Engine) {
-}
-

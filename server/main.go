@@ -6,9 +6,9 @@ import (
 	libs_ip_location "api/libs/ip_location"
 	libs_log "api/libs/logs"
 	"api/services/admin_api"
-	"api/services/tenant_admin_api"
-	"api/services/tenant_api"
-	"api/services/tenant_customer_api"
+	"api/services/merchant_admin_api"
+	"api/services/merchant_api"
+	"api/services/merchant_visitor_api"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -25,6 +25,11 @@ func init() {
 	flag.Parse()
 	conf := config.GetConfig()
 	conf.Load(*confPath)
+
+	// 初始化 日志
+	{
+		initialize.InitLogger()
+	}
 
 	// 初始化 ip location
 	{
@@ -53,7 +58,7 @@ func init() {
 		}
 	}
 
-	// 初始化 redis_sortdset
+	// 初始化 redis
 	{
 		conf := config.GetConfig().Redis
 		if err := initialize.InitRedis(conf); err != nil {
@@ -77,6 +82,7 @@ func main() {
 	// 初始化Gin
 	r := gin.New()
 	gin.SetMode(ginMode)
+	r.Use(initialize.MiddlewareCors())
 
 	// admin api service
 	{
@@ -86,19 +92,19 @@ func main() {
 
 	// merchant admin api service
 	{
-		httpService := tenant_admin_api.HttpService{}
+		httpService := merchant_admin_api.HttpService{}
 		httpService.Route(r)
 	}
 
 	// merchant api
 	{
-		httpService := tenant_api.HttpService{}
+		httpService := merchant_api.HttpService{}
 		httpService.Route(r)
 	}
 
 	// merchant customer api
 	{
-		httpService := tenant_customer_api.HttpService{}
+		httpService := merchant_visitor_api.HttpService{}
 		httpService.Route(r)
 	}
 
