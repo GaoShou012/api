@@ -4,12 +4,12 @@ import "api/global"
 
 type RbacMenu struct {
 	Model
-	GroupId *uint64
-	Sort    *uint64
-	Name    *string
-	Code    *string
-	Icon    *string
-	Desc    *string
+	GroupId *uint64 `json:",omitempty"`
+	Sort    *uint64 `json:",omitempty"`
+	Name    *string `json:",omitempty"`
+	Code    *string `json:",omitempty"`
+	Icon    *string `json:",omitempty"`
+	Desc    *string `json:",omitempty"`
 }
 
 func (m *RbacMenu) GetTableName() string {
@@ -22,6 +22,6 @@ func (m *RbacMenu) Insert() error {
 }
 
 func (m *RbacMenu) SelectByCode(fields string, code string) error {
-	res := global.DBSlave.Table(m.GetTableName()).Select(fields).Where("code=?", code).First(m)
+	res := global.DBSlave.Table(m.GetTableName()).Select(fields).Where("`code`=?", code).First(m)
 	return res.Error
 }

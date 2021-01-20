@@ -4,6 +4,7 @@ import "github.com/gin-gonic/gin"
 
 type Callback struct {
 	Expiration
+	Error func(ctx *gin.Context, err error)
 }
 
 /*

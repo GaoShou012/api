@@ -25,7 +25,11 @@ type Logger interface {
 	Init() error
 	Log(level Level, v ...interface{}) error
 	Logf(level Level, format string, v ...interface{}) error
-	Error(v ...interface{})
+	Error(v ...interface{}) Error
+
+	// 隐藏错误输出到日志，并返回错误ID信息
+	//ErrorInternal(v ...interface{}) Error
+
 	Warn(v ...interface{})
 	Info(v ...interface{})
 }

@@ -22,6 +22,20 @@ func (p *Robot) SetSessionStage(sessionId string, stage SessionStage) {
 	p.sessionStage[sessionId] = stage
 }
 
+func (p *Robot) OnInit() {
+	p.services = append(p.services, AgentOfStartingService)
+	p.services = append(p.services, AgentOfRobotServicing)
+	p.services = append(p.services, AgentOfHumanServicing)
+	p.services = append(p.services, AgentOfRating)
+	p.services = append(p.services, AgentOfStoppingService)
+}
+
+func (p *Robot) OnClean(sessionId string) {
+	for _, service := range p.services {
+		service.OnClean(sessionId)
+	}
+}
+
 func (p *Robot) OnEvent(evt Event) {
 	switch p.GetSessionStage(evt.GetSessionId()) {
 	case SessionStageStarting:

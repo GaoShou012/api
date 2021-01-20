@@ -28,34 +28,19 @@ func (p *ServiceStarting) OnInit(robot *Robot, callback *Callback) error {
 
 func (p *ServiceStarting) OnEntry(evt Event) {
 	p.robot.SetSessionStage(evt.GetSessionId(), SessionStageStarting)
-	{
-		_, ok := p.countdownS1[evt.GetSessionId()]
-		if !ok {
-			p.countdownS1[evt.GetSessionId()] = NewCountdown()
-		}
-	}
-	{
-		_, ok := p.countdownS2[evt.GetSessionId()]
-		if !ok {
-			p.countdownS2[evt.GetSessionId()] = NewCountdown()
-		}
-	}
+	p.callback.OnEntry(evt)
 	p.step[evt.GetSessionId()] = 0
 	p.onEvent(evt)
 }
 
 func (p *ServiceStarting) OnExit(evt Event) {
 	{
-		ct, ok := p.countdownS1[evt.GetSessionId()]
-		if ok {
-			ct.Disable()
-		}
+		ct := p.countdownS1[evt.GetSessionId()]
+		ct.Stop()
 	}
 	{
-		ct, ok := p.countdownS2[evt.GetSessionId()]
-		if ok {
-			ct.Disable()
-		}
+		ct := p.countdownS2[evt.GetSessionId()]
+		ct.Stop()
 	}
 }
 
@@ -76,43 +61,29 @@ Loop:
 	case 0:
 		p.callback.OnEntry(evt)
 		p.step[evt.GetSessionId()]++
+		{
+			_, ok := p.countdownS1[evt.GetSessionId()]
+			if !ok {
+				p.countdownS1[evt.GetSessionId()] = NewCountdown()
+			}
+		}
+		{
+			_, ok := p.countdownS2[evt.GetSessionId()]
+			if !ok {
+				p.countdownS2[evt.GetSessionId()] = NewCountdown()
+			}
+		}
 		goto Loop
 	case 1:
-		// 关闭所有倒计时
-		{
-			ct, ok := p.countdownS1[evt.GetSessionId()]
-			if ok {
-				ct.Disable()
-			}
-		}
-		{
-			ct, ok := p.countdownS2[evt.GetSessionId()]
-			if ok {
-				ct.Disable()
-			}
+		// 启动s1倒计时
+		timeout, err := p.callback.S1Timeout(evt.GetMerchantCode())
+		if err != nil {
+			env.Logger.Error(err)
+			return
 		}
 
-		// 创建s1倒计时
-		{
-			ct, ok := p.countdownS1[evt.GetSessionId()]
-			if !ok {
-				ct = NewCountdown()
-				p.countdownS1[evt.GetSessionId()] = ct
-			}
-		}
-
-		// 配置s1倒计时
-		{
-			timeout, err := p.callback.S1Timeout(evt.GetMerchantCode())
-			if err != nil {
-				env.Logger.Error(err)
-				return
-			}
-			ct := p.countdownS1[evt.GetSessionId()]
-			ct.Config(timeout, p.onCountdownEvent, evt)
-			ct.Enable()
-		}
-
+		ct := p.countdownS1[evt.GetSessionId()]
+		ct.New(timeout, p.onCountdownEvent, evt)
 		p.step[evt.GetSessionId()]++
 		break
 	case 2:
@@ -120,26 +91,15 @@ Loop:
 		p.step[evt.GetSessionId()]++
 		goto Loop
 	case 3:
-		// 创建s2倒计时
-		{
-			ct, ok := p.countdownS2[evt.GetSessionId()]
-			if !ok {
-				ct = NewCountdown()
-				p.countdownS2[evt.GetSessionId()] = ct
-			}
+		// 启动s2倒计时
+		timeout, err := p.callback.S2Timeout(evt.GetMerchantCode())
+		if err != nil {
+			env.Logger.Error(err)
+			return
 		}
+		ct := p.countdownS2[evt.GetSessionId()]
+		ct.New(timeout, p.onCountdownEvent, evt)
 
-		// 配置s2倒计时
-		{
-			timeout, err := p.callback.S2Timeout(evt.GetSessionId())
-			if err != nil {
-				env.Logger.Error(err)
-				return
-			}
-			ct := p.countdownS2[evt.GetSessionId()]
-			ct.Config(timeout, p.onCountdownEvent, evt)
-			ct.Enable()
-		}
 		p.step[evt.GetSessionId()]++
 		break
 	case 4:

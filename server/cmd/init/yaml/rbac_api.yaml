@@ -10,7 +10,9 @@ rbac_api:
     path: /logout
   #操作者
   - method: GET
-    path: /operateor/info
+    path: /operator/info
+  - method: GET
+    path: /operator/menu_tree
   #RBAC API
   - method: POST
     path: /rbac/api/create
@@ -26,7 +28,7 @@ rbac_api:
   - method: GET
     path: /rbac/menu/delete
   - method: POST
-  #RBAC Role
+    #RBAC Role
     path: /rbac/role/create
   - method: POST
     path: /rbac/role/update

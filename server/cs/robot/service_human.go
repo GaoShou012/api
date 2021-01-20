@@ -1,28 +1,27 @@
 package robot
 
-import (
-	"cs/env"
-	"fmt"
-)
-
 var _ Service = &ServiceHuman{}
 
-type ServiceHuman struct {}
+type ServiceHuman struct{}
+
+func (s ServiceHuman) OnInit(robot *Robot, callback *Callback) error {
+	return nil
+}
 
 func (s ServiceHuman) OnEntry(evt Event) {
-	panic("implement me")
 }
 
 func (s ServiceHuman) OnExit(evt Event) {
-	panic("implement me")
+}
+
+func (s ServiceHuman) OnClean(sessionId string) {
 }
 
 func (s ServiceRating) OnEvent(evt Event) {
-	switch evt.GetType() {
-	default:
-		err := fmt.Errorf("未知的事件类型,evt=%v", evt)
-		env.Logger.Error(err)
-		break
-	}
+	//switch evt.GetType() {
+	//default:
+	//	err := fmt.Errorf("未知的事件类型,evt=%v", evt)
+	//	env.Logger.Error(err)
+	//	break
+	//}
 }
-
