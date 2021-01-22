@@ -14,6 +14,7 @@ type Error interface {
 	Line() int
 
 	V() interface{}
+	PushV(v interface{})
 
 	// 输出错误信息
 	Error() string

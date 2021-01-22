@@ -13,7 +13,7 @@ type Error struct {
 	id       string
 	fileName string
 	line     int
-	v        interface{}
+	v        []interface{}
 }
 
 func (e *Error) Time() string {
@@ -35,7 +35,10 @@ func (e *Error) Line() int {
 func (e *Error) V() interface{} {
 	return e.v
 }
+func (e *Error) PushV(v interface{}) {
+	e.v = append(e.v, v)
+}
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("系统内部错误ID:%s", e.id)
+	return fmt.Sprint("错误ID:", e.id, e.v)
 }

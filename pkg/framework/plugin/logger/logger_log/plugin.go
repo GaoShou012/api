@@ -32,6 +32,30 @@ func (p *plugin) Logf(lv logger.Level, format string, v ...interface{}) error {
 func (p *plugin) Error(v ...interface{}) logger.Error {
 	err, ok := v[0].(logger.Error)
 	if ok {
+		if len(v) > 1 {
+			for _, val := range v {
+				err.PushV(val)
+			}
+		}
+	} else {
+		_, filename, line, _ := runtime.Caller(1)
+		e := &Error{
+			t:        time.Time{},
+			id:       uuid.NewV4().String(),
+			fileName: filename,
+			line:     line,
+			v:        make([]interface{}, 0),
+		}
+		err = e
+		fmt.Printf("%s:%s,Id:%s\n%s,%d\nerr=%v\n", logger.ErrorLevel, err.Time(), err.Id(), err.Filename(), err.Line(), err.V())
+	}
+
+	return err
+}
+
+func (p *plugin) Error1(v ...interface{}) logger.Error {
+	err, ok := v[0].(logger.Error)
+	if ok {
 		return err
 	}
 	_, filename, line, _ := runtime.Caller(1)

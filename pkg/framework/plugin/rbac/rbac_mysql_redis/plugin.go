@@ -20,6 +20,13 @@ func (p *plugin) Init() error {
 }
 
 func (p *plugin) CreateApi(operator rbac.Operator, api rbac.Api) error {
+	exists, err := p.opts.ApiAdapter.ExistsBydMethodAndPath(operator, api.GetMethod(), api.GetPath())
+	if err != nil {
+		return env.Logger.Error(err)
+	}
+	if exists {
+		return fmt.Errorf("API请求已经存在，不能重复创建")
+	}
 	return p.opts.ApiAdapter.Create(api)
 }
 
@@ -392,7 +399,7 @@ func (p *plugin) RoleDisassociateMenuGroup(operator rbac.Operator, assocId uint6
 func (p *plugin) Enforcer(operator rbac.Operator, roles string, method string, path string) error {
 	api, err := p.opts.ApiAdapter.SelectByMethodAndPath(operator, method, path)
 	if err != nil {
-		return env.Logger.Error("查询API失败", method, path, err)
+		return env.Logger.Error(err,"查询API失败")
 	}
 	if api == nil {
 		return fmt.Errorf("API不存在")

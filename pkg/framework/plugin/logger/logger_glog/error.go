@@ -16,6 +16,10 @@ type Error struct {
 	v        interface{}
 }
 
+func (e *Error) PushV(v interface{}) {
+	panic("implement me")
+}
+
 func (e *Error) Time() string {
 	return e.t.Format(time.RFC3339)
 }

@@ -3,6 +3,7 @@ package initialize
 import (
 	"api/global"
 	"api/models"
+	"fmt"
 	"framework/class/rbac"
 	"framework/plugin/rbac/rbac_mysql_redis"
 	"framework/plugin/rbac/rbac_mysql_redis/api_adapter"
@@ -18,6 +19,20 @@ func InitRBAC() {
 	{
 		callback := &api_adapter.Callback{
 			Authority: nil,
+			ExistsByMethodAndPath: func(operator rbac.Operator, method string, path string) (bool, error) {
+				count := 0
+				model := &models.RbacApi{}
+				res := global.DBSlave.Table(model.GetTableName()).Where("method = ? and path = ?", method, path).Count(&count)
+				if res.Error != nil {
+					global.Logger.Error(res.Error)
+					return false, fmt.Errorf("查询API的方法路径是否存在时，发生错误")
+				}
+				if count == 1 {
+					return true, nil
+				} else {
+					return false, nil
+				}
+			},
 			SelectByMethodAndPathForAuthority: func(operator rbac.Operator, method string, path string) (rbac.Api, error) {
 				model := &models.RbacApi{
 					Model:  models.Model{},

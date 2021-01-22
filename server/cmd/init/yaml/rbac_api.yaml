@@ -20,6 +20,8 @@ rbac_api:
     path: /rbac/api/update
   - method: GET
     path: /rbac/api/delete
+  - method: GET
+    path: /rbac/api/select
   # RBAC Menu
   - method: POST
     path: /rbac/menu/create

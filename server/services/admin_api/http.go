@@ -50,6 +50,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.POST("/rbac/api/create", c.Create)
 		authenticated.POST("/rbac/api/update", c.Update)
 		authenticated.GET("/rbac/api/delete", c.Delete)
+		authenticated.GET("/rbac/api/select", c.Select)
 	}
 
 	// RBAC Menu

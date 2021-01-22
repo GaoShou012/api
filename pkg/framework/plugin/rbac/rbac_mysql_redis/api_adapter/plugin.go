@@ -47,6 +47,10 @@ func (p *plugin) Update(apiId uint64, api rbac.Api) error {
 	return res.Error
 }
 
+func (p *plugin) ExistsBydMethodAndPath(operator rbac.Operator, method string, path string) (bool, error) {
+	return p.opts.ExistsByMethodAndPath(operator, method, path)
+}
+
 func (p *plugin) SelectById(apiId uint64) (rbac.Api, error) {
 	newModel := lib_model.New(p.opts.model).(rbac.Api)
 	res := p.opts.dbSlave.Table(p.opts.model.GetTableName()).Where("id=?", apiId).Find(newModel)
