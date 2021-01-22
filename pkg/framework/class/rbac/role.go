@@ -68,5 +68,10 @@ type RoleAdapter interface {
 	/*
 		角色是否存在API
 	*/
-	EnforcerApi(roleId uint64, method string, path string) (bool, error)
+	//EnforcerApi(roleId uint64, method string, path string) (bool, error)
+
+	/*
+		角色校验API权限
+	*/
+	EnforcerApi(roleId uint64,apiId uint64) bool
 }

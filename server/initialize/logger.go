@@ -2,10 +2,9 @@ package initialize
 
 import (
 	"api/global"
-	"framework/plugin/logger/logger_glog"
+	"framework/env"
 )
 
 func InitLogger() {
-	logger := logger_glog.New()
-	global.Logger = logger
+	global.Logger = env.Logger
 }

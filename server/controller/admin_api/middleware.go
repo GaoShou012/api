@@ -27,6 +27,9 @@ func InitOperatorContext() {
 		Expiration: middleware_gin_redis.Expiration(func(ctx *gin.Context) {
 			libs_http.RspAuthFailed(ctx, 1, "登陆已经过期")
 		}),
+		Error: func(ctx *gin.Context, err error) {
+			libs_http.RspAuthFailed(ctx, 1, err)
+		},
 	}
 	OperatorContext = middleware_gin_redis.New(
 		middleware_gin_redis.WithModel(&Operator{}),

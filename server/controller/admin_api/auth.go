@@ -68,9 +68,9 @@ func (c *Auth) Register(ctx *gin.Context) {
 
 		admin = &models.Admins{
 			//Id:        nil,
-			Enable:   &params.Enable,
-			State:    &params.State,
-			UserType: &params.UserType,
+			Enable: &params.Enable,
+			//State:    &params.State,
+			//UserType: &params.UserType,
 			Username: &params.Username,
 			Password: &encryptPassword,
 			Nickname: &params.Nickname,
@@ -88,8 +88,8 @@ func (c *Auth) Register(ctx *gin.Context) {
 	{
 		// TODO 赋值相应的数据
 		operator := &Operator{
-			UserId:    *admin.Id,
-			UserType:  *admin.UserType,
+			UserId: *admin.Id,
+			//UserType:  *admin.UserType,
 			Username:  *admin.Username,
 			Nickname:  *admin.Nickname,
 			LoginTime: time.Now(),
@@ -134,9 +134,14 @@ func (c *Auth) Login(ctx *gin.Context) {
 			libs_http.RspState(ctx, 1, err)
 			return
 		}
-		//验证密码
+		// 验证密码
 		if err := bcrypt.CompareHashAndPassword([]byte(*admin.Password), []byte(params.Password)); err != nil {
 			libs_http.RspState(ctx, 1, "密码错误")
+			return
+		}
+		// 判断用户是否生效
+		if *admin.Enable != true {
+			libs_http.RspState(ctx, 1, "账号已经禁用")
 			return
 		}
 	}
@@ -146,9 +151,9 @@ func (c *Auth) Login(ctx *gin.Context) {
 		// TODO 赋值相应的数据
 		operator := &Operator{
 			UserId:    *admin.Id,
-			UserType:  *admin.UserType,
 			Username:  *admin.Username,
 			Nickname:  *admin.Nickname,
+			Roles:     *admin.Roles,
 			LoginTime: time.Now(),
 		}
 

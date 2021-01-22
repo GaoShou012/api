@@ -32,6 +32,16 @@ type RBAC interface {
 	UpdateMenu(operator Operator, menuId uint64, menu Menu) error
 
 	/*
+		查询菜单
+	*/
+	SelectMenuWithFieldsByMenuGroupId(operator Operator, menuGroupId uint64, fields string, out interface{}) error
+
+	/*
+		查询菜单，多项
+	*/
+	SelectMenuWithFieldsByRoleIdMulti(operator Operator, roleIdMulti []uint64, fields string, out interface{}) error
+
+	/*
 		创建菜单组
 	*/
 	CreateMenuGroup(operator Operator, group MenuGroup) error
@@ -45,6 +55,11 @@ type RBAC interface {
 		更新菜单组
 	*/
 	UpdateMenuGroup(operator Operator, menuGroupId uint64, group MenuGroup) error
+
+	/*
+		查询菜单组 多项，并规定读取字段
+	*/
+	SelectMenuGroupWithFieldsByRoleIdMulti(operator Operator, roleIdMulti []uint64, fields string, out interface{}) error
 
 	/*
 		创建角色
@@ -64,7 +79,7 @@ type RBAC interface {
 	/*
 		查询角色
 	*/
-	SelectRoles(operator Operator, rolesId string) ([]Role, error)
+	//SelectRoles(operator Operator, rolesId string) ([]Role, error)
 
 	/*
 		角色关联API
@@ -99,5 +114,5 @@ type RBAC interface {
 	/*
 		权限判断
 	*/
-	Enforcer(authorityId string, method string, path string) (bool, error)
+	Enforcer(operator Operator, rolesId string, method string, path string) error
 }

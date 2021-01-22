@@ -1,0 +1,5 @@
+rbac_role:
+  - name: 超级管理员
+    enable: true
+    desc: 系统初始化时创建
+    icon: ''

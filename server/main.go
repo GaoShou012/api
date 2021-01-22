@@ -80,7 +80,7 @@ func main() {
 	ginPort := config.GetConfig().Base.GinPort
 
 	// 初始化Gin
-	r := gin.New()
+	r := gin.Default()
 	gin.SetMode(ginMode)
 	r.Use(initialize.MiddlewareCors())
 

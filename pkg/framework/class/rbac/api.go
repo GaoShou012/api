@@ -2,6 +2,10 @@ package rbac
 
 type Api interface {
 	Model
+	GetId() uint64
+	GetEnable() bool
+	GetMethod() string
+	GetPath() string
 }
 
 type ApiAdapter interface {
@@ -16,6 +20,9 @@ type ApiAdapter interface {
 	Delete(apiId uint64) (bool, error)
 	Update(apiId uint64, api Api) error
 	SelectById(apiId uint64) (Api, error)
+	ExistsBydMethodAndPath(operator Operator, method string, path string) (bool, error)
+
+	SelectByMethodAndPath(operator Operator, method string, path string) (Api, error)
 
 	/*
 		根据ID，查询API

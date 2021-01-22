@@ -10,7 +10,7 @@ import (
 var _ rbac.ApiAdapter = &plugin{}
 
 type plugin struct {
-	opts     *Options
+	opts *Options
 }
 
 func (p *plugin) Init() error {
@@ -47,6 +47,10 @@ func (p *plugin) Update(apiId uint64, api rbac.Api) error {
 	return res.Error
 }
 
+func (p *plugin) ExistsBydMethodAndPath(operator rbac.Operator, method string, path string) (bool, error) {
+	return p.opts.ExistsByMethodAndPath(operator, method, path)
+}
+
 func (p *plugin) SelectById(apiId uint64) (rbac.Api, error) {
 	newModel := lib_model.New(p.opts.model).(rbac.Api)
 	res := p.opts.dbSlave.Table(p.opts.model.GetTableName()).Where("id=?", apiId).Find(newModel)
@@ -54,6 +58,10 @@ func (p *plugin) SelectById(apiId uint64) (rbac.Api, error) {
 		return nil, res.Error
 	}
 	return newModel, nil
+}
+
+func (p *plugin) SelectByMethodAndPath(operator rbac.Operator, method string, path string) (rbac.Api, error) {
+	return p.opts.Callback.SelectByMethodAndPathForAuthority(operator, method, path)
 }
 
 func (p *plugin) FindById(operator rbac.Operator, apiId uint64, api rbac.Api) error {
