@@ -81,12 +81,12 @@ func TestAdmins(t *testing.T) {
 			Icon  string
 		}
 		type pathList struct {
-			Path string
+			Path   string
 			Method string
 		}
 		type menuList struct {
-			Name string
-			Icon string
+			Name     string
+			Icon     string
 			PathList []pathList
 		}
 		type list struct {
@@ -98,27 +98,27 @@ func TestAdmins(t *testing.T) {
 			menuListData := list{}
 			menuListData.MenuGroup.Group = *mg.GroupName
 			temp := menuList{}
-			for _,m := range *menu{
-				if *mg.Id == *m.GroupId{
+			for _, m := range *menu {
+				if *mg.Id == *m.GroupId {
 					pL := pathList{}
-					for _,ara := range *authorityRolesApi {
-						if *ara.MenuId == *m.Id{
+					for _, ara := range *authorityRolesApi {
+						if *ara.MenuId == *m.Id {
 							pL.Method = *ara.ApiMethod
 							pL.Path = *ara.ApiPath
 						}
 					}
 					temp.Name = *m.Name
 					temp.Icon = *m.Icon
-					temp.PathList = append(temp.PathList,pL)
+					temp.PathList = append(temp.PathList, pL)
 				}
 			}
-			menuListData.MenuList = append(menuListData.MenuList,temp)
-			menuData = append(menuData,menuListData)
+			menuListData.MenuList = append(menuListData.MenuList, temp)
+			menuData = append(menuData, menuListData)
 
 		}
 
-		b,err := json.Marshal(menuData)
-		if err != nil{
+		b, err := json.Marshal(menuData)
+		if err != nil {
 			panic(err)
 		}
 		fmt.Println(string(b))
