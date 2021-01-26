@@ -5,9 +5,9 @@ import (
 )
 
 type Model struct {
-	Id        *uint64
-	UpdatedAt *time.Time
-	CreatedAt *time.Time
+	Id        *uint64    `json:",omitempty"`
+	UpdatedAt *time.Time `json:",omitempty"`
+	CreatedAt *time.Time `json:",omitempty"`
 }
 
 /*

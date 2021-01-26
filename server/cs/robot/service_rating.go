@@ -9,11 +9,19 @@ var _ Service = &ServiceRating{}
 
 type ServiceRating struct{}
 
+func (s ServiceRating) OnInit(robot *Robot, callback *Callback) error {
+	panic("implement me")
+}
+
 func (s ServiceRating) OnEntry(evt Event) {
 	panic("implement me")
 }
 
 func (s ServiceRating) OnExit(evt Event) {
+	panic("implement me")
+}
+
+func (s ServiceRating) OnClean(sessionId string) {
 	panic("implement me")
 }
 

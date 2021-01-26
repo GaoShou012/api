@@ -15,6 +15,9 @@ func (m *RbacApi) GetTableName() string {
 func (m *RbacApi) GetId() uint64 {
 	return *m.Id
 }
+func (m *RbacApi) GetEnable() bool {
+	return true
+}
 func (m *RbacApi) GetMethod() string {
 	return *m.Method
 }

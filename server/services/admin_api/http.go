@@ -27,8 +27,13 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		api.GET("/auth_code", c.CodeImage)
 
 		authenticated = api
+
+		// 操作者上下文
 		authenticated.Use(controller_admin_api.OperatorContext.Parse().(gin.HandlerFunc))
 		authenticated.Use(controller_admin_api.OperatorContext.Expiration().(gin.HandlerFunc))
+		// RBAC
+		authenticated.Use((&controller_admin_api.Rbac{}).Enforcer)
+
 		authenticated.GET("/logout", c.Logout)
 	}
 
@@ -36,6 +41,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 	{
 		c := controller_admin_api.Operator{}
 		authenticated.GET("/operator/info", c.Info)
+		authenticated.GET("/operator/menu_tree", c.Menu)
 	}
 
 	// RBAC API
@@ -44,6 +50,7 @@ func (r *HttpService) Route(engine *gin.Engine) {
 		authenticated.POST("/rbac/api/create", c.Create)
 		authenticated.POST("/rbac/api/update", c.Update)
 		authenticated.GET("/rbac/api/delete", c.Delete)
+		authenticated.GET("/rbac/api/select", c.Select)
 	}
 
 	// RBAC Menu

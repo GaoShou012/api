@@ -162,6 +162,6 @@ func (p *plugin) DisassociateApi(assocId uint64) (bool, error) {
 	}
 }
 
-func (p *plugin) EnforcerApi(roleId uint64, method string, path string) (bool, error) {
-	return p.opts.Callback.ExistsByRoleIdReqMethodAndPath(roleId, method, path)
+func (p *plugin) EnforcerApi(roleId uint64, apiId uint64) bool {
+	return p.opts.Callback.IsRoleAssocApiById(roleId, apiId)
 }

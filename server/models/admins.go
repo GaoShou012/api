@@ -15,11 +15,10 @@ const (
 type Admins struct {
 	Id        *uint64    // 自增ID
 	Enable    *bool      `gorm:"default:false"` // 是否启用 0=不启用，1=启用
-	State     *uint64    `gorm:"default:0"`     // 状态 0=未初始化，1=正常，2=冻结
-	UserType  *uint64    // 用户类型 根据项目类型进行定义
 	Username  *string    // 账号
 	Password  *string    // 密码
 	Nickname  *string    // 昵称
+	Roles     *string    // 关联的角色ID，多角色使用逗号间隔
 	CreatedAt *time.Time // 创建时间
 	UpdatedAt *time.Time // 更新时间
 }

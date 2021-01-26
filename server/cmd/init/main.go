@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api/cmd/init/yaml"
 	"api/config"
 	"api/global"
 	"api/initialize"
@@ -40,18 +41,35 @@ func init() {
 
 	// 初始化 rbac
 	{
-		initialize.InitRBAC()
+		//initialize.InitRBAC()
 	}
 }
 
 func main() {
-	createSuperManager()
 	createMenus()
 	createRole()
 	createApi()
+
+	// 角色关联所有菜单
+	roleAssocMenu()
+	// 角色关联所有API
+	roleAssocApi()
+
+	// 创建管理员账号
+	// 管理员，关联超级管理员角色
+	createAdmins()
+
+	fmt.Println("执行完成")
 }
 
-func createSuperManager() {
+func createAdmins() {
+	role := models.RbacRole{}
+	if err := role.SelectByName("*", "超级管理员"); err != nil {
+		global.Logger.Error(err)
+		os.Exit(0)
+	}
+	roleId := *role.Id
+
 	model := &models.Admins{}
 	exists, err := model.IsExistsByUsername("admin")
 	if err != nil {
@@ -63,23 +81,21 @@ func createSuperManager() {
 	}
 
 	enable := true
-	state := uint64(1)
-	userType := uint64(models.AdminsUserTypeSuperManager)
 	username := "admin"
-	nickname := "超级管理员"
+	nickname := "管理员"
 	password := "123456"
 	passwordEncrypted, err := model.EncryptPassword(password)
+	roles := fmt.Sprintf("%d", roleId)
 	if err != nil {
 		panic(err)
 	}
 	admin := &models.Admins{
 		Id:        nil,
 		Enable:    &enable,
-		State:     &state,
-		UserType:  &userType,
 		Username:  &username,
 		Password:  &passwordEncrypted,
 		Nickname:  &nickname,
+		Roles:     &roles,
 		CreatedAt: nil,
 		UpdatedAt: nil,
 	}
@@ -87,284 +103,136 @@ func createSuperManager() {
 	if res.Error != nil {
 		panic(res.Error)
 	}
-	fmt.Println("创建超级管理员成功")
-}
-
-func createMenus() {
-	{
-		sort := uint64(999)
-		name := "系统设置"
-		icon := ""
-		code := "system"
-		desc := "菜单，角色，权限，等等..."
-
-		group := &models.RbacMenuGroup{
-			Model: models.Model{},
-			Sort:  &sort,
-			Name:  &name,
-			Code:  &code,
-			Icon:  &icon,
-			Desc:  &desc,
-		}
-		if err := group.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
-	}
-
-	{
-		var groupId uint64
-		{
-			model := &models.RbacMenuGroup{}
-			if err := model.SelectByCode("*", "system"); err != nil {
-				panic(err)
-			}
-			groupId = *model.Id
-		}
-		{
-			sort := uint64(0)
-			name := "账号管理"
-			code := "account"
-			icon := ""
-			desc := ""
-			menu := &models.RbacMenu{
-				Model:   models.Model{},
-				GroupId: &groupId,
-				Sort:    &sort,
-				Name:    &name,
-				Code:    &code,
-				Icon:    &icon,
-				Desc:    &desc,
-			}
-			if err := menu.Insert(); err != nil {
-				global.Logger.Error(err)
-			}
-		}
-		{
-			sort := uint64(1)
-			name := "角色管理"
-			code := "role"
-			icon := ""
-			desc := ""
-			menu := &models.RbacMenu{
-				Model:   models.Model{},
-				GroupId: &groupId,
-				Sort:    &sort,
-				Name:    &name,
-				Code:    &code,
-				Icon:    &icon,
-				Desc:    &desc,
-			}
-			if err := menu.Insert(); err != nil {
-				global.Logger.Error(err)
-			}
-		}
-		{
-			sort := uint64(2)
-			name := "接口管理"
-			code := "interface"
-			icon := ""
-			desc := ""
-			menu := &models.RbacMenu{
-				Model:   models.Model{},
-				GroupId: &groupId,
-				Sort:    &sort,
-				Name:    &name,
-				Code:    &code,
-				Icon:    &icon,
-				Desc:    &desc,
-			}
-			if err := menu.Insert(); err != nil {
-				global.Logger.Error(err)
-			}
-		}
-	}
+	fmt.Println("创建管理员成功")
 }
 
 func createRole() {
-	roleId := uint64(1)
-
-	{
-		name := "超级管理员"
-		desc := "系统默认创建的超级管理员角色,角色ID必须为1"
-		icon := ""
-		role := &models.RbacRole{
-			Model: models.Model{},
-			Name:  &name,
-			Desc:  &desc,
-			Icon:  &icon,
-		}
-		if err := role.Insert(); err != nil {
-			global.Logger.Error(err)
-			os.Exit(1)
-		}
+	data, err := yaml.GetRbacRoleData()
+	if err != nil {
+		global.Logger.Error(err)
+		os.Exit(0)
 	}
-
-	{
-		menuGroup := &models.RbacMenuGroup{}
-		if err := menuGroup.SelectByCode("*", "system"); err != nil {
-			global.Logger.Error(err)
-			os.Exit(0)
-		}
-
-		model := &models.RbacRoleAssocMenuGroup{
-			Model:       models.Model{},
-			RoleId:      &roleId,
-			MenuGroupId: menuGroup.Id,
-		}
-		if err := model.Insert(); err != nil {
+	for _, row := range data.RbacRole {
+		if err := row.Insert(); err != nil {
 			global.Logger.Error(err)
 		}
 	}
+}
 
-	{
-		menu := &models.RbacMenu{}
-		if err := menu.SelectByCode("*", "account"); err != nil {
-			global.Logger.Error(err)
-			os.Exit(0)
-		}
-
-		model := &models.RbacRoleAssocMenu{
-			Model:  models.Model{},
-			RoleId: &roleId,
-			MenuId: menu.Id,
-		}
-		if err := model.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
+func createMenus() {
+	data, err := yaml.GetRbacMenuData()
+	if err != nil {
+		global.Logger.Error(err)
+		return
 	}
 
-	{
-		menu := &models.RbacMenu{}
-		if err := menu.SelectByCode("*", "role"); err != nil {
+	for _, row := range data.RbacMenus {
+		group := row.Group
+		if err := group.Insert(); err != nil {
 			global.Logger.Error(err)
-			os.Exit(0)
+		}
+		if err := group.SelectByName("*", *group.Name); err != nil {
+			global.Logger.Error(err)
+			return
 		}
 
-		model := &models.RbacRoleAssocMenu{
-			Model:  models.Model{},
-			RoleId: &roleId,
-			MenuId: menu.Id,
-		}
-		if err := model.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
-	}
+		for _, menu := range row.Menus {
+			menu.GroupId = group.Id
+			if err := menu.Insert(); err != nil {
+				global.Logger.Error(err)
+			}
 
-	{
-		menu := &models.RbacMenu{}
-		if err := menu.SelectByCode("*", "interface"); err != nil {
-			global.Logger.Error(err)
-			os.Exit(0)
-		}
-
-		model := &models.RbacRoleAssocMenu{
-			Model:  models.Model{},
-			RoleId: &roleId,
-			MenuId: menu.Id,
-		}
-		if err := model.Insert(); err != nil {
-			global.Logger.Error(err)
+			if err := menu.SelectByCode("*", *menu.Code); err != nil {
+				global.Logger.Error(err)
+				continue
+			}
 		}
 	}
 }
 
 func createApi() {
-	prefix := "/admin/v1"
-	{
-		method := "POST"
-		path := fmt.Sprintf("%s/login",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
-		}
-		if err := api.Insert(); err != nil {
+	prefix := "/admin/api/v1"
+
+	data, err := yaml.GetRbacApiData()
+	if err != nil {
+		global.Logger.Error(err)
+		return
+	}
+
+	for _, row := range data.RbacApi {
+		path := fmt.Sprintf("%s%s", prefix, *row.Path)
+		row.Path = &path
+		if err := row.Insert(); err != nil {
 			global.Logger.Error(err)
 		}
 	}
-	{
-		method := "GET"
-		path := fmt.Sprintf("%s/logout",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
-		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
+}
+
+func roleAssocApi() {
+	role := models.RbacRole{}
+	if err := role.SelectByName("*", "超级管理员"); err != nil {
+		global.Logger.Error(err)
+		os.Exit(0)
 	}
-	{
-		method := "GET"
-		path := fmt.Sprintf("%s/auth_code",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
-		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
+	roleId := *role.Id
+
+	apis := make([]models.RbacApi, 0)
+	res := global.DBSlave.Table((&models.RbacApi{}).GetTableName()).Find(&apis)
+	if res.Error != nil {
+		global.Logger.Error(res.Error)
+		return
 	}
-	{
-		method := "POST"
-		path := fmt.Sprintf("%s/login",prefix)
-		api := &models.RbacApi{
+
+	for _, api := range apis {
+		assoc := &models.RbacRoleAssocApi{
 			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
+			RoleId: &roleId,
+			ApiId:  api.Id,
 		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
+		assoc.Insert()
 	}
-	{
-		method := "POST"
-		path := fmt.Sprintf("%s/rbac/role/create",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
-		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
+}
+func roleAssocMenu() {
+	role := models.RbacRole{}
+	if err := role.SelectByName("*", "超级管理员"); err != nil {
+		global.Logger.Error(err)
+		os.Exit(0)
 	}
+	roleId := *role.Id
+
 	{
-		method := "POST"
-		path := fmt.Sprintf("%s/rbac/role/update",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
+		rows := make([]models.RbacMenuGroup, 0)
+		res := global.DBSlave.Table((&models.RbacMenuGroup{}).GetTableName()).Find(&rows)
+		if res.Error != nil {
+			global.Logger.Error(res.Error)
+			return
 		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
-		}
-	}
-	{
-		method := "GET"
-		path := fmt.Sprintf("%s/rbac/role/select",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
-		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
+
+		for _, row := range rows {
+			assoc := &models.RbacRoleAssocMenuGroup{
+				Model:       models.Model{},
+				RoleId:      &roleId,
+				MenuGroupId: row.Id,
+			}
+			assoc.Insert()
 		}
 	}
 
 	{
-		method := "POST"
-		path := fmt.Sprintf("%s/rbac/role/create",prefix)
-		api := &models.RbacApi{
-			Model:  models.Model{},
-			Method: &method,
-			Path:   &path,
+		rows := make([]models.RbacMenu, 0)
+		res := global.DBSlave.Table((&models.RbacMenu{}).GetTableName()).Find(&rows)
+		if res.Error != nil {
+			global.Logger.Error(res.Error)
+			return
 		}
-		if err := api.Insert(); err != nil {
-			global.Logger.Error(err)
+
+		for _, row := range rows {
+			assoc := &models.RbacRoleAssocMenu{
+				Model:  models.Model{},
+				RoleId: &roleId,
+				MenuId: row.Id,
+			}
+			assoc.Insert()
 		}
 	}
 }

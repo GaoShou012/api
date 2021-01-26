@@ -2,19 +2,20 @@ package admin_api
 
 import (
 	"api/global"
+	libs_http "api/libs/http"
 	"github.com/gin-gonic/gin"
 )
 
-type Rbac struct {
+type Rbac struct {}
 
-}
-func (c *Rbac) Menu(ctx *gin.Context){
+func (c *Rbac) Enforcer(ctx *gin.Context) {
 	operator := GetOperator(ctx)
 
-
-	// 查询所有角色
-	roles := make([]string,0)
-	{
-		global.RBAC.SelectRoleByOperator(operator)
+	roles := operator.Roles
+	method := ctx.Request.Method
+	path := ctx.Request.RequestURI
+	if err := global.RBAC.Enforcer(operator, roles, method, path); err != nil {
+		libs_http.RspAuthFailed(ctx, 1, err)
+		ctx.Abort()
 	}
 }

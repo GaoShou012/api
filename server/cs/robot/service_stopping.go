@@ -4,64 +4,72 @@ import (
 	"cs/env"
 	"fmt"
 	"framework/class/countdown"
-	countdown_context "framework/plugin/countdown"
 )
 
 var _ Service = &ServiceStopping{}
 
 type ServiceStopping struct {
 	robot       *Robot
+	step        map[string]int8
 	countdownS1 map[string]countdown.Countdown
 	callback    *CallbackOfStoppingService
 }
 
 func (p *ServiceStopping) OnInit(robot *Robot, callback *Callback) error {
-	p.Callback = callback
+	p.callback = callback.CallbackOfStoppingService
 	p.countdownS1 = make(map[string]countdown.Countdown)
 	return nil
 }
 
 func (p *ServiceStopping) OnEntry(evt Event) {
-	p.robot.SetSessionStage(evt.GetSessionId(), SessionStageStopping)
+	p.robot.SetSessionStage(evt.GetSessionId(), SessionStageStarting)
 	p.callback.OnEntry(evt)
-
-	{
-		_,ok :=
-	}
-	timeout, err := p.Callback.StoppingServiceGetTimeoutS1(evt)
-	if err != nil {
-		env.Logger.Error(err)
-		return
-	}
-	p.countdownS1[evt.GetSessionId()] = ct
-	ct.SetTimeoutCallback(timeout, func(counter uint64, args ...interface{}) {
-		evt := args[0].(Event)
-		p.Callback.StoppingServiceOnTimeoutS1(evt)
-		p.OnExit(evt)
-	}, evt)
-	ct.Enable()
+	p.step[evt.GetSessionId()] = 0
+	p.onEvent(evt)
 }
 
 func (p *ServiceStopping) OnExit(evt Event) {
 	{
-		ct, ok := p.countdownS1[evt.GetSessionId()]
-		if ok {
-			ct.Disable()
-		}
+		ct := p.countdownS1[evt.GetSessionId()]
+		ct.Stop()
 	}
-
-	delete(p.countdownS1, evt.GetSessionId())
 }
 
 func (p *ServiceStopping) OnClean(sessionId string) {
-	panic("implement me")
+	delete(p.step, sessionId)
+	delete(p.countdownS1, sessionId)
+}
+
+func (p *ServiceStopping) onCountdownEvent(event countdown.Event) {
+	evt := event.GetParams()[0].(Event)
+	p.onEvent(evt)
+}
+
+func (p *ServiceStopping) onEvent(evt Event) {
+Loop:
+	switch p.step[evt.GetSessionId()] {
+	case 0:
+		p.callback.OnEntry(evt)
+		p.step[evt.GetSessionId()]++
+		{
+			_, ok := p.countdownS1[evt.GetSessionId()]
+			if !ok {
+				p.countdownS1[evt.GetSessionId()] = NewCountdown()
+			}
+		}
+		goto Loop
+	case 1:
+		p.callback.S1TimeoutCall(evt)
+		p.OnExit(evt)
+		break
+	}
 }
 
 func (p *ServiceStopping) OnEvent(evt Event) {
 	switch evt.GetType() {
 	case EventTypeVisitorMessage:
 		p.OnExit(evt)
-		ServiceRobotAgent.OnEntry(evt)
+		AgentOfRobotServicing.onEvent(evt)
 		break
 	default:
 		err := fmt.Errorf("未知的事件类型,evt=%v", evt)

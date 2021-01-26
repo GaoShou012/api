@@ -1,15 +1,13 @@
-package countdown_context
+package countdown_ticker
 
 import (
 	"framework/class/countdown"
-	"github.com/go-redis/redis"
 	"time"
 )
 
 type Option func(o *Options)
 type Options struct {
 	timeout     time.Duration
-	redisClient *redis.Client
 }
 
 func New(opts ...Option) countdown.Countdown {

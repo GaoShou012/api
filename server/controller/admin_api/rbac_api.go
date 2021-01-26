@@ -27,9 +27,9 @@ func (c *RbacApi) Create(ctx *gin.Context) {
 
 	operator := GetOperator(ctx)
 	model := &models.RbacApi{
-		Model:    models.Model{},
-		Method:   &params.Method,
-		Path:     &params.Path,
+		Model:  models.Model{},
+		Method: &params.Method,
+		Path:   &params.Path,
 	}
 
 	if err := global.RBAC.CreateApi(operator, model); err != nil {
@@ -79,8 +79,8 @@ func (c *RbacApi) Update(ctx *gin.Context) {
 		return
 	}
 
-	if *params.Id == 0 {
-		libs_http.RspState(ctx, 1, "无效的ID")
+	if params.Id == nil {
+		libs_http.RspState(ctx, 1, "无效ID")
 		return
 	}
 
@@ -94,4 +94,24 @@ func (c *RbacApi) Update(ctx *gin.Context) {
 	}
 
 	libs_http.RspState(ctx, 0, "更新成功")
+}
+
+func (c *RbacApi) Select(ctx *gin.Context) {
+	var params struct {
+		Page uint64
+	}
+	if err := ctx.Bind(&params); err != nil {
+		libs_http.RspState(ctx, 1, global.Logger.Error(err))
+		return
+	}
+
+	model := &models.RbacApi{}
+	rows := make([]models.RbacApi, 0)
+	res := global.DBSlave.Table(model.GetTableName()).Find(&rows)
+	if res.Error != nil {
+		libs_http.RspState(ctx, 1, global.Logger.Error(res.Error))
+		return
+	}
+
+	libs_http.RspData(ctx, 0, "查询成功", rows)
 }

@@ -26,34 +26,19 @@ func (p *ServiceRobot) OnInit(robot *Robot, callback *Callback) error {
 
 func (p *ServiceRobot) OnEntry(evt Event) {
 	p.robot.SetSessionStage(evt.GetSessionId(), SessionStageRobotServicing)
-	{
-		_, ok := p.countdownS1[evt.GetSessionId()]
-		if !ok {
-			p.countdownS1[evt.GetSessionId()] = NewCountdown()
-		}
-	}
-	{
-		_, ok := p.countdownS2[evt.GetSessionId()]
-		if !ok {
-			p.countdownS2[evt.GetSessionId()] = NewCountdown()
-		}
-	}
-	p.onEvent(evt)
+	p.callback.OnEntry(evt)
 	p.step[evt.GetSessionId()] = 0
+	p.onEvent(evt)
 }
 
 func (p *ServiceRobot) OnExit(evt Event) {
 	{
-		ct, ok := p.countdownS1[evt.GetSessionId()]
-		if ok {
-			ct.Disable()
-		}
+		ct := p.countdownS1[evt.GetSessionId()]
+		ct.Stop()
 	}
 	{
-		ct, ok := p.countdownS2[evt.GetSessionId()]
-		if ok {
-			ct.Disable()
-		}
+		ct := p.countdownS2[evt.GetSessionId()]
+		ct.Stop()
 	}
 }
 
@@ -74,19 +59,28 @@ Loop:
 	case 0:
 		p.callback.OnEntry(evt)
 		p.step[evt.GetSessionId()]++
+		{
+			_, ok := p.countdownS1[evt.GetSessionId()]
+			if !ok {
+				p.countdownS1[evt.GetSessionId()] = NewCountdown()
+			}
+		}
+		{
+			_, ok := p.countdownS2[evt.GetSessionId()]
+			if !ok {
+				p.countdownS2[evt.GetSessionId()] = NewCountdown()
+			}
+		}
 		goto Loop
 	case 1:
-		// 配置s1倒计时
-		{
-			timeout, err := p.callback.S1Timeout(evt.GetMerchantCode())
-			if err != nil {
-				env.Logger.Error(err)
-				return
-			}
-			ct := p.countdownS1[evt.GetSessionId()]
-			ct.Config(timeout, p.onCountdownEvent, evt)
-			ct.Enable()
+		// 启动s1倒计时
+		timeout, err := p.callback.S1Timeout(evt.GetMerchantCode())
+		if err != nil {
+			env.Logger.Error(err)
+			return
 		}
+		ct := p.countdownS1[evt.GetSessionId()]
+		ct.New(timeout, p.onCountdownEvent, evt)
 
 		p.step[evt.GetSessionId()]++
 		break
@@ -95,17 +89,14 @@ Loop:
 		p.step[evt.GetSessionId()]++
 		goto Loop
 	case 3:
-		// 配置s2倒计时
-		{
-			timeout, err := p.callback.S2Timeout(evt.GetMerchantCode())
-			if err != nil {
-				env.Logger.Error(err)
-				return
-			}
-			ct := p.countdownS2[evt.GetSessionId()]
-			ct.Config(timeout, p.onCountdownEvent, evt)
-			ct.Enable()
+		// 启动s2倒计时
+		timeout, err := p.callback.S2Timeout(evt.GetMerchantCode())
+		if err != nil {
+			env.Logger.Error(err)
+			return
 		}
+		ct := p.countdownS2[evt.GetSessionId()]
+		ct.New(timeout, p.onCountdownEvent, evt)
 
 		p.step[evt.GetSessionId()]++
 		break

@@ -1,4 +1,4 @@
-package countdown_context
+package countdown_ticker
 
 import (
 	"context"
@@ -10,31 +10,36 @@ import (
 var _ countdown.Countdown = &plugin{}
 
 type plugin struct {
-	mutex           sync.Mutex
-	enable          bool
-	cancel          context.CancelFunc
-	counter         uint64
-	timeout         time.Duration
-	onTimeout       countdown.OnTimeout
-	onTimeoutParams interface{}
-	opts            *Options
+	mutex  sync.Mutex
+	enable bool
+	cancel context.CancelFunc
+
+	opts *Options
+
+	counter        uint64
+	ticker         *time.Ticker
+	timeout        time.Duration
+	beginTime      *time.Time
+	endTime        *time.Time
+	callback       countdown.Callback
+	callbackParams []interface{}
+}
+
+func (p *plugin) Event() countdown.Event {
+	evt := &event{
+		counter:   p.counter,
+		params:    p.callbackParams,
+		beginTime: p.beginTime,
+		endTime:   p.endTime,
+	}
+	return evt
 }
 
 func (p *plugin) Init() error {
 	return nil
 }
 
-func (p *plugin) SetTimeoutCallback(timeout time.Duration, onTimeout countdown.OnTimeout, args ...interface{}) {
-	p.timeout = timeout
-	p.onTimeout = onTimeout
-	p.onTimeoutParams = args
-}
-
-func (p *plugin) Counter() uint64 {
-	return p.counter
-}
-
-func (p *plugin) Enable() {
+func (p *plugin) New(t time.Duration, callback countdown.Callback, args ...interface{}) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -43,23 +48,45 @@ func (p *plugin) Enable() {
 	}
 	p.enable = true
 
+	if p.ticker == nil {
+		p.ticker = time.NewTicker(t)
+	} else {
+		p.ticker.Reset(t)
+	}
+
+	now := time.Now()
+	p.callback = callback
+	p.callbackParams = args
+	p.beginTime = &now
+	p.endTime = nil
+
 	go func() {
-		ctx, cancel := context.WithCancel(context.Background())
-		p.cancel = cancel
-		defer func() {
-			p.enable = false
-		}()
-		select {
-		case <-ctx.Done():
+		t, ok := <-p.ticker.C
+		if !ok {
 			return
-		case <-time.After(p.timeout):
-			p.counter++
-			p.onTimeout(p.counter, p.onTimeoutParams)
 		}
+		p.ticker.Stop()
+		p.counter++
+		p.enable = false
+		p.endTime = &t
+		evt := &event{
+			timeout:   p.timeout,
+			counter:   p.counter,
+			params:    p.callbackParams,
+			beginTime: p.beginTime,
+			endTime:   p.endTime,
+		}
+		p.callback(evt)
 	}()
 }
 
-func (p *plugin) Disable() {
+func (p *plugin) Reset() {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	p.ticker.Reset(p.timeout)
+}
+
+func (p *plugin) Stop() {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -67,5 +94,5 @@ func (p *plugin) Disable() {
 		return
 	}
 	p.enable = false
-	p.cancel()
+	p.ticker.Stop()
 }

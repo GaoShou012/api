@@ -172,7 +172,7 @@ func (p *plugin) Parse(args ...interface{}) interface{} {
 
 		// decrypt the string to the struct
 		if err := p.decrypt(p.opts.cipherKey, str, operator); err != nil {
-			env.Logger.Error(err)
+			p.opts.Callback.Error(ctx, fmt.Errorf("解析操作者上下文失败"))
 			ctx.Abort()
 			return
 		}
