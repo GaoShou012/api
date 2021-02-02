@@ -47,6 +47,7 @@ func (p *plugin) Error(v ...interface{}) logger.Error {
 			v:        make([]interface{}, 0),
 		}
 		err = e
+		err.PushV(v)
 		fmt.Printf("%s:%s,Id:%s\n%s,%d\nerr=%v\n", logger.ErrorLevel, err.Time(), err.Id(), err.Filename(), err.Line(), err.V())
 	}
 
