@@ -7,11 +7,6 @@ type Redis struct {
 	DNS string
 
 	/*
-		连接地址
-	*/
-	Addr string
-
-	/*
 		连接端口
 	*/
 	Port uint64
