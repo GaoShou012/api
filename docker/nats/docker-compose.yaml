@@ -1,0 +1,11 @@
+version: "3"
+services:
+  nats:
+    image: nats
+    command: "-c /etc/nats/nats.conf --cluster nats://0.0.0.0:6222 --routes=nats://ruser:T0pS3cr3t@nats:6222"
+    volumes:
+      - ./config/:/etc/nats
+networks:
+  default:
+    external:
+      name: nats
