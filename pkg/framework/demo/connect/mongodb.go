@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/md5"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -144,6 +143,4 @@ func main() {
 		}
 		fmt.Println(info)
 	}
-
-	fmt.Println(md5.New())
 }
